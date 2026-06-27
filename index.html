@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>i.Logic - Ecosistema Tecnológico de Alto Rendimiento</title>
+    <title>e-Onyx - Ecosistema Tecnológico de Alto Rendimiento</title>
     <meta name="description" content="Impulsamos tu transformación digital con inteligencia artificial, desarrollo a medida y ciberseguridad.">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -62,7 +61,6 @@
             color: #ededed;
         }
         
-        /* Patrón de cuadrícula ultra sutil */
         .bg-grid {
             background-size: 40px 40px;
             background-image: 
@@ -72,7 +70,6 @@
             -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
         }
 
-        /* Glassmorphism Refinado */
         .glass-card {
             background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
             backdrop-filter: blur(12px);
@@ -81,7 +78,6 @@
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Transiciones Globales */
         #main-content {
             transition: filter 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: filter, opacity;
@@ -92,7 +88,6 @@
             opacity: 0 !important;
         }
 
-        /* Revelado al hacer scroll */
         .reveal {
             opacity: 0;
             transform: translateY(30px);
@@ -106,7 +101,6 @@
         .delay-200 { transition-delay: 200ms; }
         .delay-300 { transition-delay: 300ms; }
 
-        /* Gradiente de texto animado */
         .text-gradient {
             background: linear-gradient(to right, #ffffff 20%, #818cf8 40%, #c084fc 60%, #ffffff 80%);
             background-size: 200% auto;
@@ -115,54 +109,46 @@
             background-clip: text;
         }
 
-        /* Scrollbar personalizado */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #050505; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #444; }
 
-        /* Ocultar barra de scroll en carrusel */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen antialiased selection:bg-indigo-500/30 selection:text-white overflow-x-hidden relative">
 
-    <!-- Fondo Ambient (Optimizado) -->
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div class="absolute inset-0 bg-grid opacity-60"></div>
-        <!-- Orbes difuminados de alto rendimiento -->
         <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-indigo-900/30 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform"></div>
         <div class="absolute top-[20%] right-[-10%] w-[40vw] h-[40vw] bg-purple-900/20 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform" style="animation-delay: 2s;"></div>
         <div class="absolute bottom-[-10%] left-[20%] w-[60vw] h-[60vw] bg-cyan-900/20 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform" style="animation-delay: 4s;"></div>
     </div>
 
-    <!-- Navegación Flotante -->
     <nav class="fixed w-full z-50 top-0 sm:top-4 transition-all duration-300">
         <div class="max-w-5xl mx-auto px-4 sm:px-6">
             <div class="flex justify-between items-center h-16 sm:h-14 bg-surface/70 backdrop-blur-xl border border-white/5 sm:rounded-2xl px-4 sm:px-6 shadow-2xl">
                 
-                <!-- Logo -->
                 <a href="#inicio" class="flex-shrink-0 flex items-center gap-3 group relative nav-link">
                     <img 
                         src="https://i.ibb.co/gb207JJP/Chat-GPT-Image-9-may-2026-09-22-02-p-m.png" 
-                        alt="i.Logic Logo" 
+                        alt="e-Onyx Logo" 
                         class="h-7 w-auto object-contain rounded-md ring-1 ring-white/10 group-hover:ring-white/30 transition-all"
-                        onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50/030303/ffffff?text=I.LOGIC';"
+                        onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50/030303/ffffff?text=E-ONYX';"
                     >
                     <span class="font-display font-bold text-lg tracking-tight text-white group-hover:text-indigo-400 transition-colors">
-                        i.Logic
+                        e-Onyx
                     </span>
                 </a>
 
-                <!-- Menú Desktop -->
                 <div class="hidden md:flex items-center space-x-1">
                     <a href="#servicios" class="nav-link px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all">Servicios</a>
                     <a href="#nosotros" class="nav-link px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all">Nosotros</a>
                     <a href="#contacto" class="nav-link px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all">Contacto</a>
                 </div>
 
-                <!-- Botón Menú Móvil -->
                 <div class="md:hidden flex items-center">
                     <button id="mobile-menu-btn" class="text-gray-400 hover:text-white p-2 rounded-lg bg-white/5 focus:outline-none transition-colors">
                         <i data-lucide="menu" id="icon-menu" class="w-5 h-5"></i>
@@ -172,7 +158,6 @@
             </div>
         </div>
 
-        <!-- Menú Móvil Desplegable -->
         <div id="mobile-menu" class="hidden md:hidden absolute top-full left-4 right-4 mt-2 bg-surface/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl">
             <div class="flex flex-col space-y-2">
                 <a href="#servicios" class="nav-link px-4 py-3 rounded-xl text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Servicios</a>
@@ -182,14 +167,11 @@
         </div>
     </nav>
 
-    <!-- ENVOLTORIO PRINCIPAL -->
     <main id="main-content" class="relative z-10">
         
-        <!-- Hero Section -->
         <section id="inicio" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 flex flex-col items-center justify-center min-h-screen">
             <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 
-                <!-- Badge superior -->
                 <div class="reveal inline-flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs sm:text-sm font-medium mb-8 backdrop-blur-md">
                     <span class="relative flex h-2 w-2">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -198,7 +180,6 @@
                     Innovación y Certidumbre Operativa
                 </div>
 
-                <!-- Texto Principal -->
                 <h1 class="reveal delay-100 font-display text-4xl sm:text-6xl lg:text-[5.5rem] font-bold tracking-tight mb-6 leading-[1.1]">
                     Ecosistema de <br class="hidden sm:block">
                     <span class="text-gradient animate-shimmer">alto rendimiento.</span>
@@ -217,26 +198,21 @@
             </div>
         </section>
 
-        <!-- Marquee de Tecnologías (Animación Infinita) -->
         <section class="py-10 border-y border-white/5 bg-black/20 backdrop-blur-sm overflow-hidden reveal">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 text-center">
                 <p class="text-xs font-semibold tracking-widest text-gray-500 uppercase">Tecnologías que dominamos</p>
             </div>
-            <!-- Contenedor del Marquee -->
             <div class="flex overflow-hidden group mask-gradient relative">
-                <!-- Capas de desvanecimiento en los bordes para el carrusel -->
                 <div class="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-dark to-transparent z-10 pointer-events-none"></div>
                 <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none"></div>
                 
                 <div class="flex space-x-12 animate-marquee group-hover:[animation-play-state:paused] whitespace-nowrap min-w-full items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-                    <!-- Set 1 -->
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="code-2"></i> React</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="server"></i> Node.js</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="cloud"></i> AWS</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="smartphone"></i> Flutter</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="database"></i> PostgreSQL</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="cpu"></i> Python</span>
-                    <!-- Set 2 (Duplicado para efecto infinito) -->
                     <span class="flex items-center gap-2 text-sm font-display font-semibold ml-12"><i data-lucide="code-2"></i> React</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="server"></i> Node.js</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="cloud"></i> AWS</span>
@@ -247,7 +223,6 @@
             </div>
         </section>
 
-        <!-- Servicios Section -->
         <section id="servicios" class="py-24 lg:py-32 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6 reveal">
@@ -260,23 +235,20 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Card 1 -->
                     <div class="reveal delay-100 group">
-                        <a href="https://leonelval135-prog.github.io/iCodeex/#servicios" class="block glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
-                            <!-- Brillo Hover -->
+                        <div class="glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
                             <div class="absolute -inset-px bg-gradient-to-br from-indigo-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
                             
                             <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/30 transition-all duration-500">
                                 <i data-lucide="code" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">i.Coodex</h3>
+                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">Desarrollo a Medida</h3>
                             <p class="text-gray-400 text-base leading-relaxed font-light">
                                 Ingeniería de software con rendimiento superior, código limpio y diseño arquitectónico altamente escalable para plataformas corporativas.
                             </p>
-                        </a>
+                        </div>
                     </div>
 
-                    <!-- Card 2 -->
                     <div class="reveal delay-200 group">
                         <div class="glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
                             <div class="absolute -inset-px bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
@@ -291,7 +263,6 @@
                         </div>
                     </div>
 
-                    <!-- Card 3 -->
                     <div class="reveal delay-100 group">
                         <div class="glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
                             <div class="absolute -inset-px bg-gradient-to-br from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
@@ -306,7 +277,6 @@
                         </div>
                     </div>
 
-                    <!-- Card 4 -->
                     <div class="reveal delay-200 group">
                         <div class="glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
                             <div class="absolute -inset-px bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
@@ -324,7 +294,6 @@
             </div>
         </section>
 
-        <!-- Nosotros Section -->
         <section id="nosotros" class="py-24 lg:py-32 relative bg-white/[0.01] border-y border-white/[0.02]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
@@ -355,15 +324,13 @@
                     </div>
                     <div class="flex items-center">
                         <p class="text-gray-400 text-lg leading-relaxed font-light">
-                            Consolidar a i.Logic como el principal socio tecnológico. Aspiramos a establecer el estándar de la industria en la convergencia de IA, ingeniería y protección de datos, empoderando a las empresas para operar con máxima resiliencia y autonomía.
+                            Consolidar a e-Onyx como el principal socio tecnológico. Aspiramos a establecer el estándar de la industria en la convergencia de IA, ingeniería y protección de datos, empoderando a las empresas para operar con máxima resiliencia y autonomía.
                         </p>
                     </div>
                 </div>
 
-                <!-- Panel de Compromiso -->
                 <div class="reveal">
                     <div class="glass-card rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden group">
-                        <!-- Background Glows -->
                         <div class="absolute -right-20 -top-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none transition-all duration-1000 group-hover:bg-indigo-600/20"></div>
                         <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-600/10 rounded-full blur-[100px] pointer-events-none transition-all duration-1000 group-hover:bg-cyan-600/20"></div>
                         
@@ -385,7 +352,6 @@
             </div>
         </section>
 
-        <!-- Valores Section -->
         <section class="py-24 lg:py-32 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16 reveal">
@@ -394,7 +360,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Valor 1 -->
                     <div class="reveal delay-100 glass-card rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
                         <div class="w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6">
                             <i data-lucide="lock" class="w-5 h-5"></i>
@@ -403,7 +368,6 @@
                         <p class="text-gray-400 text-sm leading-relaxed">Protegemos los activos bajo los estándares más estrictos de ciberseguridad, eliminando dependencias de terceros.</p>
                     </div>
 
-                    <!-- Valor 2 -->
                     <div class="reveal delay-200 glass-card rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
                         <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-6">
                             <i data-lucide="globe" class="w-5 h-5"></i>
@@ -412,7 +376,6 @@
                         <p class="text-gray-400 text-sm leading-relaxed">Garantizamos el control total sobre operaciones y plataformas, ofreciendo certidumbre y estabilidad a largo plazo.</p>
                     </div>
 
-                    <!-- Valor 3 -->
                     <div class="reveal delay-300 glass-card rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
                         <div class="w-12 h-12 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6">
                             <i data-lucide="cpu" class="w-5 h-5"></i>
@@ -421,7 +384,6 @@
                         <p class="text-gray-400 text-sm leading-relaxed">Implementamos soluciones de IA que optimizan procesos operativos y generan ventajas competitivas sostenibles.</p>
                     </div>
 
-                    <!-- Valor 4 -->
                     <div class="reveal delay-100 glass-card rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full lg:mt-0">
                         <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mb-6">
                             <i data-lucide="layers" class="w-5 h-5"></i>
@@ -433,7 +395,6 @@
             </div>
         </section>
 
-        <!-- Formulario Section -->
         <section id="contacto" class="py-24 lg:py-32 relative">
             <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="reveal glass-card rounded-[2rem] p-8 md:p-12 relative overflow-hidden">
@@ -494,17 +455,16 @@
             </div>
         </section>
 
-        <!-- Footer -->
         <footer class="border-t border-white/5 bg-black/50 backdrop-blur-lg pt-16 pb-8 reveal relative z-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
                     <div class="flex items-center gap-3">
                         <img 
                             src="https://i.ibb.co/gb207JJP/Chat-GPT-Image-9-may-2026-09-22-02-p-m.png" 
-                            alt="i.Logic Logo" 
+                            alt="e-Onyx Logo" 
                             class="h-6 w-auto object-contain grayscale opacity-60 rounded-md"
                         >
-                        <span class="font-display font-bold text-lg tracking-tight text-gray-400">i.Logic</span>
+                        <span class="font-display font-bold text-lg tracking-tight text-gray-400">e-Onyx</span>
                     </div>
                     
                     <div class="flex space-x-6">
@@ -516,24 +476,21 @@
 
                 <div class="border-t border-white/5 pt-8 flex flex-col-reverse md:flex-row justify-between items-center gap-4">
                     <p class="text-gray-500 text-xs font-light">
-                        &copy; <span id="current-year"></span> i.Logic. Certidumbre Operativa.
+                        &copy; <span id="current-year"></span> e-Onyx. Certidumbre Operativa.
                     </p>
                     <div class="flex gap-6 text-xs font-medium text-gray-500">
                         <a href="#" class="hover:text-white transition-colors">Términos de Servicio</a>
                         <a href="#" class="hover:text-white transition-colors">Privacidad</a>
-                        <a href="mailto:hola@ilogic.com" class="hover:text-white transition-colors">hola@ilogic.com</a>
+                        <a href="mailto:hola@e-onyx.com" class="hover:text-white transition-colors">hola@e-onyx.com</a>
                     </div>
                 </div>
             </div>
         </footer>
     </main>
 
-    <!-- Scripts -->
     <script>
-        // Inicializar iconos
         lucide.createIcons();
 
-        // Lógica del menú móvil
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const iconMenu = document.getElementById('icon-menu');
@@ -545,7 +502,6 @@
             iconClose.classList.toggle('hidden');
         });
 
-        // Transición de desenfoque al navegar
         const navLinks = document.querySelectorAll('.nav-link');
         const mainContent = document.getElementById('main-content');
 
@@ -557,16 +513,14 @@
                     const targetElement = document.querySelector(targetId);
                     
                     if (targetElement) {
-                        // Cierra menú móvil
                         mobileMenu.classList.add('hidden');
                         iconMenu.classList.remove('hidden');
                         iconClose.classList.add('hidden');
 
-                        // Efecto de transición
                         mainContent.classList.add('blur-transition');
                         
                         setTimeout(() => {
-                            targetElement.scrollIntoView({ behavior: 'auto' }); // El CSS scroll-smooth suavizará esto un poco
+                            targetElement.scrollIntoView({ behavior: 'auto' }); 
                             
                             setTimeout(() => {
                                 mainContent.classList.remove('blur-transition');
@@ -577,10 +531,8 @@
             });
         });
 
-        // Configurar año actual
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
-        // Animación de aparición (Reveal en Scroll)
         const observerOptions = {
             root: null,
             rootMargin: '0px 0px -10% 0px',
@@ -591,9 +543,6 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                } else {
-                    // Opcional: Quitar para que se anime cada vez que subes/bajas
-                    // entry.target.classList.remove('active'); 
                 }
             });
         }, observerOptions);
