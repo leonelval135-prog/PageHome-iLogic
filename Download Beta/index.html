@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eOnyx Services (Beta) - Descarga</title>
+    
+    <!-- Tailwind CSS con soporte para pantallas extra grandes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    screens: {
+                        '3xl': '1920px',
+                        '4k': '2560px'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Glassmorphism extremo estilo iOS (Blanco/Negro) */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Animaciones de revelado (Scroll) */
+        .reveal { 
+            opacity: 0; 
+            transform: translateY(40px); 
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); 
+        }
+        .reveal.active { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+        
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+        .delay-400 { transition-delay: 400ms; }
+        .delay-500 { transition-delay: 500ms; }
+
+        /* Estilo de texto con gradiente B/W */
+        .text-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #666666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Animación para apertura del menú móvil */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-down {
+            animation: slideDown 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-black text-white antialiased flex flex-col min-h-screen selection:bg-white selection:text-black overflow-x-hidden">
+
+    <!-- Navbar adaptativo -->
+    <nav class="fixed w-full z-50 bg-black/50 backdrop-blur-3xl border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl 3xl:max-w-[1600px] 4k:max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3 group cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.2)] overflow-hidden p-1.5">
+                        <!-- Integración del Logotipo en Navbar con corte perfecto -->
+                        <img src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" alt="Logo de eOnyx Technologies" class="w-full h-full object-contain rounded-lg" />
+                    </div>
+                    <span class="font-bold text-xl sm:text-2xl tracking-tight text-white">eOnyx<span class="font-light">Technologies</span></span>
+                </div>
+                
+                <!-- Menú Desktop & TV -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#inicio" class="text-white/60 hover:text-white transition-colors text-sm font-medium">Inicio</a>
+                    <a href="#servicios" class="text-white/60 hover:text-white transition-colors text-sm font-medium">Servicios</a>
+                    <button onclick="triggerDownload()" class="bg-white text-black px-6 py-2.5 rounded-full font-bold hover:bg-gray-200 transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer">
+                        Descargar Beta
+                    </button>
+                </div>
+
+                <!-- Botón de Menú Móvil -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-white/80 focus:outline-none p-2 rounded-xl bg-white/5 border border-white/10" aria-label="Abrir menú">
+                        <i id="menu-icon" class="fas fa-bars text-lg w-5 h-5 flex items-center justify-center"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú desplegable móvil táctil -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-20 inset-x-0 bg-black/95 backdrop-blur-3xl border-b border-white/10 py-6 px-4 flex flex-col gap-4 animate-slide-down">
+            <a href="#inicio" onclick="closeMobileMenu()" class="text-white/70 hover:text-white text-lg font-medium py-2 px-3 rounded-xl hover:bg-white/5 transition-all">Inicio</a>
+            <a href="#servicios" onclick="closeMobileMenu()" class="text-white/70 hover:text-white text-lg font-medium py-2 px-3 rounded-xl hover:bg-white/5 transition-all">Servicios</a>
+            <button onclick="closeMobileMenu(); triggerDownload();" class="bg-white text-black text-center py-4 rounded-2xl font-bold hover:bg-gray-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] w-full cursor-pointer">
+                Descargar Beta
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sección Inicio adaptable -->
+    <section id="inicio" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-screen flex items-center border-b border-white/10">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+        </div>
+        
+        <div class="absolute top-1/4 left-1/4 w-[280px] sm:w-[500px] h-[280px] sm:h-[500px] bg-white/5 rounded-full mix-blend-screen filter blur-[80px] sm:blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-[280px] sm:w-[500px] h-[280px] sm:h-[500px] bg-white/5 rounded-full mix-blend-screen filter blur-[80px] sm:blur-[120px] animate-pulse delay-700"></div>
+
+        <div class="max-w-7xl 3xl:max-w-[1600px] 4k:max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="reveal inline-flex flex-col sm:flex-row items-center gap-3 px-5 py-2.5 sm:py-2 rounded-2xl sm:rounded-full border border-white/20 bg-white/5 text-white/80 text-xs sm:text-sm font-medium mb-8 backdrop-blur-3xl shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+                    <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-white animate-pulse shadow-[0_0_10px_rgba(255,255,255,1)]"></span> Beta 0.0.1 Disponible</span>
+                    <span class="hidden sm:block text-white/30">|</span>
+                    <span class="text-white font-bold tracking-wide">✨ Próximo estreno: eOnyxAI</span>
+                </div>
+                
+                <h1 class="reveal delay-100 text-4xl sm:text-5xl md:text-7xl lg:text-8xl 3xl:text-9xl font-extrabold text-white tracking-tight mb-6 leading-[1.1] sm:leading-tight">
+                    El ecosistema <br class="hidden md:block"/> de <span class="text-gradient">eOnyx Services</span>
+                </h1>
+                
+                <p class="reveal delay-200 text-base sm:text-lg md:text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0">
+                    Descarga la versión Beta y accede a nuestra suite de herramientas exclusivas. Desde IA conversacional hasta seguridad informática, todo en la palma de tu mano.
+                </p>
+                
+                <div class="reveal delay-300 flex flex-col items-center gap-6 w-full px-4 sm:px-0">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto">
+                        <button onclick="triggerDownload()" class="bg-white text-black font-bold px-8 py-4 rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all transform hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] flex items-center justify-center gap-3 group w-full sm:w-auto cursor-pointer">
+                            <i class="fas fa-download group-hover:animate-bounce"></i>
+                            Descargar para Android
+                        </button>
+                        <a href="#servicios" class="bg-transparent hover:bg-white/10 text-white border border-white/20 font-medium px-8 py-4 rounded-xl backdrop-blur-sm transition-all flex items-center justify-center w-full sm:w-auto">
+                            Explorar Servicios
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Servicios adaptable -->
+    <section id="servicios" class="py-24 bg-black relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[300px] sm:w-[800px] h-[300px] sm:h-[800px] bg-white/5 mix-blend-screen blur-[100px] sm:blur-[150px] rounded-full pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-[300px] sm:w-[800px] h-[300px] sm:h-[800px] bg-white/5 mix-blend-screen blur-[100px] sm:blur-[150px] rounded-full pointer-events-none"></div>
+
+        <div class="max-w-7xl 3xl:max-w-[1600px] 4k:max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">Un universo de posibilidades</h2>
+                <p class="text-white/60 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
+                    Todo lo que necesitas, integrado en una sola aplicación. eOnyx Services centraliza nuestras mejores herramientas tecnológicas.
+                </p>
+            </div>
+
+            <!-- Destacado eOnyxAI (Estreno) -->
+            <div class="reveal delay-100 bg-white/5 backdrop-blur-3xl p-0.5 sm:p-1 rounded-3xl border border-white/20 mb-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
+                
+                <div class="bg-black/80 backdrop-blur-2xl p-6 sm:p-8 md:p-12 rounded-[23px] relative z-10 flex flex-col md:flex-row items-center gap-6 sm:gap-8 border border-white/10">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white text-black rounded-2xl sm:rounded-3xl flex items-center justify-center text-5xl shadow-[0_0_50px_rgba(255,255,255,0.3)] flex-shrink-0 relative overflow-hidden transform group-hover:scale-105 transition-transform duration-500 p-2 sm:p-2.5">
+                        <!-- Integración del Logotipo con corte perfecto -->
+                        <img src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" alt="eOnyx Logo" class="w-full h-full object-contain rounded-xl sm:rounded-2xl" />
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 text-white text-xs font-bold rounded-full mb-4 backdrop-blur-md border border-white/30 uppercase tracking-widest shadow-lg">
+                            <i class="fas fa-star text-white animate-pulse"></i> Gran Estreno
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">eOnyxAI</h3>
+                        <p class="text-white/60 text-sm sm:text-base md:text-lg leading-relaxed">
+                            Prepárate para la revolución. Nuestro modelo fundacional de Inteligencia Artificial de nueva generación está en camino. Diseñado para potenciar tu productividad y razonamiento avanzado, integrándose de forma nativa en todo el ecosistema eOnyx.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Servicios responsivo para Tablets, Laptops, PCs y TVs -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Service 1 -->
+                <div class="reveal delay-200 glass-effect p-6 sm:p-8 rounded-3xl hover:bg-white/10 hover:border-white/40 transition-all duration-500 transform hover:-translate-y-2 group">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white text-black rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-6 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-3">eOnyxTranslator</h3>
+                    <p class="text-white/50 text-xs sm:text-sm leading-relaxed">
+                        Servicio de traducción ultra-precisa impulsada por Inteligencia Artificial para romper cualquier barrera del idioma.
+                    </p>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="reveal delay-300 glass-effect p-6 sm:p-8 rounded-3xl hover:bg-white/10 hover:border-white/40 transition-all duration-500 transform hover:-translate-y-2 group">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white text-black rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-6 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-3">eOnyxArtemisAI</h3>
+                    <p class="text-white/50 text-xs sm:text-sm leading-relaxed">
+                        Tu asistente virtual personal. Un chat de IA avanzado diseñado para resolver problemas, redactar y asistir en tu día a día.
+                    </p>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="reveal delay-400 glass-effect p-6 sm:p-8 rounded-3xl hover:bg-white/10 hover:border-white/40 transition-all duration-500 transform hover:-translate-y-2 group">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white text-black rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-6 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-3">eOnyxCoodex</h3>
+                    <p class="text-white/50 text-xs sm:text-sm leading-relaxed">
+                        Plataforma de solicitud y gestión para la creación de software a medida, páginas web y proyectos informáticos complejos.
+                    </p>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="reveal delay-500 glass-effect p-6 sm:p-8 rounded-3xl hover:bg-white/10 hover:border-white/40 transition-all duration-500 transform hover:-translate-y-2 group">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white text-black rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-6 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-3">eOnyxSecurity</h3>
+                    <p class="text-white/50 text-xs sm:text-sm leading-relaxed">
+                        La primera red social exclusiva enfocada en ciberseguridad. Conecta con expertos, comparte vulnerabilidades y aprende.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Descarga adaptable -->
+    <section id="descarga" class="py-24 sm:py-32 bg-black relative border-t border-white/10 overflow-hidden">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdib3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAzNHYtNGgtdjRoLTR2NGgtdjRoNHY0aDR2LTRoNHpmbTAtMzBoLTR24aC00djRoLTR2NGgtdjRoNHYtNGg0di00aDR2LTR6bS0yMCAwaC00djRoLTR2NGgtdjRoLTR2NGg0di00aDR2LTRoNHYtNHptMCAzMGgtNHY0aC00djRoLTR2NGgtdjRoNHYtNGg0di00aDR2LTR6IiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz48L2c+PC9zdmc+')]"></div>
+
+        <div class="max-w-7xl 3xl:max-w-[1600px] 4k:max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="glass-effect rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 md:p-16 border border-white/20 shadow-[0_0_100px_rgba(255,255,255,0.05)] relative overflow-hidden">
+                <div class="absolute -top-40 -right-40 w-96 h-96 bg-white/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+                <div class="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+                    <div class="w-full lg:w-1/2 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 text-white text-xs font-bold rounded-full mb-6 backdrop-blur-md border border-white/20 shadow-lg">
+                            <i class="fab fa-android"></i> EXCLUSIVO PARA ANDROID
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">Lleva el poder de <br/> eOnyx contigo</h2>
+                        <p class="text-white/60 mb-10 max-w-2xl mx-auto lg:mx-0 text-sm sm:text-base md:text-lg">
+                            La versión Beta está optimizada y disponible únicamente para dispositivos móviles Android. Descarga el archivo instalador (APK) de forma segura y directa.
+                        </p>
+                        
+                        <div class="flex justify-center lg:justify-start w-full">
+                            <button onclick="triggerDownload()" class="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white text-black rounded-2xl sm:rounded-3xl border border-transparent hover:border-white/50 hover:bg-black hover:text-white transition-all duration-300 group w-full sm:w-auto shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] cursor-pointer">
+                                <i class="fab fa-android text-4xl sm:text-5xl group-hover:scale-110 transition-transform"></i>
+                                <div class="text-left flex-1 sm:flex-initial">
+                                    <h4 class="font-extrabold text-lg sm:text-2xl">Descargar APK</h4>
+                                    <p class="text-xs sm:text-sm opacity-70 font-medium mt-0.5">Para Android 8.0+</p>
+                                </div>
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-black text-white group-hover:bg-white group-hover:text-black rounded-full flex items-center justify-center ml-auto sm:ml-4 transition-colors shadow-inner">
+                                    <i class="fas fa-arrow-down text-sm sm:text-base"></i>
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs sm:text-sm text-white/40 font-medium">
+                            <span>Versión: 0.0.1</span>
+                            <span>•</span>
+                            <span>Tamaño: 19 MB</span>
+                            <span>•</span>
+                            <span>Seguro y verificado</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Teléfono móvil mockup adaptable -->
+                    <div class="w-full lg:w-1/2 flex justify-center">
+                        <div class="relative w-64 sm:w-72 h-[480px] sm:h-[550px] bg-black border-[5px] sm:border-[6px] border-white/20 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-[0_0_50px_rgba(255,255,255,0.1)] overflow-hidden flex flex-col">
+                            <div class="absolute top-0 inset-x-0 h-6 sm:h-7 flex justify-center z-20">
+                                <div class="w-24 sm:w-32 h-full bg-white/20 rounded-b-2xl sm:rounded-b-3xl backdrop-blur-md border-b border-x border-white/10"></div>
+                            </div>
+                            <div class="flex-1 bg-gradient-to-b from-white/10 to-transparent flex flex-col items-center justify-center p-6 sm:p-8 text-center relative">
+                                <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0,transparent_60%)]"></div>
+                                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.3)] mb-6 z-10 animate-bounce overflow-hidden p-2">
+                                    <!-- Integración del Logotipo en previsualizador con recorte exacto -->
+                                    <img src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" alt="eOnyx Ecosistema" class="w-full h-full object-contain rounded-xl sm:rounded-2xl" />
+                                </div>
+                                <h3 class="text-white font-bold text-xl sm:text-2xl mb-1 sm:mb-2 z-10 tracking-tight">eOnyx</h3>
+                                <p class="text-white/50 text-xs sm:text-sm z-10">Instalando ecosistema...</p>
+                                
+                                <div class="w-full h-1.5 sm:h-2 bg-white/10 rounded-full mt-8 sm:mt-10 overflow-hidden z-10">
+                                    <div class="w-2/3 h-full bg-white rounded-full relative">
+                                        <div class="absolute inset-0 bg-white/50 animate-pulse"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer adaptable -->
+    <footer class="bg-black py-12 border-t border-white/10">
+        <div class="max-w-7xl 3xl:max-w-[1600px] 4k:max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="flex items-center justify-center gap-3 mb-6">
+                <!-- Integración del Logotipo en Footer con contenedor perfecto -->
+                <div class="w-8 h-8 bg-white/5 border border-white/20 flex items-center justify-center rounded-lg p-1">
+                    <img src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" alt="Logo Footer" class="w-full h-full object-contain rounded-md" />
+                </div>
+                <span class="font-bold text-xl sm:text-2xl text-white tracking-tight">eOnyx <span class="font-light">Technologies</span></span>
+            </div>
+            <p class="text-white/40 mb-8 max-w-md mx-auto text-sm">Desarrollando el futuro de los servicios digitales y la inteligencia artificial.</p>
+            <div class="flex justify-center gap-6 sm:gap-8 mb-8">
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p class="text-white/30 text-xs sm:text-sm">&copy; 2026 eOnyx Technologies. Todos los derechos reservados. Versión Beta exclusiva para Android.</p>
+        </div>
+    </footer>
+
+    <!-- Modal táctil y responsivo -->
+    <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closeModal()"></div>
+        <div class="glass-effect rounded-3xl p-8 sm:p-10 max-w-sm w-full relative z-10 transform scale-95 opacity-0 transition-all duration-300 border border-white/20 shadow-[0_0_50px_rgba(255,255,255,0.1)]" id="modalContent">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(255,255,255,0.4)] transform hover:rotate-12 transition-transform">
+                <i class="fas fa-check text-black text-2xl sm:text-3xl"></i>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold text-center text-white mb-3 tracking-tight">¡Iniciando!</h3>
+            <p class="text-white/60 text-center text-sm sm:text-base mb-8 leading-relaxed">
+                Tu archivo <strong>APK</strong> de eOnyx Services para Android se está descargando de forma segura.
+            </p>
+            <button onclick="closeModal()" class="w-full bg-white text-black font-bold py-3.5 sm:py-4 px-4 rounded-xl hover:bg-gray-200 transition-colors shadow-lg cursor-pointer">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Lógica de Scroll Navbar
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                navbar.classList.add('shadow-[0_10px_30px_rgba(0,0,0,0.5)]', 'bg-black/80');
+                navbar.classList.remove('bg-black/50');
+            } else {
+                navbar.classList.remove('shadow-[0_10px_30px_rgba(0,0,0,0.5)]', 'bg-black/80');
+                navbar.classList.add('bg-black/50');
+            }
+        });
+
+        // Menú de Navegación Móvil
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            const isOpen = !mobileMenu.classList.contains('hidden');
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                mobileMenu.classList.remove('hidden');
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-times');
+            }
+        });
+
+        function closeMobileMenu() {
+            mobileMenu.classList.add('hidden');
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+
+        // Animaciones de revelado por intersección (Scroll)
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -40px 0px"
+        };
+
+        const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, revealOptions);
+
+        revealElements.forEach(el => revealOnScroll.observe(el));
+
+        // Lógica de Descarga Real desde GitHub Pages y apertura de Modal
+        const modal = document.getElementById('downloadModal');
+        const modalContent = document.getElementById('modalContent');
+
+        function triggerDownload() {
+            // Se define la ruta relativa exacta: Aplicación/base-firmada.apk
+            // Dado que index.html está en "Download", el navegador resolverá la ruta 
+            // apuntando correctamente a "Download/Aplicación/base-firmada.apk" en GitHub Pages.
+            const apkPath = 'Aplicación/base-firmada.apk';
+            
+            // Creamos un elemento anchor virtual e iniciamos la descarga nativa
+            const downloadLink = document.createElement('a');
+            downloadLink.href = apkPath;
+            downloadLink.download = 'base-firmada.apk';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            // Mostramos el modal confirmando el inicio de la descarga
+            openModal();
+        }
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+    </script>
+</body>
+</html>
