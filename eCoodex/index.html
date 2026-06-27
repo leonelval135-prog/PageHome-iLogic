@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Coodex | Engineering & Design</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        black: '#050505',
+                        white: '#ffffff',
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite alternate',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '100%': { transform: 'translate(50px, -50px) scale(1.1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #e2e8f0;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden relative selection:bg-white selection:text-black">
+
+    <!-- Background Decorative Elements -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-1/4 w-[40rem] h-[40rem] bg-white opacity-[0.03] rounded-full blur-[120px] animate-blob"></div>
+        <div class="absolute -bottom-32 right-1/4 w-[30rem] h-[30rem] bg-white opacity-[0.02] rounded-full blur-[100px] animate-blob" style="animation-delay: -5s;"></div>
+    </div>
+
+    <!-- Navbar -->
+    <header class="fixed w-full top-0 z-50 transition-all duration-300 glass border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer group">
+                    <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-bold font-mono text-lg rounded-sm mr-3 group-hover:scale-105 transition-transform">
+                        i.C
+                    </div>
+                    <span class="font-bold text-2xl text-white tracking-tight">i.Coodex<span class="text-gray-500 text-3xl leading-none">.</span></span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <a href="#servicios" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Servicios</a>
+                    <a href="#proceso" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Metodología</a>
+                    <a href="#tecnologias" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Stack</a>
+                    <a href="#proyectos" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Proyectos</a>
+                    <a href="#contacto" class="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold hover:bg-gray-200 transition-all duration-300 flex items-center">
+                        Cotizar Proyecto
+                    </a>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-400 hover:text-white focus:outline-none">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden absolute w-full px-4 top-20">
+            <div class="glass rounded-2xl px-4 pt-2 pb-4 space-y-2 shadow-2xl border border-white/10 bg-black/90">
+                <a href="#servicios" class="block px-3 py-2.5 rounded-lg text-base font-medium text-gray-300 hover:text-white hover:bg-white/5">Servicios</a>
+                <a href="#proceso" class="block px-3 py-2.5 rounded-lg text-base font-medium text-gray-300 hover:text-white hover:bg-white/5">Metodología</a>
+                <a href="#tecnologias" class="block px-3 py-2.5 rounded-lg text-base font-medium text-gray-300 hover:text-white hover:bg-white/5">Stack</a>
+                <a href="#proyectos" class="block px-3 py-2.5 rounded-lg text-base font-medium text-gray-300 hover:text-white hover:bg-white/5">Proyectos</a>
+                <a href="#contacto" class="block px-3 py-2.5 mt-2 text-center rounded-lg text-base font-semibold bg-white text-black hover:bg-gray-200">Cotizar Proyecto</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-20">
+        
+        <!-- Hero Section -->
+        <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Text Content -->
+                <div>
+                    <div class="flex flex-wrap gap-3 mb-8">
+                        <div class="inline-flex items-center rounded-full px-3 py-1 text-xs font-mono text-gray-300 border border-white/20 glass">
+                            <span class="flex h-2 w-2 rounded-full bg-white mr-2 animate-pulse"></span>
+                            Status: Aceptando proyectos Q4
+                        </div>
+                        <div class="inline-flex items-center rounded-full px-3 py-1 text-xs font-mono text-gray-300 border border-white/20 glass">
+                            <i data-lucide="layers" class="h-3 w-3 mr-2 text-white"></i>
+                            Un servicio de <span class="text-white font-bold ml-1">i.Logic</span>
+                        </div>
+                    </div>
+                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6">
+                        Ingeniería <br>
+                        <span class="text-gray-500">de software</span> <br>
+                        sin compromisos.
+                    </h1>
+                    <p class="mt-4 text-xl text-gray-400 max-w-2xl mb-10 font-light leading-relaxed">
+                        Diseñamos y desarrollamos arquitecturas digitales robustas. Desde aplicaciones de alto rendimiento hasta plataformas empresariales escalables.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#contacto" class="bg-white text-black px-8 py-4 rounded-full font-bold text-sm hover:scale-105 transition-transform duration-300 text-center shadow-[0_0_30px_rgba(255,255,255,0.15)] flex justify-center items-center">
+                            Iniciar Proyecto
+                        </a>
+                        <a href="#proyectos" class="glass-card text-white px-8 py-4 rounded-full font-medium text-sm hover:bg-white/10 transition-colors text-center flex items-center justify-center">
+                            Ver Portafolio
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hero Visual / Code Window -->
+                <div class="relative mx-auto w-full max-w-lg lg:max-w-none perspective-1000">
+                    <div class="rounded-2xl bg-[#0a0a0a] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden transform transition-transform hover:scale-[1.02] duration-500 relative">
+                        <!-- Subtle inner glow -->
+                        <div class="absolute inset-0 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] pointer-events-none"></div>
+                        
+                        <!-- Terminal Header -->
+                        <div class="flex items-center px-4 py-3 bg-[#111] border-b border-white/10">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-white/20"></div>
+                                <div class="w-3 h-3 rounded-full bg-white/40"></div>
+                                <div class="w-3 h-3 rounded-full bg-white/60"></div>
+                            </div>
+                            <div class="mx-auto text-xs text-gray-500 font-mono">index.ts — i.Coodex</div>
+                        </div>
+                        <!-- Terminal Body -->
+                        <div class="p-6 text-sm font-mono leading-relaxed overflow-x-auto text-gray-300">
+                            <p><span class="text-gray-500">import</span> <span class="text-white">ICoodex</span> <span class="text-gray-500">from</span> '@icoodex/core';</p>
+                            <p><span class="text-gray-500">import</span> { Success } <span class="text-gray-500">from</span> '@icoodex/results';</p>
+                            <br>
+                            <p><span class="text-gray-500">const</span> project <span class="text-gray-500">=</span> new <span class="text-white font-semibold">ICoodex</span>({</p>
+                            <p class="ml-4">client: <span class="text-gray-400">'Tu Empresa'</span>,</p>
+                            <p class="ml-4">goals: [<span class="text-gray-400">'Escalar'</span>, <span class="text-gray-400">'Automatizar'</span>, <span class="text-gray-400">'Innovar'</span>],</p>
+                            <p class="ml-4">techStack: [<span class="text-gray-400">'React'</span>, <span class="text-gray-400">'Node.js'</span>, <span class="text-gray-400">'AWS'</span>]</p>
+                            <p>});</p>
+                            <br>
+                            <p><span class="text-gray-500">await</span> <span class="text-white">project.</span>build();</p>
+                            <p class="text-gray-600 mt-2">// Output: Success! System architecture deployed.</p>
+                            <div class="flex items-center mt-2">
+                                <span class="text-gray-500">➜</span>
+                                <span class="text-gray-400 ml-2">~</span>
+                                <span class="w-2 h-5 bg-white ml-2 animate-pulse"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="servicios" class="py-24 relative border-t border-white/5 bg-black/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                    <div class="max-w-2xl">
+                        <h2 class="text-gray-500 font-mono tracking-widest uppercase text-xs mb-3">// 01. CAPACIDADES</h2>
+                        <h3 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Soluciones de software <br>de inicio a fin.</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm max-w-sm font-light">Nos encargamos de toda la ingeniería y el diseño para que tú te enfoques en escalar tu negocio.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Service 1 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300 group">
+                        <div class="w-12 h-12 border border-white/20 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-colors">
+                            <i data-lucide="monitor" class="h-5 w-5"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Ingeniería Web</h4>
+                        <p class="text-gray-400 mb-6 text-sm leading-relaxed font-light">Plataformas web empresariales, SaaS y E-commerce con arquitecturas modernas optimizadas para conversión y velocidad extrema.</p>
+                        <ul class="space-y-3 text-xs font-mono text-gray-500">
+                            <li>+ React & Next.js</li>
+                            <li>+ Arquitecturas Headless</li>
+                            <li>+ WebGL & Animaciones 3D</li>
+                        </ul>
+                    </div>
+
+                    <!-- Service 2 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300 group">
+                        <div class="w-12 h-12 border border-white/20 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-colors">
+                            <i data-lucide="smartphone" class="h-5 w-5"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Desarrollo Móvil</h4>
+                        <p class="text-gray-400 mb-6 text-sm leading-relaxed font-light">Aplicaciones nativas e híbridas que ofrecen experiencias de usuario impecables, construidas para retener y enamorar a los usuarios.</p>
+                        <ul class="space-y-3 text-xs font-mono text-gray-500">
+                            <li>+ iOS & Android Apps</li>
+                            <li>+ React Native / Swift</li>
+                            <li>+ Optimización de App Store</li>
+                        </ul>
+                    </div>
+
+                    <!-- Service 3 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300 group">
+                        <div class="w-12 h-12 border border-white/20 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-colors">
+                            <i data-lucide="server" class="h-5 w-5"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Sistemas Cloud</h4>
+                        <p class="text-gray-400 mb-6 text-sm leading-relaxed font-light">Arquitecturas backend escalables, APIs seguras y migraciones a la nube para automatizar la operación de tu negocio al 100%.</p>
+                        <ul class="space-y-3 text-xs font-mono text-gray-500">
+                            <li>+ Node.js & Python</li>
+                            <li>+ Microservicios</li>
+                            <li>+ AWS & Docker</li>
+                        </ul>
+                    </div>
+
+                    <!-- Service 4 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300 group">
+                        <div class="w-12 h-12 border border-white/20 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-colors">
+                            <i data-lucide="layout" class="h-5 w-5"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Diseño UI/UX</h4>
+                        <p class="text-gray-400 mb-6 text-sm leading-relaxed font-light">Interfaces intuitivas y sistemas de diseño escalables que conectan con los usuarios, elevan la retención y mejoran la usabilidad.</p>
+                        <ul class="space-y-3 text-xs font-mono text-gray-500">
+                            <li>+ Design Systems</li>
+                            <li>+ Wireframing & Prototipado</li>
+                            <li>+ User Research & Testing</li>
+                        </ul>
+                    </div>
+
+                    <!-- Service 5 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300 group">
+                        <div class="w-12 h-12 border border-white/20 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-colors">
+                            <i data-lucide="cpu" class="h-5 w-5"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Inteligencia Artificial</h4>
+                        <p class="text-gray-400 mb-6 text-sm leading-relaxed font-light">Integración de modelos de lenguaje (LLMs), agentes conversacionales y automatización inteligente para potenciar las capacidades de tu software.</p>
+                        <ul class="space-y-3 text-xs font-mono text-gray-500">
+                            <li>+ Integración OpenAI / APIs</li>
+                            <li>+ Agentes AI Personalizados</li>
+                            <li>+ Pipelines de Datos</li>
+                        </ul>
+                    </div>
+
+                    <!-- Service 6 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300 group">
+                        <div class="w-12 h-12 border border-white/20 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-colors">
+                            <i data-lucide="shield-check" class="h-5 w-5"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">DevOps & Seguridad</h4>
+                        <p class="text-gray-400 mb-6 text-sm leading-relaxed font-light">Infraestructura inquebrantable, despliegues continuos automatizados (CI/CD) y auditorías de seguridad profundas para sistemas críticos.</p>
+                        <ul class="space-y-3 text-xs font-mono text-gray-500">
+                            <li>+ CI/CD Pipelines</li>
+                            <li>+ Kubernetes & Terraform</li>
+                            <li>+ Penetration Testing</li>
+                        </ul>
+                    </div>
+
+                    <!-- Service 7 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300 group">
+                        <div class="w-12 h-12 border border-white/20 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-colors">
+                            <i data-lucide="sparkles" class="h-5 w-5"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Eventos & Invitaciones</h4>
+                        <p class="text-gray-400 mb-6 text-sm leading-relaxed font-light">Plataformas web inmersivas para bodas, convenciones corporativas y lanzamientos. Sorprende a tus invitados con experiencias digitales elegantes.</p>
+                        <ul class="space-y-3 text-xs font-mono text-gray-500">
+                            <li>+ Sistema RSVP Automatizado</li>
+                            <li>+ Códigos QR y Accesos</li>
+                            <li>+ Animaciones y Diseño Premium</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack Banner -->
+        <section id="tecnologias" class="py-10 border-y border-white/5 overflow-hidden bg-white/[0.01]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 text-center hidden md:block">
+                <p class="text-[10px] text-gray-600 uppercase tracking-widest font-mono">Stack Tecnológico</p>
+            </div>
+            <div class="relative flex overflow-x-hidden">
+                <div class="py-4 animate-marquee whitespace-nowrap flex items-center space-x-12 px-8 opacity-40">
+                    <span class="text-xl font-medium font-mono text-white">React</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">Next.js</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">Node.js</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">Python</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">TypeScript</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">AWS</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">PostgreSQL</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">Docker</span>
+                    <span class="text-gray-600">/</span>
+                    <!-- Duplicate -->
+                    <span class="text-xl font-medium font-mono text-white">React</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">Next.js</span>
+                    <span class="text-gray-600">/</span>
+                    <span class="text-xl font-medium font-mono text-white">Node.js</span>
+                </div>
+            </div>
+            <style>
+                .animate-marquee { animation: marquee 20s linear infinite; }
+                @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+            </style>
+        </section>
+
+        <!-- Workflow / Process Section -->
+        <section id="proceso" class="py-24 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-20">
+                    <h2 class="text-gray-500 font-mono tracking-widest uppercase text-xs mb-3">// 02. METODOLOGÍA</h2>
+                    <h3 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Precisión en cada etapa.</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                    <!-- Connector line -->
+                    <div class="hidden md:block absolute top-8 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent z-0"></div>
+
+                    <!-- Step 1 -->
+                    <div class="relative z-10 flex flex-col items-center md:items-start text-center md:text-left group">
+                        <div class="w-16 h-16 bg-black border border-white/20 rounded-2xl flex items-center justify-center text-xl font-mono text-white mb-6 group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                            01
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Auditoría</h4>
+                        <p class="text-sm text-gray-400 font-light leading-relaxed">Analizamos la infraestructura actual, objetivos de negocio y definimos la arquitectura del sistema.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative z-10 flex flex-col items-center md:items-start text-center md:text-left mt-10 md:mt-0 group">
+                        <div class="w-16 h-16 bg-black border border-white/20 rounded-2xl flex items-center justify-center text-xl font-mono text-white mb-6 group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                            02
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Diseño de Sistema</h4>
+                        <p class="text-sm text-gray-400 font-light leading-relaxed">Prototipado de interfaces UI/UX y diagramación de bases de datos y flujos de información.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative z-10 flex flex-col items-center md:items-start text-center md:text-left mt-10 md:mt-0 group">
+                        <div class="w-16 h-16 bg-black border border-white/20 rounded-2xl flex items-center justify-center text-xl font-mono text-white mb-6 group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                            03
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Desarrollo Ágil</h4>
+                        <p class="text-sm text-gray-400 font-light leading-relaxed">Escritura de código limpio y escalable. Sprints semanales con entregables funcionales.</p>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="relative z-10 flex flex-col items-center md:items-start text-center md:text-left mt-10 md:mt-0 group">
+                        <div class="w-16 h-16 bg-black border border-white/20 rounded-2xl flex items-center justify-center text-xl font-mono text-white mb-6 group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                            04
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Deploy & QA</h4>
+                        <p class="text-sm text-gray-400 font-light leading-relaxed">Pruebas rigurosas de calidad, optimización de seguridad y despliegue en servidores de producción.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio / Casos de Estudio -->
+        <section id="proyectos" class="py-24 relative border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                    <div class="max-w-2xl">
+                        <h2 class="text-gray-500 font-mono tracking-widest uppercase text-xs mb-3">// 03. TRABAJO DESTACADO</h2>
+                        <h3 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Arquitecturas que escalan.</h3>
+                    </div>
+                    <a href="#" class="text-sm font-medium text-white border-b border-white/30 pb-1 hover:border-white transition-colors flex items-center">
+                        Ver todos los proyectos <i data-lucide="arrow-right" class="ml-2 h-4 w-4"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Project 1 -->
+                    <div class="group cursor-pointer">
+                        <div class="w-full h-80 rounded-2xl border border-white/10 bg-gradient-to-br from-gray-900 to-black mb-6 relative overflow-hidden flex items-center justify-center">
+                            <!-- Patrón decorativo -->
+                            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-black to-black"></div>
+                            <i data-lucide="activity" class="h-16 w-16 text-gray-700 group-hover:scale-110 group-hover:text-white transition-all duration-500 relative z-10"></i>
+                        </div>
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="px-2 py-1 text-[10px] font-mono border border-white/20 rounded-md text-gray-400">FINTECH</span>
+                            <span class="px-2 py-1 text-[10px] font-mono border border-white/20 rounded-md text-gray-400">NEXT.JS</span>
+                        </div>
+                        <h4 class="text-2xl font-bold text-white mb-2">Nexus Banking App</h4>
+                        <p class="text-gray-400 text-sm font-light">Plataforma bancaria B2B procesando más de $10M diarios con latencia ultrabaja y máxima seguridad.</p>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="group cursor-pointer mt-0 md:mt-12">
+                        <div class="w-full h-80 rounded-2xl border border-white/10 bg-gradient-to-bl from-gray-900 to-black mb-6 relative overflow-hidden flex items-center justify-center">
+                            <!-- Patrón decorativo -->
+                            <div class="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+                            <i data-lucide="shopping-bag" class="h-16 w-16 text-gray-700 group-hover:scale-110 group-hover:text-white transition-all duration-500 relative z-10"></i>
+                        </div>
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="px-2 py-1 text-[10px] font-mono border border-white/20 rounded-md text-gray-400">E-COMMERCE</span>
+                            <span class="px-2 py-1 text-[10px] font-mono border border-white/20 rounded-md text-gray-400">SHOPIFY HEADLESS</span>
+                        </div>
+                        <h4 class="text-2xl font-bold text-white mb-2">Aura Global Store</h4>
+                        <p class="text-gray-400 text-sm font-light">Migración a arquitectura headless, reduciendo el tiempo de carga un 60% e incrementando conversiones globales.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="py-24 relative bg-white/[0.02] border-y border-white/5">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h2 class="text-gray-500 font-mono tracking-widest uppercase text-xs mb-3">// 04. CLIENTES</h2>
+                    <h3 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Construyendo confianza a través del código.</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Testimonial 1 -->
+                    <div class="glass-card rounded-2xl p-8">
+                        <div class="flex text-white mb-6">
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                        </div>
+                        <p class="text-gray-300 font-light text-sm leading-relaxed mb-8">
+                            "i.Coodex no solo entregó código, entregaron una arquitectura robusta que salvó nuestra ronda de inversión de la Serie A. El equipo técnico más profesional."
+                        </p>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white font-bold mr-3 border border-white/20">
+                                M
+                            </div>
+                            <div>
+                                <h5 class="text-white font-medium text-sm">Marcus Chen</h5>
+                                <p class="text-gray-500 text-xs font-mono">CTO @ Nexus Banking</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 2 -->
+                    <div class="glass-card rounded-2xl p-8">
+                        <div class="flex text-white mb-6">
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                        </div>
+                        <p class="text-gray-300 font-light text-sm leading-relaxed mb-8">
+                            "Transformaron una idea compleja en una plataforma extremadamente intuitiva y rápida. Entienden la delgada línea entre una gran ingeniería y una excelente UX."
+                        </p>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white font-bold mr-3 border border-white/20">
+                                S
+                            </div>
+                            <div>
+                                <h5 class="text-white font-medium text-sm">Sarah Jenkins</h5>
+                                <p class="text-gray-500 text-xs font-mono">Founder @ Aura Global</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 3 -->
+                    <div class="glass-card rounded-2xl p-8">
+                        <div class="flex text-white mb-6">
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                            <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                        </div>
+                        <p class="text-gray-300 font-light text-sm leading-relaxed mb-8">
+                            "Teníamos un backend legado que se caía constantemente. Ellos rediseñaron la infraestructura a microservicios. Zero downtime desde el lanzamiento."
+                        </p>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white font-bold mr-3 border border-white/20">
+                                D
+                            </div>
+                            <div>
+                                <h5 class="text-white font-medium text-sm">Diego Robles</h5>
+                                <p class="text-gray-500 text-xs font-mono">Lead Engineer @ TechCorp</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-24 relative">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-gray-500 font-mono tracking-widest uppercase text-xs mb-3">// 05. FAQ</h2>
+                    <h3 class="text-3xl font-bold text-white tracking-tight">Preguntas Frecuentes.</h3>
+                </div>
+
+                <div class="space-y-6">
+                    <details class="group border-b border-white/10 pb-6 [&_summary::-webkit-details-marker]:hidden">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-white text-lg">
+                            <span>¿Trabajan con startups o solo grandes empresas?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i data-lucide="chevron-down" class="h-5 w-5 text-gray-500"></i>
+                            </span>
+                        </summary>
+                        <div class="text-gray-400 mt-4 font-light text-sm leading-relaxed">
+                            Trabajamos con empresas de todos los tamaños. Para startups, nos enfocamos en construir MVPs rápidos y escalables. Para corporaciones, nos integramos a flujos de trabajo más complejos.
+                        </div>
+                    </details>
+                    
+                    <details class="group border-b border-white/10 pb-6 [&_summary::-webkit-details-marker]:hidden">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-white text-lg">
+                            <span>¿Cuál es su stack tecnológico principal?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i data-lucide="chevron-down" class="h-5 w-5 text-gray-500"></i>
+                            </span>
+                        </summary>
+                        <div class="text-gray-400 mt-4 font-light text-sm leading-relaxed">
+                            Nos especializamos en el ecosistema JavaScript/TypeScript. Usamos React y Next.js en frontend, React Native para móvil, y Node.js/Python en backend bajo infraestructuras Cloud.
+                        </div>
+                    </details>
+
+                    <details class="group border-b border-white/10 pb-6 [&_summary::-webkit-details-marker]:hidden">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-white text-lg">
+                            <span>¿Ofrecen mantenimiento post-lanzamiento?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i data-lucide="chevron-down" class="h-5 w-5 text-gray-500"></i>
+                            </span>
+                        </summary>
+                        <div class="text-gray-400 mt-4 font-light text-sm leading-relaxed">
+                            Sí. Ofrecemos acuerdos de nivel de servicio (SLA) mensuales que incluyen monitoreo 24/7, actualizaciones de seguridad y desarrollo continuo.
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA / Contact Section -->
+        <section id="contacto" class="py-24 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Large Glass Container -->
+                <div class="glass border border-white/10 rounded-[2rem] p-8 md:p-14 lg:p-20 relative overflow-hidden">
+                    
+                    <!-- Internal Ambient Glow -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30rem] h-[30rem] bg-white opacity-5 rounded-full blur-[100px] pointer-events-none"></div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-16 relative z-10">
+                        
+                        <!-- Contact Info -->
+                        <div class="lg:col-span-2 flex flex-col justify-between">
+                            <div>
+                                <h2 class="text-gray-500 font-mono tracking-widest uppercase text-xs mb-3">// 06. CONTACTO</h2>
+                                <h3 class="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight">Iniciemos tu próximo proyecto.</h3>
+                                <p class="text-lg text-gray-400 mb-12 font-light">
+                                    Completa el formulario y un ingeniero de i.Coodex se pondrá en contacto contigo en menos de 24 horas.
+                                </p>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mt-1 text-white">
+                                        <i data-lucide="mail" class="h-5 w-5"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-white font-medium text-sm">Directo a nuestro equipo</p>
+                                        <p class="text-gray-500 text-sm font-mono mt-1 hover:text-white transition-colors cursor-pointer">hola@icoodex.com</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mt-1 text-white">
+                                        <i data-lucide="map-pin" class="h-5 w-5"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-white font-medium text-sm">Sede Global</p>
+                                        <p class="text-gray-500 text-sm font-mono mt-1">Remote First — Latam & EU</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Form -->
+                        <div class="lg:col-span-3">
+                            <form action="#" method="POST" class="space-y-6" id="contactForm">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="nombre" class="block text-xs font-mono text-gray-400 mb-2 uppercase">Nombre Completo *</label>
+                                        <input type="text" id="nombre" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-white focus:border-transparent transition-all placeholder-gray-700" placeholder="John Doe">
+                                    </div>
+                                    <div>
+                                        <label for="empresa" class="block text-xs font-mono text-gray-400 mb-2 uppercase">Empresa</label>
+                                        <input type="text" id="empresa" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-white focus:border-transparent transition-all placeholder-gray-700" placeholder="Acme Corp">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-xs font-mono text-gray-400 mb-2 uppercase">Email Profesional *</label>
+                                    <input type="email" id="email" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-white focus:border-transparent transition-all placeholder-gray-700" placeholder="john@acme.com">
+                                </div>
+                                <div>
+                                    <label for="servicio" class="block text-xs font-mono text-gray-400 mb-2 uppercase">¿En qué podemos ayudarte?</label>
+                                    <select id="servicio" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-white focus:border-transparent transition-all appearance-none">
+                                        <option value="">Selecciona un servicio</option>
+                                        <option>Desarrollo de Software a Medida</option>
+                                        <option>Desarrollo de App Móvil</option>
+                                        <option>Arquitectura Web & E-commerce</option>
+                                        <option>Auditoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="mensaje" class="block text-xs font-mono text-gray-400 mb-2 uppercase">Detalles del Proyecto *</label>
+                                    <textarea id="mensaje" rows="4" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-white focus:border-transparent transition-all placeholder-gray-700" placeholder="Describe brevemente tus objetivos y requerimientos técnicos..."></textarea>
+                                </div>
+                                
+                                <!-- Mensajes de error/éxito -->
+                                <p id="formError" class="hidden text-red-400 text-sm font-mono mb-2">Error: Por favor, completa los campos requeridos (*).</p>
+                                <p id="formFeedback" class="hidden text-white text-sm font-mono mb-2 flex items-center"><i data-lucide="check-circle" class="h-4 w-4 mr-2"></i> Solicitud enviada correctamente. Hablamos pronto.</p>
+
+                                <button type="button" onclick="submitForm()" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 px-4 rounded-lg transition-colors flex justify-center items-center">
+                                    Enviar Solicitud
+                                    <i data-lucide="arrow-right" class="ml-2 h-4 w-4"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black border-t border-white/10 pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center mb-1">
+                        <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-bold font-mono text-lg rounded-sm mr-3">
+                            i.C
+                        </div>
+                        <span class="font-bold text-2xl text-white tracking-tight">i.Coodex<span class="text-gray-500 text-3xl leading-none">.</span></span>
+                    </div>
+                    <div class="mb-5 flex items-center pl-11">
+                        <div class="h-[1px] w-4 bg-gray-600 mr-2"></div>
+                        <span class="text-[10px] font-mono text-gray-400 uppercase tracking-widest">by <span class="text-white font-bold">i.Logic</span></span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-6 font-light leading-relaxed">
+                        Construyendo el futuro digital mediante ingeniería de software de alta disponibilidad y diseño excepcional. Respaldados por la infraestructura tecnológica de <strong class="text-white font-medium">i.Logic</strong>.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-mono text-xs uppercase tracking-widest mb-6">Expertise</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Ingeniería Web</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Apps iOS & Android</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Sistemas Cloud</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Diseño UI/UX</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-mono text-xs uppercase tracking-widest mb-6">Agencia</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Portafolio</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Metodología</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Carreras</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Github</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-mono text-xs uppercase tracking-widest mb-6">Legal</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Privacidad</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Términos</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm font-mono">
+                    &copy; 2026 i.Logic. Todos los derechos reservados.
+                </p>
+                <div class="text-gray-500 text-sm mt-4 md:mt-0 flex items-center font-mono">
+                    Engineering Excellence.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // Menú Móvil
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        // Efecto visual Navbar al hacer scroll
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                header.classList.add('bg-black/40');
+            } else {
+                header.classList.remove('bg-black/40');
+            }
+        });
+
+        // Simulación de envío de formulario (Sin usar alert)
+        function submitForm() {
+            const btn = document.querySelector('button[type="button"]');
+            const originalText = btn.innerHTML;
+            
+            const formFeedback = document.getElementById('formFeedback');
+            const formError = document.getElementById('formError');
+            
+            const nombre = document.getElementById('nombre').value;
+            const email = document.getElementById('email').value;
+            const mensaje = document.getElementById('mensaje').value;
+
+            // Ocultar mensajes previos
+            formError.classList.add('hidden');
+            formFeedback.classList.add('hidden');
+
+            // Validación simple
+            if(!nombre || !email || !mensaje) {
+                formError.classList.remove('hidden');
+                return;
+            }
+
+            // Estado de carga
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Procesando...`;
+            btn.disabled = true;
+
+            // Simular petición asíncrona
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                document.getElementById('contactForm').reset();
+                
+                // Mostrar mensaje de éxito en la interfaz
+                formFeedback.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    formFeedback.classList.add('hidden');
+                }, 5000);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
