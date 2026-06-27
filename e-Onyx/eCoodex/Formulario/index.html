@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formularios de e-Onyx</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            500: '#000000', 
+                            600: '#000000',
+                            900: '#000000',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .dynamic-section, .sub-dynamic-section {
+            display: none;
+            opacity: 0;
+            transition: all 0.4s ease-in-out;
+        }
+        .dynamic-section.active, .sub-dynamic-section.active {
+            display: block;
+            opacity: 1;
+            animation: fadeInDown 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .project-card {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .project-card:hover { border-color: #000000; }
+        .project-card.selected {
+            border-color: #000000;
+            background-color: #fafafa;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .project-card.selected .icon-container {
+            color: #ffffff;
+            background-color: #000000;
+        }
+
+        /* FIX: Se añadieron !important para sobreescribir el reseteo de Tailwind que los hacía invisibles */
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db !important; 
+            background-color: #ffffff !important;
+            color: #111827;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            border-color: #000000 !important;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.375rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #374151;
+            cursor: pointer;
+        }
+        .checkbox-input {
+            margin-top: 0.2rem;
+            width: 1rem;
+            height: 1rem;
+            accent-color: #000000;
+            cursor: pointer;
+            border: 1px solid #d1d5db !important;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease;
+        }
+        .accordion-content.expanded {
+            max-height: 5000px;
+            padding-bottom: 1.5rem;
+        }
+        .accordion-icon { transition: transform 0.3s ease; }
+        .expanded + .accordion-header .accordion-icon,
+        .accordion-content.expanded ~ * .accordion-icon { transform: rotate(180deg); }
+
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s ease;
+        }
+        .file-upload-area:hover, .file-upload-area.dragover {
+            border-color: #000000;
+            background-color: #f9fafb;
+        }
+        
+        /* Estilos para el Toast de Notificaciones */
+        .toast-notification {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.4s ease-in-out;
+            opacity: 0;
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased min-h-screen">
+
+    <!-- Contenedor de Notificaciones (Reemplaza a los alerts) -->
+    <div id="toast-container" class="fixed top-20 right-4 z-[60] flex flex-col gap-3 pointer-events-none"></div>
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="font-extrabold text-2xl tracking-tighter text-black">e-Onyx</span>
+            </div>
+            <div class="text-sm font-semibold text-gray-500 hidden sm:block uppercase tracking-widest">
+                Formularios
+            </div>
+        </div>
+    </header>
+
+    <main class="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-black mb-4 tracking-tight">Cuéntanos sobre tu visión</h1>
+            <p class="text-gray-500 max-w-2xl mx-auto text-lg">Para ofrecerte la mejor solución digital, necesitamos conocer los detalles. Este formulario de <b>e-Onyx</b> se adaptará según lo que necesites crear con nosotros.</p>
+        </div>
+
+        <form id="massiveForm" class="space-y-8" enctype="multipart/form-data">
+            
+            <input type="hidden" name="_subject" value="Nuevo Briefing de Proyecto - e-Onyx">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_captcha" value="false">
+
+            <!-- SECCIÓN 1: DATOS DEL CLIENTE / EMPRESA -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-black px-6 py-4 flex items-center gap-3">
+                    <i data-lucide="user" class="w-5 h-5 text-white"></i>
+                    <h2 class="text-lg font-bold text-white tracking-wide">1. Datos del Cliente / Empresa</h2>
+                </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="form-label">Nombre completo del cliente *</label><input type="text" name="Nombre_Cliente" required class="form-input" placeholder="Ej. Juan Pérez"></div>
+                    <div><label class="form-label">Empresa / Negocio *</label><input type="text" name="Empresa" required class="form-input" placeholder="Ej. Empresa Corp"></div>
+                    <div><label class="form-label">Nombre comercial (si es diferente)</label><input type="text" name="Nombre_Comercial" class="form-input"></div>
+                    <div><label class="form-label">Puesto o rol dentro de la empresa</label><input type="text" name="Puesto" class="form-input" placeholder="Ej. Director General"></div>
+                    <div><label class="form-label">Número de teléfono</label><input type="tel" name="Telefono" class="form-input" placeholder="+52 ..."></div>
+                    <div><label class="form-label">WhatsApp *</label><input type="tel" name="WhatsApp" required class="form-input" placeholder="+52 ..."></div>
+                    <div><label class="form-label">Correo electrónico *</label><input type="email" name="Email_Cliente" required class="form-input" placeholder="correo@empresa.com"></div>
+                    <div><label class="form-label">Ciudad / País *</label><input type="text" name="Ubicacion" required class="form-input" placeholder="Ej. CDMX, México"></div>
+                    <div class="md:col-span-2"><label class="form-label">Página web actual (si existe)</label><input type="url" name="Web_Actual" class="form-input" placeholder="https://www.tuweb.com"></div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="form-label mb-2">Redes sociales actuales (URLs):</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <input type="text" name="RS_Facebook" class="form-input text-sm" placeholder="Facebook">
+                            <input type="text" name="RS_Instagram" class="form-input text-sm" placeholder="Instagram">
+                            <input type="text" name="RS_TikTok" class="form-input text-sm" placeholder="TikTok">
+                            <input type="text" name="RS_LinkedIn" class="form-input text-sm" placeholder="LinkedIn">
+                            <input type="text" name="RS_YouTube" class="form-input text-sm" placeholder="YouTube">
+                            <input type="text" name="RS_Otra" class="form-input text-sm" placeholder="Otra">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: OBJETIVO DEL PROYECTO DIGITAL -->
+            <div class="bg-white rounded-xl shadow-md border-2 border-black overflow-hidden relative">
+                <div class="absolute top-0 left-0 w-full h-1 bg-black"></div>
+                <div class="bg-gray-50 px-6 py-5 border-b border-gray-200 flex items-center gap-3">
+                    <div class="bg-black p-2 rounded-md text-white"><i data-lucide="target" class="w-5 h-5"></i></div>
+                    <h2 class="text-lg font-bold text-black tracking-wide">2. ¿Qué deseas crear? *</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Página Web">
+                            <div class="icon-container w-14 h-14 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-800 transition-colors"><i data-lucide="globe" class="w-7 h-7"></i></div>
+                            <h3 class="font-bold text-gray-900">Página Web</h3>
+                        </div>
+                        <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="App Móvil">
+                            <div class="icon-container w-14 h-14 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-800 transition-colors"><i data-lucide="smartphone" class="w-7 h-7"></i></div>
+                            <h3 class="font-bold text-gray-900">App Móvil</h3>
+                        </div>
+                        <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Invitación Digital">
+                            <div class="icon-container w-14 h-14 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-800 transition-colors"><i data-lucide="mail-open" class="w-7 h-7"></i></div>
+                            <h3 class="font-bold text-gray-900">Invitación Digital</h3>
+                        </div>
+                        <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Sistema a Medida">
+                            <div class="icon-container w-14 h-14 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-800 transition-colors"><i data-lucide="server" class="w-7 h-7"></i></div>
+                            <h3 class="font-bold text-gray-900">Sistema / Otro</h3>
+                        </div>
+                    </div>
+                    <input type="hidden" name="Tipo_De_Proyecto_Seleccionado" id="selectedType" required>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-gray-200">
+                        <div>
+                            <label class="form-label">¿Cuál es el objetivo principal del proyecto?</label>
+                            <select name="Objetivo_Principal" class="form-select font-medium text-gray-700">
+                                <option value="Conseguir clientes / Leads">Conseguir clientes / Leads</option>
+                                <option value="Vender productos (Ecommerce)">Vender productos (Ecommerce)</option>
+                                <option value="Automatizar procesos internos">Automatizar procesos internos</option>
+                                <option value="Mejorar imagen profesional">Mejorar imagen profesional</option>
+                                <option value="Informar sobre servicios">Informar sobre servicios</option>
+                                <option value="Crear comunidad">Crear comunidad</option>
+                                <option value="Para un evento social (Invitación)">Para un evento social (Invitación)</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">¿Qué resultado espera obtener a corto plazo?</label>
+                            <input type="text" name="Resultado_Esperado" class="form-input" placeholder="Ej. Aumentar ventas un 20%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE DINÁMICO A: NEGOCIOS -->
+            <div id="block-business" class="dynamic-section space-y-6">
+                <!-- Información del Negocio -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button type="button" class="accordion-btn w-full px-6 py-5 bg-white flex items-center justify-between border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-black p-2 rounded-md text-white"><i data-lucide="briefcase" class="w-4 h-4"></i></div>
+                            <h2 class="text-lg font-bold text-black text-left">Información del Negocio</h2>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="md:col-span-2"><h3 class="font-bold text-black border-b border-gray-200 pb-2 mb-2 uppercase text-xs tracking-widest">Historia y Naturaleza</h3></div>
+                            <div><label class="form-label">¿Qué significa el nombre de la empresa?</label><input type="text" name="Significado_Nombre_Empresa" class="form-input"></div>
+                            <div><label class="form-label">¿Cuándo inició el negocio?</label><input type="text" name="Fecha_Inicio_Negocio" class="form-input"></div>
+                            <div class="md:col-span-2"><label class="form-label">Historia de la empresa / ¿Cómo nació la idea?</label><textarea name="Historia_Empresa" class="form-textarea" rows="2"></textarea></div>
+                            <div><label class="form-label">¿A qué se dedica exactamente?</label><textarea name="A_Que_Se_Dedica" class="form-textarea" rows="2"></textarea></div>
+                            <div><label class="form-label">Industria o Categoría</label><input type="text" name="Industria_Categoria" class="form-input" placeholder="Ej. Salud, Tecnología, Alimentos"></div>
+                            
+                            <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black border-b border-gray-200 pb-2 mb-2 uppercase text-xs tracking-widest">Productos y Mercado</h3></div>
+                            <div><label class="form-label">¿Qué productos/servicios ofrece? (General)</label><textarea name="Productos_Ofrecidos" class="form-textarea" rows="2"></textarea></div>
+                            <div><label class="form-label">Producto/Servicio principal o estrella</label><input type="text" name="Producto_Estrella" class="form-input"></div>
+                            <div><label class="form-label">¿Qué problema resuelve su negocio?</label><textarea name="Problema_Que_Resuelve" class="form-textarea" rows="2"></textarea></div>
+                            <div><label class="form-label">¿Qué hace diferente a su empresa de las demás?</label><textarea name="Diferenciador_De_Competencia" class="form-textarea" rows="2"></textarea></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Identidad Visual -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button type="button" class="accordion-btn w-full px-6 py-5 bg-white flex items-center justify-between border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-black p-2 rounded-md text-white"><i data-lucide="palette" class="w-4 h-4"></i></div>
+                            <h2 class="text-lg font-bold text-black text-left">Identidad de Marca y Diseño Visual</h2>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="md:col-span-2">
+                                <label class="form-label text-base font-bold text-black">Sube tu Logotipo (y/o Manual de Marca)</label>
+                                <div class="mt-2 flex justify-center px-6 pt-8 pb-8 file-upload-area rounded-lg bg-white relative">
+                                    <div class="space-y-2 text-center">
+                                        <i data-lucide="upload-cloud" class="mx-auto h-12 w-12 text-black"></i>
+                                        <div class="flex text-sm text-gray-600 justify-center">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-bold text-black hover:text-gray-700 focus-within:outline-none focus-within:underline">
+                                                <span>Selecciona un archivo</span>
+                                                <input id="file-upload" name="Archivo_Logotipo" type="file" class="sr-only" accept=".png, .jpg, .jpeg, .svg, .pdf, .ai">
+                                            </label>
+                                            <p class="pl-1">o arrástralo y suéltalo aquí</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500 font-medium">Formatos aceptados: PNG, JPG, SVG, AI, PDF (Máx. 20MB)</p>
+                                        <p id="file-name-display" class="text-sm font-bold text-black mt-2 hidden"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black border-b border-gray-200 pb-2 mb-2 uppercase text-xs tracking-widest">Concepto de Marca</h3></div>
+                            <div><label class="form-label">Eslogan de la empresa</label><input type="text" name="Eslogan" class="form-input"></div>
+                            <div><label class="form-label">Valores principales</label><input type="text" name="Valores_Principales" class="form-input"></div>
+                            <div class="md:col-span-2"><label class="form-label">Misión y Visión</label><textarea name="Mision_Vision" class="form-textarea" rows="2"></textarea></div>
+                            
+                            <div><label class="form-label">Tres palabras que DESCRIBEN su negocio</label><input type="text" name="Palabras_Describen" class="form-input" placeholder="Ej. Minimalista, Profesional, Seguro"></div>
+                            <div><label class="form-label">Tres palabras que NO quiere que lo representen</label><input type="text" name="Palabras_No_Describen" class="form-input" placeholder="Ej. Barato, Colorido, Infantil"></div>
+                            
+                            <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black border-b border-gray-200 pb-2 mb-2 uppercase text-xs tracking-widest">Estética Visual</h3></div>
+                            <div><label class="form-label">Colores oficiales (Además del logo)</label><input type="text" name="Colores_Oficiales" class="form-input" placeholder="Ej. Blanco, Negro y toques de Gris"></div>
+                            <div>
+                                <label class="form-label">Estilo visual deseado</label>
+                                <div class="grid grid-cols-2 gap-3 mt-2">
+                                    <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Minimalista" class="checkbox-input"> Minimalista</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Elegante" class="checkbox-input"> Elegante / Lujo</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Moderno" class="checkbox-input"> Moderno</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Corporativo" class="checkbox-input"> Corporativo</label>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2"><label class="form-label">Ejemplos de diseños web/apps que le gustan (URLs)</label><textarea name="Ejemplos_Diseño" class="form-textarea" rows="2" placeholder="Nos ayuda mucho ver referencias visuales..."></textarea></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE: PÁGINA WEB -->
+            <div id="block-web" class="dynamic-section space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-black px-6 py-4 flex items-center gap-3">
+                        <i data-lucide="layout" class="w-5 h-5 text-white"></i>
+                        <h2 class="text-lg font-bold text-white">Estructura de la Página Web</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="form-label">Tipo de página</label>
+                            <select id="webTypeSelector" name="WEB_Tipo_Pagina" class="form-select">
+                                <option value="Informativa">Informativa / Corporativa</option>
+                                <option value="Landing Page">Landing Page (Página única)</option>
+                                <option value="ecommerce">Tienda Online (Ecommerce)</option>
+                                <option value="Portafolio">Portafolio</option>
+                                <option value="Blog">Blog</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Secciones necesarias</label>
+                            <div class="grid grid-cols-2 gap-3 mt-2 h-32 overflow-y-auto border border-gray-200 p-3 rounded-md bg-gray-50">
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Inicio" class="checkbox-input"> Inicio</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Nosotros" class="checkbox-input"> Nosotros</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Servicios" class="checkbox-input"> Servicios</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Productos" class="checkbox-input"> Productos</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Galeria" class="checkbox-input"> Galería</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Clientes" class="checkbox-input"> Clientes</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Contacto" class="checkbox-input"> Contacto</label>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="form-label">Funciones Especiales Requeridas</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3">
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Formulario" class="checkbox-input"> Formulario avanzado</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="WhatsApp" class="checkbox-input"> Botón WhatsApp</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Reservas" class="checkbox-input"> Sistema de Reservas</label>
+                                <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Multi-idioma" class="checkbox-input"> Múltiples Idiomas</label>
+                            </div>
+                        </div>
+
+                        <!-- Sub-bloque Ecommerce -->
+                        <div id="sub-ecommerce" class="sub-dynamic-section md:col-span-2 bg-gray-50 p-5 rounded-lg border border-gray-200 mt-2">
+                            <h3 class="font-bold text-black mb-4 flex items-center gap-2"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Detalles de Tienda Online</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div><label class="form-label">Cantidad aprox. de productos</label><input type="number" name="ECOMMERCE_Cantidad_Productos" class="form-input"></div>
+                                <div><label class="form-label">Número de Categorías</label><input type="number" name="ECOMMERCE_Categorias" class="form-input"></div>
+                                <div>
+                                    <label class="form-label">Pasarelas de pago</label>
+                                    <select name="ECOMMERCE_Metodo_Pago" class="form-select"><option value="Stripe/PayPal/Tarjeta">Stripe / PayPal / Tarjeta</option><option value="Solo Transferencia">Solo Transferencia</option></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tecnología y Dominio -->
+                        <div class="md:col-span-2 mt-4 border-t border-gray-200 pt-6">
+                            <h3 class="font-bold text-black mb-4 uppercase text-xs tracking-widest">Dominio y Hosting</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="form-label">¿Ya tiene Dominio?</label>
+                                    <select name="DOMINIO_Posee" class="form-select"><option value="No, comprar">No, necesito comprarlo</option><option value="Sí, lo tengo">Sí, ya lo tengo</option></select>
+                                </div>
+                                <div><label class="form-label">Nombre del dominio deseado</label><input type="text" name="DOMINIO_Nombre" class="form-input" placeholder="www.miempresa.com"></div>
+                                <div>
+                                    <label class="form-label">Correos empresariales</label>
+                                    <select name="DOMINIO_Correos" class="form-select"><option value="Sí">Sí necesito</option><option value="No">No por el momento</option></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE: APP MÓVIL -->
+            <div id="block-app" class="dynamic-section space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-black px-6 py-4 flex items-center gap-3">
+                        <i data-lucide="smartphone" class="w-5 h-5 text-white"></i>
+                        <h2 class="text-lg font-bold text-white">Desarrollo de Aplicación Móvil</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="form-label">Nombre propuesto de la app</label><input type="text" name="APP_Nombre" class="form-input"></div>
+                        <div><label class="form-label">Función principal de la app</label><input type="text" name="APP_Funcion_Principal" class="form-input"></div>
+                        <div>
+                            <label class="form-label">Plataformas requeridas</label>
+                            <div class="flex gap-4 mt-3">
+                                <label class="checkbox-label"><input type="checkbox" name="APP_Plataformas" value="Android" class="checkbox-input"> Android</label>
+                                <label class="checkbox-label"><input type="checkbox" name="APP_Plataformas" value="iOS" class="checkbox-input"> iOS (Apple)</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Métodos de Inicio de Sesión</label>
+                            <div class="flex flex-wrap gap-4 mt-3">
+                                <label class="checkbox-label"><input type="checkbox" name="APP_Login" value="Email" class="checkbox-input"> Email</label>
+                                <label class="checkbox-label"><input type="checkbox" name="APP_Login" value="Google/Apple" class="checkbox-input"> Google / Apple ID</label>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2"><label class="form-label">Lista de funciones principales</label><textarea name="APP_Funciones_Detalle" class="form-textarea" rows="3" placeholder="Ej. Mapa interactivo, chat en tiempo real, notificaciones push..."></textarea></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE: INVITACIONES DIGITALES -->
+            <div id="block-invitation" class="dynamic-section space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-black px-6 py-4 flex items-center gap-3">
+                        <i data-lucide="mail" class="w-5 h-5 text-white"></i>
+                        <h2 class="text-lg font-bold text-white">Invitación Digital Premium</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="form-label">Tipo de Evento</label>
+                            <select name="INVITACION_Tipo" class="form-select">
+                                <option value="Boda">Boda</option><option value="XV Años">XV Años</option><option value="Evento Corporativo">Evento Corporativo / Gala</option><option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div><label class="form-label">Nombre del Evento / Festejados</label><input type="text" name="INVITACION_Nombres" class="form-input"></div>
+                        <div><label class="form-label">Fecha del evento</label><input type="date" name="INVITACION_Fecha" class="form-input"></div>
+                        <div><label class="form-label">Hora y Lugar</label><input type="text" name="INVITACION_Hora_Lugar" class="form-input"></div>
+                        
+                        <div class="md:col-span-2 border-t border-gray-200 pt-6 mt-2">
+                            <label class="form-label mb-4">Elementos interactivos a incluir:</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="RSVP" class="checkbox-input"> Confirmación asistencia (RSVP)</label>
+                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Mesa Regalos" class="checkbox-input"> Mesa de Regalos / Cuenta</label>
+                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Dress Code" class="checkbox-input"> Código de vestimenta</label>
+                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Galeria" class="checkbox-input"> Galería Fotográfica</label>
+                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Mapa" class="checkbox-input"> Enlace a Google Maps</label>
+                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Cuenta Regresiva" class="checkbox-input"> Cuenta regresiva animada</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FINAL: TIEMPOS Y CIERRE -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-8">
+                <div class="bg-gray-50 px-6 py-5 border-b border-gray-200 flex items-center gap-3">
+                    <i data-lucide="clock" class="w-5 h-5 text-black"></i>
+                    <h2 class="text-lg font-bold text-black">Tiempos, Presupuesto y Autorización</h2>
+                </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="form-label">Presupuesto aproximado</label>
+                        <select name="Presupuesto" class="form-select font-medium text-gray-700">
+                            <option value="No definido">Definir rango...</option>
+                            <option value="$500 - $1,500 USD">$500 - $1,500 USD</option>
+                            <option value="$1,500 - $3,000 USD">$1,500 - $3,000 USD</option>
+                            <option value="$3,000 - $6,000 USD">$3,000 - $6,000 USD</option>
+                            <option value="+$6,000 USD">Proyectos de Alto Nivel (+$6,000 USD)</option>
+                        </select>
+                    </div>
+                    <div><label class="form-label">Fecha ideal de entrega / Deadline</label><input type="date" name="Fecha_Entrega" class="form-input"></div>
+
+                    <div class="md:col-span-2 border-t border-gray-200 pt-6">
+                        <div class="space-y-4 bg-gray-50 p-5 rounded-lg border border-gray-200">
+                            <label class="checkbox-label font-medium"><input type="checkbox" class="checkbox-input" required> Confirmo que la información proporcionada es correcta para generar la cotización técnica.</label>
+                            <label class="checkbox-label font-medium"><input type="checkbox" class="checkbox-input" checked> Autorizo a e-Onyx a utilizar esta información con fines exclusivos de análisis de proyecto.</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end pt-8 pb-10 sticky bottom-0 z-40 bg-gray-50/90 backdrop-blur-sm border-t border-gray-200/50 mt-4 px-4 sm:px-0">
+                <button type="submit" id="submitBtn" class="bg-black hover:bg-gray-800 text-white font-bold py-4 px-10 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-3 w-full sm:w-auto justify-center">
+                    <span class="text-lg">Enviar Formulario</span>
+                    <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+        </form>
+
+        <!-- Mensaje de Éxito -->
+        <div id="successMessage" class="hidden mt-8 bg-white border-2 border-black rounded-xl p-10 text-center shadow-2xl">
+            <div class="w-20 h-20 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="check" class="w-10 h-10"></i></div>
+            <h2 class="text-3xl font-extrabold text-black mb-4 tracking-tight">¡Briefing Recibido Exitosamente!</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-lg mx-auto">Hemos capturado la visión de tu proyecto. El equipo técnico de <b>e-Onyx</b> revisará tus requerimientos y nos pondremos en contacto contigo en un plazo de 24 a 48 horas.</p>
+            <button onclick="window.location.reload()" class="bg-black hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-md transition-colors">Nuevo Proyecto</button>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-10 mt-12">
+        <div class="max-w-5xl mx-auto px-4 text-center text-sm font-medium text-gray-500">
+            <p class="text-black font-bold text-lg mb-2 tracking-tighter">Formularios de e-Onyx</p>
+            <p>&copy; 2026 e-Onyx. Desarrollo y Diseño de Alto Nivel.</p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // --- SISTEMA DE NOTIFICACIONES (Reemplaza a los alerts) ---
+        function showNotification(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'error' ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200';
+            const textColor = type === 'error' ? 'text-red-800' : 'text-green-800';
+            const iconColor = type === 'error' ? 'text-red-500' : 'text-green-500';
+            const iconName = type === 'error' ? 'alert-circle' : 'check-circle';
+
+            toast.className = `toast-notification flex items-center p-4 mb-4 border rounded-lg shadow-lg pointer-events-auto w-80 max-w-full ${bgColor}`;
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" class="w-5 h-5 mr-3 ${iconColor}"></i>
+                <div class="text-sm font-medium ${textColor}">${message}</div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 focus:ring-2 focus:outline-none focus:ring-gray-300 hover:bg-gray-200 transition-colors ${textColor}" aria-label="Close" onclick="this.parentElement.remove()">
+                    <span class="sr-only">Close</span>
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast }); // Inicializar iconos en el nuevo elemento
+
+            // Animación de entrada
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+
+            // Auto-cerrar después de 4 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => { toast.remove(); }, 400); // Esperar a que termine la animación
+            }, 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Acordeones
+            const accordions = document.querySelectorAll('.accordion-btn');
+            accordions.forEach(acc => {
+                acc.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    content.classList.toggle('expanded');
+                });
+            });
+            document.querySelectorAll('.accordion-content').forEach(content => content.classList.add('expanded'));
+
+            // Subida de archivo visual
+            const fileUploadArea = document.querySelector('.file-upload-area');
+            const fileInput = document.getElementById('file-upload');
+            const fileNameDisplay = document.getElementById('file-name-display');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileUploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+            ['dragenter', 'dragover'].forEach(eventName => { fileUploadArea.addEventListener(eventName, highlight, false); });
+            ['dragleave', 'drop'].forEach(eventName => { fileUploadArea.addEventListener(eventName, unhighlight, false); });
+            function highlight(e) { fileUploadArea.classList.add('dragover', 'border-black'); }
+            function unhighlight(e) { fileUploadArea.classList.remove('dragover', 'border-black'); }
+
+            fileUploadArea.addEventListener('drop', handleDrop, false);
+            function handleDrop(e) { handleFiles(e.dataTransfer.files); }
+            fileInput.addEventListener('change', function() { handleFiles(this.files); });
+            function handleFiles(files) {
+                if(files.length > 0) {
+                    fileNameDisplay.textContent = `Archivo adjuntado: ${files[0].name}`;
+                    fileNameDisplay.classList.remove('hidden');
+                    fileNameDisplay.classList.add('block');
+                }
+            }
+
+            // Selección de Proyecto
+            const projectCards = document.querySelectorAll('.project-card');
+            const hiddenTypeInput = document.getElementById('selectedType');
+            const blockBusiness = document.getElementById('block-business');
+            const blockWeb = document.getElementById('block-web');
+            const blockApp = document.getElementById('block-app');
+            const blockInvitation = document.getElementById('block-invitation');
+            
+            const webTypeSelector = document.getElementById('webTypeSelector');
+            const subEcommerce = document.getElementById('sub-ecommerce');
+
+            webTypeSelector.addEventListener('change', (e) => {
+                if(e.target.value === 'ecommerce') subEcommerce.classList.add('active');
+                else subEcommerce.classList.remove('active');
+            });
+
+            projectCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const type = card.getAttribute('data-type');
+                    
+                    projectCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    hiddenTypeInput.value = type; // Asigna el valor para enviar por correo
+
+                    [blockBusiness, blockWeb, blockApp, blockInvitation].forEach(block => {
+                        if(block) block.classList.remove('active');
+                    });
+
+                    setTimeout(() => {
+                        if (type === 'Invitación Digital') {
+                            if(blockInvitation) blockInvitation.classList.add('active');
+                        } else {
+                            if(blockBusiness) blockBusiness.classList.add('active');
+                            if (type === 'Página Web' && blockWeb) blockWeb.classList.add('active');
+                            if (type === 'App Móvil' && blockApp) blockApp.classList.add('active');
+                        }
+                    }, 100);
+                });
+            });
+
+            // --- LÓGICA DE ENVÍO DE CORREO (AJAX FormSubmit) ---
+            const form = document.getElementById('massiveForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault(); // Evita que la página recargue
+                
+                if (!hiddenTypeInput.value) {
+                    showNotification("Por favor, selecciona qué tipo de proyecto deseas crear (Paso 2).");
+                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                    return;
+                }
+
+                // UI de Carga
+                const originalBtnContent = submitBtn.innerHTML;
+                submitBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Enviando Formulario...`;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+
+                // Recopilar todos los datos del formulario (incluyendo el logo)
+                const formData = new FormData(form);
+
+                // Enviar datos vía Fetch a FormSubmit
+                fetch("https://formsubmit.co/ajax/codeex.soporte@hotmail.com", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Ocultar formulario y mostrar éxito
+                    form.classList.add('hidden');
+                    document.querySelector('.text-center.mb-12').classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    showNotification("Hubo un error al enviar tu formulario. Por favor, revisa tu conexión o intenta más tarde.");
+                    submitBtn.innerHTML = originalBtnContent;
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
