@@ -9,6 +9,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -49,6 +50,7 @@
     
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <noscript><style>body { opacity: 1 !important; }</style></noscript>
 
     <!-- Google Fonts: Inter & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,6 +63,7 @@
             color: #ededed;
         }
         
+        /* Patrón de cuadrícula ultra sutil */
         .bg-grid {
             background-size: 40px 40px;
             background-image: 
@@ -70,6 +73,7 @@
             -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
         }
 
+        /* Glassmorphism Refinado */
         .glass-card {
             background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
             backdrop-filter: blur(12px);
@@ -78,6 +82,7 @@
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
+        /* Transiciones Globales */
         #main-content {
             transition: filter 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: filter, opacity;
@@ -88,6 +93,7 @@
             opacity: 0 !important;
         }
 
+        /* Revelado al hacer scroll */
         .reveal {
             opacity: 0;
             transform: translateY(30px);
@@ -101,6 +107,7 @@
         .delay-200 { transition-delay: 200ms; }
         .delay-300 { transition-delay: 300ms; }
 
+        /* Gradiente de texto animado */
         .text-gradient {
             background: linear-gradient(to right, #ffffff 20%, #818cf8 40%, #c084fc 60%, #ffffff 80%);
             background-size: 200% auto;
@@ -109,46 +116,177 @@
             background-clip: text;
         }
 
+        /* Scrollbar personalizado */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #050505; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #444; }
 
+        /* Ocultar barra de scroll en carrusel */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* --- MEJORAS AÑADIDAS --- */
+
+        /* Fade-in de carga inicial */
+        body { opacity: 0; }
+        body.loaded {
+            opacity: 1;
+            transition: opacity 0.7s ease;
+        }
+
+        /* Barra de progreso de scroll */
+        #scroll-progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(to right, #6366f1, #c084fc, #22d3ee);
+            z-index: 60;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 10px rgba(129,140,248,0.6);
+        }
+
+        /* Spotlight de cursor en glass-cards */
+        .spotlight {
+            position: relative;
+            isolation: isolate;
+        }
+        .spotlight::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%), rgba(129,140,248,0.15), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .spotlight:hover::before { opacity: 1; }
+        .spotlight > * { position: relative; z-index: 1; }
+
+        /* Tilt 3D en tarjetas */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* Nav link activo */
+        .nav-link.active-link {
+            color: #fff;
+            background: rgba(255,255,255,0.07);
+        }
+
+        /* Botón volver arriba */
+        #back-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 9999px;
+            background: rgba(10,10,10,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ededed;
+            opacity: 0;
+            transform: translateY(20px) scale(0.8);
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 55;
+            cursor: pointer;
+        }
+        #back-to-top:hover {
+            background: rgba(99,102,241,0.2);
+            border-color: rgba(129,140,248,0.4);
+            transform: translateY(-4px) scale(1.05);
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* Botón magnético (CTA hero) */
+        .magnetic {
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* Spinner de envío de formulario */
+        .btn-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-top-color: #050505;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Ligero float continuo en el badge del hero */
+        @keyframes floaty {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .floaty { animation: floaty 4s ease-in-out infinite; }
+
+        /* Respeta prefers-reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen antialiased selection:bg-indigo-500/30 selection:text-white overflow-x-hidden relative">
 
+    <!-- Barra de progreso de scroll -->
+    <div id="scroll-progress"></div>
+
+    <!-- Fondo Ambient (Optimizado) -->
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div class="absolute inset-0 bg-grid opacity-60"></div>
+        <!-- Orbes difuminados de alto rendimiento -->
         <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-indigo-900/30 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform"></div>
         <div class="absolute top-[20%] right-[-10%] w-[40vw] h-[40vw] bg-purple-900/20 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform" style="animation-delay: 2s;"></div>
         <div class="absolute bottom-[-10%] left-[20%] w-[60vw] h-[60vw] bg-cyan-900/20 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform" style="animation-delay: 4s;"></div>
     </div>
 
+    <!-- Navegación Flotante -->
     <nav class="fixed w-full z-50 top-0 sm:top-4 transition-all duration-300">
         <div class="max-w-5xl mx-auto px-4 sm:px-6">
             <div class="flex justify-between items-center h-16 sm:h-14 bg-surface/70 backdrop-blur-xl border border-white/5 sm:rounded-2xl px-4 sm:px-6 shadow-2xl">
                 
+                <!-- Logo -->
                 <a href="#inicio" class="flex-shrink-0 flex items-center gap-3 group relative nav-link">
                     <img 
                         src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" 
                         alt="e-Onyx Logo" 
                         class="h-7 w-auto object-contain rounded-md ring-1 ring-white/10 group-hover:ring-white/30 transition-all"
-                        onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50/030303/ffffff?text=E-ONYX';"
+                        onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50/030303/ffffff?text=e-Onyx';"
                     >
                     <span class="font-display font-bold text-lg tracking-tight text-white group-hover:text-indigo-400 transition-colors">
                         e-Onyx
                     </span>
                 </a>
 
+                <!-- Menú Desktop -->
                 <div class="hidden md:flex items-center space-x-1">
                     <a href="#servicios" class="nav-link px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all">Servicios</a>
                     <a href="#nosotros" class="nav-link px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all">Nosotros</a>
                     <a href="#contacto" class="nav-link px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all">Contacto</a>
                 </div>
 
+                <!-- Botón Menú Móvil -->
                 <div class="md:hidden flex items-center">
                     <button id="mobile-menu-btn" class="text-gray-400 hover:text-white p-2 rounded-lg bg-white/5 focus:outline-none transition-colors">
                         <i data-lucide="menu" id="icon-menu" class="w-5 h-5"></i>
@@ -158,6 +296,7 @@
             </div>
         </div>
 
+        <!-- Menú Móvil Desplegable -->
         <div id="mobile-menu" class="hidden md:hidden absolute top-full left-4 right-4 mt-2 bg-surface/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl">
             <div class="flex flex-col space-y-2">
                 <a href="#servicios" class="nav-link px-4 py-3 rounded-xl text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Servicios</a>
@@ -167,12 +306,15 @@
         </div>
     </nav>
 
+    <!-- ENVOLTORIO PRINCIPAL -->
     <main id="main-content" class="relative z-10">
         
+        <!-- Hero Section -->
         <section id="inicio" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 flex flex-col items-center justify-center min-h-screen">
             <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 
-                <div class="reveal inline-flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs sm:text-sm font-medium mb-8 backdrop-blur-md">
+                <!-- Badge superior -->
+                <div class="reveal floaty inline-flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs sm:text-sm font-medium mb-8 backdrop-blur-md">
                     <span class="relative flex h-2 w-2">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -180,17 +322,18 @@
                     Innovación y Certidumbre Operativa
                 </div>
 
+                <!-- Texto Principal -->
                 <h1 class="reveal delay-100 font-display text-4xl sm:text-6xl lg:text-[5.5rem] font-bold tracking-tight mb-6 leading-[1.1]">
                     Ecosistema de <br class="hidden sm:block">
                     <span class="text-gradient animate-shimmer">alto rendimiento.</span>
                 </h1>
                 
                 <p class="reveal delay-200 mt-6 max-w-2xl mx-auto text-base sm:text-lg text-gray-400 font-light leading-relaxed mb-10">
-                    Impulsamos tu transformación digital. A través de inteligencia artificial, desarrollo a medida y ciberseguridad, garantizamos la absoluta integridad y control de tu información.
+                    Impulsamos tu transformación digital. A través de eOnyx AI, desarrollo a medida y ciberseguridad, garantizamos la absoluta integridad y control de tu información.
                 </p>
                 
                 <div class="reveal delay-300 flex flex-col sm:flex-row justify-center items-center gap-4 w-full px-4 sm:px-0">
-                    <a href="#servicios" class="nav-link group relative inline-flex items-center justify-center px-8 py-4 text-sm font-semibold text-dark bg-white rounded-full hover:bg-gray-100 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:scale-105 w-full sm:w-auto overflow-hidden">
+                    <a href="#servicios" id="hero-cta" class="nav-link magnetic group relative inline-flex items-center justify-center px-8 py-4 text-sm font-semibold text-dark bg-white rounded-full hover:bg-gray-100 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] w-full sm:w-auto overflow-hidden">
                         Explorar soluciones
                         <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
                     </a>
@@ -198,21 +341,26 @@
             </div>
         </section>
 
+        <!-- Marquee de Tecnologías (Animación Infinita) -->
         <section class="py-10 border-y border-white/5 bg-black/20 backdrop-blur-sm overflow-hidden reveal">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 text-center">
                 <p class="text-xs font-semibold tracking-widest text-gray-500 uppercase">Tecnologías que dominamos</p>
             </div>
+            <!-- Contenedor del Marquee -->
             <div class="flex overflow-hidden group mask-gradient relative">
+                <!-- Capas de desvanecimiento en los bordes para el carrusel -->
                 <div class="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-dark to-transparent z-10 pointer-events-none"></div>
                 <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none"></div>
                 
                 <div class="flex space-x-12 animate-marquee group-hover:[animation-play-state:paused] whitespace-nowrap min-w-full items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+                    <!-- Set 1 -->
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="code-2"></i> React</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="server"></i> Node.js</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="cloud"></i> AWS</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="smartphone"></i> Flutter</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="database"></i> PostgreSQL</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="cpu"></i> Python</span>
+                    <!-- Set 2 (Duplicado para efecto infinito) -->
                     <span class="flex items-center gap-2 text-sm font-display font-semibold ml-12"><i data-lucide="code-2"></i> React</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="server"></i> Node.js</span>
                     <span class="flex items-center gap-2 text-sm font-display font-semibold"><i data-lucide="cloud"></i> AWS</span>
@@ -223,6 +371,7 @@
             </div>
         </section>
 
+        <!-- Servicios Section -->
         <section id="servicios" class="py-24 lg:py-32 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6 reveal">
@@ -235,56 +384,61 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Card 1 -->
                     <div class="reveal delay-100 group">
-                        <div class="glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
+                        <div class="glass-card spotlight tilt-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
+                            <!-- Brillo Hover -->
                             <div class="absolute -inset-px bg-gradient-to-br from-indigo-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
                             
                             <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/30 transition-all duration-500">
                                 <i data-lucide="code" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">Desarrollo a Medida</h3>
+                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">eCoodex</h3>
                             <p class="text-gray-400 text-base leading-relaxed font-light">
                                 Ingeniería de software con rendimiento superior, código limpio y diseño arquitectónico altamente escalable para plataformas corporativas.
                             </p>
                         </div>
                     </div>
 
+                    <!-- Card 2 -->
                     <div class="reveal delay-200 group">
-                        <div class="glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
+                        <div class="glass-card spotlight tilt-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
                             <div class="absolute -inset-px bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
                             
                             <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-purple-400 group-hover:bg-purple-500/10 group-hover:border-purple-500/30 transition-all duration-500">
                                 <i data-lucide="brain" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">Inteligencia Artificial</h3>
+                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">eOnyx AI</h3>
                             <p class="text-gray-400 text-base leading-relaxed font-light">
                                 Motores avanzados de IA que automatizan tareas, resuelven problemas complejos y generan ventajas competitivas sostenibles para tu negocio.
                             </p>
                         </div>
                     </div>
 
+                    <!-- Card 3 -->
                     <div class="reveal delay-100 group">
-                        <div class="glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
+                        <div class="glass-card spotlight tilt-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
                             <div class="absolute -inset-px bg-gradient-to-br from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
                             
                             <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-cyan-400 group-hover:bg-cyan-500/10 group-hover:border-cyan-500/30 transition-all duration-500">
                                 <i data-lucide="languages" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">Traducción Profesional</h3>
+                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">eTranslator</h3>
                             <p class="text-gray-400 text-base leading-relaxed font-light">
                                 Herramientas de traducción de alta precisión que eliminan barreras lingüísticas y expanden el alcance de tu negocio globalmente.
                             </p>
                         </div>
                     </div>
 
+                    <!-- Card 4 -->
                     <div class="reveal delay-200 group">
-                        <div class="glass-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
+                        <div class="glass-card spotlight tilt-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden">
                             <div class="absolute -inset-px bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
                             
                             <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-blue-400 group-hover:bg-blue-500/10 group-hover:border-blue-500/30 transition-all duration-500">
                                 <i data-lucide="shield" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">Ciberseguridad</h3>
+                            <h3 class="font-display text-xl md:text-2xl font-bold mb-4 text-white">eSecurity</h3>
                             <p class="text-gray-400 text-base leading-relaxed font-light">
                                 Arquitecturas de vanguardia y sistemas antivirus bajo el estándar 'Privacy by Design', eliminando dependencias de terceros.
                             </p>
@@ -294,6 +448,7 @@
             </div>
         </section>
 
+        <!-- Nosotros Section -->
         <section id="nosotros" class="py-24 lg:py-32 relative bg-white/[0.01] border-y border-white/[0.02]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
@@ -329,8 +484,10 @@
                     </div>
                 </div>
 
+                <!-- Panel de Compromiso -->
                 <div class="reveal">
-                    <div class="glass-card rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden group">
+                    <div class="glass-card spotlight rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden group">
+                        <!-- Background Glows -->
                         <div class="absolute -right-20 -top-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none transition-all duration-1000 group-hover:bg-indigo-600/20"></div>
                         <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-600/10 rounded-full blur-[100px] pointer-events-none transition-all duration-1000 group-hover:bg-cyan-600/20"></div>
                         
@@ -352,6 +509,7 @@
             </div>
         </section>
 
+        <!-- Valores Section -->
         <section class="py-24 lg:py-32 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16 reveal">
@@ -360,7 +518,8 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="reveal delay-100 glass-card rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
+                    <!-- Valor 1 -->
+                    <div class="reveal delay-100 glass-card spotlight rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
                         <div class="w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6">
                             <i data-lucide="lock" class="w-5 h-5"></i>
                         </div>
@@ -368,7 +527,8 @@
                         <p class="text-gray-400 text-sm leading-relaxed">Protegemos los activos bajo los estándares más estrictos de ciberseguridad, eliminando dependencias de terceros.</p>
                     </div>
 
-                    <div class="reveal delay-200 glass-card rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
+                    <!-- Valor 2 -->
+                    <div class="reveal delay-200 glass-card spotlight rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
                         <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-6">
                             <i data-lucide="globe" class="w-5 h-5"></i>
                         </div>
@@ -376,7 +536,8 @@
                         <p class="text-gray-400 text-sm leading-relaxed">Garantizamos el control total sobre operaciones y plataformas, ofreciendo certidumbre y estabilidad a largo plazo.</p>
                     </div>
 
-                    <div class="reveal delay-300 glass-card rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
+                    <!-- Valor 3 -->
+                    <div class="reveal delay-300 glass-card spotlight rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full">
                         <div class="w-12 h-12 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6">
                             <i data-lucide="cpu" class="w-5 h-5"></i>
                         </div>
@@ -384,7 +545,8 @@
                         <p class="text-gray-400 text-sm leading-relaxed">Implementamos soluciones de IA que optimizan procesos operativos y generan ventajas competitivas sostenibles.</p>
                     </div>
 
-                    <div class="reveal delay-100 glass-card rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full lg:mt-0">
+                    <!-- Valor 4 -->
+                    <div class="reveal delay-100 glass-card spotlight rounded-3xl p-8 hover:bg-white/[0.04] transition-all h-full lg:mt-0">
                         <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mb-6">
                             <i data-lucide="layers" class="w-5 h-5"></i>
                         </div>
@@ -395,9 +557,10 @@
             </div>
         </section>
 
+        <!-- Formulario Section -->
         <section id="contacto" class="py-24 lg:py-32 relative">
             <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="reveal glass-card rounded-[2rem] p-8 md:p-12 relative overflow-hidden">
+                <div class="reveal glass-card spotlight rounded-[2rem] p-8 md:p-12 relative overflow-hidden">
                     <div class="text-center mb-10 relative z-10">
                         <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 mb-6 shadow-inner">
                             <i data-lucide="terminal" class="w-6 h-6 text-white"></i>
@@ -455,12 +618,13 @@
             </div>
         </section>
 
+        <!-- Footer -->
         <footer class="border-t border-white/5 bg-black/50 backdrop-blur-lg pt-16 pb-8 reveal relative z-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
                     <div class="flex items-center gap-3">
                         <img 
-                            src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" 
+                            src="https://i.ibb.co/gb207JJP/Chat-GPT-Image-9-may-2026-09-22-02-p-m.png" 
                             alt="e-Onyx Logo" 
                             class="h-6 w-auto object-contain grayscale opacity-60 rounded-md"
                         >
@@ -481,16 +645,24 @@
                     <div class="flex gap-6 text-xs font-medium text-gray-500">
                         <a href="#" class="hover:text-white transition-colors">Términos de Servicio</a>
                         <a href="#" class="hover:text-white transition-colors">Privacidad</a>
-                        <a href="mailto:hola@e-onyx.com" class="hover:text-white transition-colors">hola@e-onyx.com</a>
+                        <a href="mailto:hola@ilogic.com" class="hover:text-white transition-colors">hola@ilogic.com</a>
                     </div>
                 </div>
             </div>
         </footer>
     </main>
 
+    <!-- Botón Volver Arriba -->
+    <button id="back-to-top" aria-label="Volver arriba">
+        <i data-lucide="arrow-up" class="w-5 h-5"></i>
+    </button>
+
+    <!-- Scripts -->
     <script>
+        // Inicializar iconos
         lucide.createIcons();
 
+        // Lógica del menú móvil
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const iconMenu = document.getElementById('icon-menu');
@@ -502,6 +674,7 @@
             iconClose.classList.toggle('hidden');
         });
 
+        // Transición de desenfoque al navegar
         const navLinks = document.querySelectorAll('.nav-link');
         const mainContent = document.getElementById('main-content');
 
@@ -513,14 +686,16 @@
                     const targetElement = document.querySelector(targetId);
                     
                     if (targetElement) {
+                        // Cierra menú móvil
                         mobileMenu.classList.add('hidden');
                         iconMenu.classList.remove('hidden');
                         iconClose.classList.add('hidden');
 
+                        // Efecto de transición
                         mainContent.classList.add('blur-transition');
                         
                         setTimeout(() => {
-                            targetElement.scrollIntoView({ behavior: 'auto' }); 
+                            targetElement.scrollIntoView({ behavior: 'auto' }); // El CSS scroll-smooth suavizará esto un poco
                             
                             setTimeout(() => {
                                 mainContent.classList.remove('blur-transition');
@@ -531,8 +706,10 @@
             });
         });
 
+        // Configurar año actual
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
+        // Animación de aparición (Reveal en Scroll)
         const observerOptions = {
             root: null,
             rootMargin: '0px 0px -10% 0px',
@@ -543,6 +720,9 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
+                } else {
+                    // Opcional: Quitar para que se anime cada vez que subes/bajas
+                    // entry.target.classList.remove('active'); 
                 }
             });
         }, observerOptions);
@@ -550,6 +730,137 @@
         document.querySelectorAll('.reveal').forEach(el => {
             revealObserver.observe(el);
         });
+
+        // --- MEJORAS AÑADIDAS ---
+
+        // Fade-in de carga inicial de la página
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+        });
+
+        // Barra de progreso de scroll
+        const scrollProgress = document.getElementById('scroll-progress');
+        function updateScrollProgress() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            scrollProgress.style.width = progress + '%';
+        }
+        window.addEventListener('scroll', updateScrollProgress, { passive: true });
+        updateScrollProgress();
+
+        // Sombra de nav + botón volver arriba al hacer scroll
+        const navEl = document.querySelector('nav > div > div');
+        const backToTop = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 40) {
+                navEl.classList.add('shadow-[0_8px_30px_rgba(0,0,0,0.4)]');
+            } else {
+                navEl.classList.remove('shadow-[0_8px_30px_rgba(0,0,0,0.4)]');
+            }
+            if (window.scrollY > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        }, { passive: true });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Indicador de sección activa en el nav
+        const sections = document.querySelectorAll('main section[id]');
+        const desktopLinks = document.querySelectorAll('.hidden.md\\:flex .nav-link');
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    desktopLinks.forEach(link => {
+                        link.classList.toggle('active-link', link.getAttribute('href') === '#' + id);
+                    });
+                }
+            });
+        }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+        sections.forEach(sec => sectionObserver.observe(sec));
+
+        // Spotlight de cursor en tarjetas con clase .spotlight
+        document.querySelectorAll('.spotlight').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--my', `${e.clientY - rect.top}px`);
+            });
+        });
+
+        // Efecto tilt 3D en tarjetas de servicios
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -4;
+                const rotateY = ((x - centerX) / centerX) * 4;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        });
+
+        // Botón magnético (CTA principal del hero)
+        const magneticBtn = document.getElementById('hero-cta');
+        if (magneticBtn) {
+            magneticBtn.addEventListener('mousemove', (e) => {
+                const rect = magneticBtn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                magneticBtn.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px)`;
+            });
+            magneticBtn.addEventListener('mouseleave', () => {
+                magneticBtn.style.transform = 'translate(0, 0)';
+            });
+        }
+
+        // Parallax sutil de los blobs del fondo según el mouse (solo escritorio)
+        const blobs = document.querySelectorAll('.animate-blob');
+        if (window.matchMedia('(pointer: fine)').matches) {
+            window.addEventListener('mousemove', (e) => {
+                const x = (e.clientX / window.innerWidth - 0.5) * 2;
+                const y = (e.clientY / window.innerHeight - 0.5) * 2;
+                blobs.forEach((blob, i) => {
+                    const depth = (i + 1) * 8;
+                    blob.style.marginLeft = `${x * depth}px`;
+                    blob.style.marginTop = `${y * depth}px`;
+                });
+            }, { passive: true });
+        }
+
+        // Estado de carga en el botón de envío del formulario
+        const contactForm = document.querySelector('#contacto form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const btn = this.querySelector('button[type="submit"]');
+                const originalContent = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn-spinner"></span> Enviando...';
+                setTimeout(() => {
+                    btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 mr-2"></i> ¡Mensaje enviado!';
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        btn.innerHTML = originalContent;
+                        lucide.createIcons();
+                        btn.disabled = false;
+                        this.reset();
+                    }, 2200);
+                }, 1200);
+            });
+        }
     </script>
 </body>
 </html>
