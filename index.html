@@ -1,1345 +1,502 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="eOnyCraft — Servidor de Minecraft Premium & No-Premium. Survival Custom, Skyblock y OneBlock con economía equilibrada, eventos diarios y comunidad activa las 24/7.">
-    <meta name="theme-color" content="#060508">
-    <meta property="og:title" content="eOnyCraft | Servidor de Minecraft Premium & No-Premium">
-    <meta property="og:description" content="Survival Custom, Skyblock y OneBlock con economía equilibrada y comunidad activa. play.eonycraft.net">
-    <meta property="og:type" content="website">
-    <title>eOnyCraft | Servidor de Minecraft Premium & No-Premium</title>
-    <!-- Tailwind CSS CDN -->
+    <title>e-Onyx Technologies | Servicios Digitales de Próxima Generación</title>
+    <!-- Tailwind CSS para diseño moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Minecraft-like & Modern Gaming) -->
+    <!-- Google Fonts: Space Grotesk para toques brutalistas y Plus Jakarta Sans para legibilidad limpia -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        pixel: ['"Press Start 2P"', 'cursive'],
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        onyx: {
-                            900: '#060508',
-                            850: '#0a0810',
-                            800: '#0d0b12',
-                            700: '#14111c',
-                            600: '#1c1826',
-                            500: '#8b5cf6', /* Amatista Neon */
-                            400: '#a78bfa',
-                            300: '#c4b5fd',
-                        },
-                        mc: {
-                            emerald: '#10b981',
-                            diamond: '#06b6d4',
-                            gold: '#f59e0b',
-                            redstone: '#ef4444',
-                            amethyst: '#9333ea',
-                            copper: '#c2703d',
-                            netherite: '#4a4348',
-                        }
-                    },
-                    boxShadow: {
-                        'neon-purple': '0 0 25px rgba(139, 92, 246, 0.45)',
-                        'neon-emerald': '0 0 25px rgba(16, 185, 129, 0.45)',
-                        'neon-diamond': '0 0 25px rgba(6, 182, 212, 0.45)',
-                        'neon-gold': '0 0 25px rgba(245, 158, 11, 0.4)',
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --glass-hi: rgba(255,255,255,0.16);
-            --glass-lo: rgba(255,255,255,0.02);
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.001ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.001ms !important;
-                scroll-behavior: auto !important;
-            }
-        }
-
-        html { scroll-padding-top: 6rem; }
-
         body {
-            background-color: #060508;
-            background-image:
-                radial-gradient(circle at 15% 8%, rgba(139,92,246,0.08), transparent 40%),
-                radial-gradient(circle at 85% 92%, rgba(6,182,212,0.06), transparent 40%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #000000;
+            overflow-x: hidden;
         }
-
-        /* Personalización de barra de desplazamiento */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #060508; }
-        ::-webkit-scrollbar-thumb { background: #8b5cf6; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
-
-        /* ============================================================
-           LIQUID GLASS — cristal líquido con distorsión y brillo real
-           ============================================================ */
-        .liquid-glass {
-            position: relative;
-            isolation: isolate;
-            background: linear-gradient(155deg, rgba(255,255,255,0.09), rgba(255,255,255,0.015) 45%, rgba(139,92,246,0.05));
-            backdrop-filter: blur(22px) saturate(160%);
-            -webkit-backdrop-filter: blur(22px) saturate(160%);
-            border: 1px solid rgba(255,255,255,0.14);
-            box-shadow:
-                inset 0 1px 1px rgba(255,255,255,0.3),
-                inset 0 -1px 12px rgba(0,0,0,0.35),
-                0 12px 40px rgba(0,0,0,0.45);
+        .font-tech {
+            font-family: 'Space Grotesk', sans-serif;
         }
-        /* Capa de distorsión "líquida" detrás del cristal (no afecta al texto) */
-        .liquid-glass-distort {
-            position: absolute;
-            inset: -20%;
-            z-index: -1;
-            filter: url(#liquid-distort) blur(18px);
-            opacity: 0.55;
-            background:
-                radial-gradient(circle at 25% 30%, rgba(167,139,250,0.55), transparent 55%),
-                radial-gradient(circle at 75% 70%, rgba(34,211,238,0.35), transparent 50%);
-            pointer-events: none;
+        /* Estética Monocromática Onyx: Vidrio negro profundo con bordes hiperfinos blancos */
+        .onyx-card {
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.9);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        /* Barrido especular animado sobre el cristal */
-        .liquid-glass::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.16) 48%, rgba(255,255,255,0.05) 52%, transparent 65%);
-            background-size: 250% 250%;
-            background-position: 200% 200%;
-            animation: liquid-sheen 7s ease-in-out infinite;
-            pointer-events: none;
-            mix-blend-mode: overlay;
+        .onyx-card:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 12px 40px 0 rgba(255, 255, 255, 0.03);
+            transform: translateY(-2px);
         }
-        @keyframes liquid-sheen {
-            0%, 100% { background-position: 220% 220%; }
-            50% { background-position: -40% -40%; }
+        /* Brillos blancos muy sutiles para profundidad en el fondo negro */
+        .glow-sphere {
+            filter: blur(140px);
+            opacity: 0.04;
+            transition: all 1s ease-in-out;
         }
-
-        /* ============================================================
-           TARJETAS TILT 3D CON REFLEJO (efecto vidrio interactivo)
-           ============================================================ */
-        .tilt-card { transform-style: preserve-3d; will-change: transform; }
-        .tilt-glare {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,0.22), transparent 60%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            z-index: 20;
+        /* Ocultar barra de scroll manteniendo funcionalidad */
+        ::-webkit-scrollbar {
+            width: 5px;
         }
-        .tilt-card:hover .tilt-glare { opacity: 1; }
-
-        /* ============================================================
-           MINECRAFT — Botones de bloque pixelados
-           ============================================================ */
-        .mc-btn {
-            image-rendering: pixelated;
-            border: 4px solid #000;
-            background: #737373;
-            box-shadow: inset -4px -4px 0px #3c3c3c, inset 4px 4px 0px #aeaeae;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        ::-webkit-scrollbar-track {
+            background: #000000;
         }
-        .mc-btn:hover {
-            background: #8c8c8c;
-            box-shadow: inset -4px -4px 0px #4a4a4a, inset 4px 4px 0px #bebebe;
-            transform: scale(1.02);
+        ::-webkit-scrollbar-thumb {
+            background: #222222;
+            border-radius: 10px;
         }
-        .mc-btn:active {
-            box-shadow: inset 4px 4px 0px #3c3c3c, inset -4px -4px 0px #aeaeae;
-            transform: translateY(2px) scale(0.98);
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffffff;
         }
-        .mc-btn-purple {
-            border: 4px solid #000;
-            background: #8b5cf6;
-            box-shadow: inset -4px -4px 0px #4c1d95, inset 4px 4px 0px #c084fc;
+        /* Estilo para los inputs minimalistas */
+        .input-monochrome {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
         }
-        .mc-btn-purple:hover {
-            background: #a78bfa;
-            box-shadow: inset -4px -4px 0px #5b21b6, inset 4px 4px 0px #d8b4fe;
+        .input-monochrome:focus {
+            border-color: #ffffff;
+            box-shadow: 0 0 0 1px #ffffff;
         }
-        .mc-btn-purple:active {
-            box-shadow: inset 4px 4px 0px #4c1d95, inset -4px -4px 0px #c084fc;
-        }
-        .mc-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -60%;
-            width: 30%; height: 200%;
-            background: rgba(255, 255, 255, 0.15);
-            transform: rotate(30deg);
-            pointer-events: none;
-            animation: light-shimmer 4s infinite linear;
-        }
-        @keyframes light-shimmer {
-            0% { left: -60%; }
-            15% { left: 140%; }
-            100% { left: 140%; }
-        }
-
-        /* Slot de inventario estilo Minecraft */
-        .inv-slot {
-            background: #8b8b8b;
-            border-top: 2px solid #373737;
-            border-left: 2px solid #373737;
-            border-right: 2px solid #ffffff;
-            border-bottom: 2px solid #ffffff;
-            box-shadow: inset 2px 2px 0 rgba(0,0,0,0.25);
-            image-rendering: pixelated;
-        }
-
-        /* Barra de experiencia estilo Minecraft */
-        .xp-bar-track {
-            background: #000;
-            border: 3px solid #1a1a1a;
-            box-shadow: inset 0 0 0 1px #000;
-            image-rendering: pixelated;
-            overflow: hidden;
-        }
-        .xp-bar-fill {
-            background: linear-gradient(#8ff03e, #63c916 55%, #4ba30e);
-            box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.25);
-            height: 100%;
-        }
-
-        /* Textura sutil tipo mesa de crafteo (rejilla de bloques) */
-        .crafting-grid-bg {
-            background-image:
-                linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-            background-size: 34px 34px;
-        }
-
-        .hero-bg {
-            background: linear-gradient(rgba(6, 5, 8, 0.72), rgba(6, 5, 8, 0.95)), url('https://i.ibb.co/vCQ4yJwL/f91e7fd0d00ae44b7520764c22af728a.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-
-        .pixel-borders {
-            box-shadow:
-                0 -4px 0 -2px #121017, 0 4px 0 -2px #121017,
-                -4px 0 0 -2px #121017, 4px 0 0 -2px #121017;
-        }
-
-        /* Animaciones */
-        @keyframes splash-pulse {
-            0%, 100% { transform: scale(1) rotate(-12deg); }
-            50% { transform: scale(1.18) rotate(-10deg); filter: drop-shadow(0 0 8px #fde047); }
-        }
-        .mc-splash { animation: splash-pulse 0.65s infinite ease-in-out; }
-
-        @keyframes gentle-float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-        }
-        .animate-float { animation: gentle-float 5s infinite ease-in-out; }
-
-        @keyframes slow-pulse {
-            0%, 100% { opacity: 0.25; transform: scale(1); }
-            50% { opacity: 0.45; transform: scale(1.12); }
-        }
-        .animate-aurora { animation: slow-pulse 8s infinite ease-in-out; }
-
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            45% { opacity: 0.7; }
-            50% { opacity: 1; }
-            72% { opacity: 0.85; }
-        }
-        .animate-flicker { animation: flicker 2.4s infinite ease-in-out; }
-
-        .blur-card-img {
-            filter: blur(4px) brightness(0.7);
-            transition: filter 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        .group:hover .blur-card-img { filter: blur(0px) brightness(1.0); transform: scale(1.06); }
-
-        /* Scroll-reveal */
-        .reveal {
-            opacity: 0;
-            transform: translateY(28px);
-            transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-            transition-delay: var(--reveal-delay, 0ms);
-        }
-        .reveal-visible { opacity: 1; transform: translateY(0); }
-
-        /* Toast de logro (Advancement) estilo Minecraft */
-        .advancement-toast {
-            background: linear-gradient(180deg, #2b2b2b, #1a1a1a);
-            border: 2px solid #000;
-            box-shadow: inset 0 0 0 2px #4a4a4a, 0 8px 24px rgba(0,0,0,0.6);
-        }
-        .advancement-icon {
-            background: #3a3a3a;
-            border: 2px solid #000;
-            box-shadow: inset 2px 2px 0 rgba(255,255,255,0.15), inset -2px -2px 0 rgba(0,0,0,0.4);
-        }
-
-        details.faq-item summary { cursor: pointer; list-style: none; }
-        details.faq-item summary::-webkit-details-marker { display: none; }
-        details.faq-item[open] .faq-chevron { transform: rotate(180deg); }
-        details.faq-item .faq-chevron { transition: transform 0.3s ease; }
-
-        /* Contador animado */
-        .count-up { font-variant-numeric: tabular-nums; }
     </style>
 </head>
-<body class="bg-onyx-900 text-gray-100 font-sans selection:bg-onyx-500 selection:text-white overflow-x-hidden">
+<body class="relative min-h-screen flex flex-col justify-between text-zinc-100 select-none">
 
-    <!-- Filtro SVG global para el efecto de distorsión "liquid glass" -->
-    <svg width="0" height="0" class="absolute" aria-hidden="true">
-        <defs>
-            <filter id="liquid-distort" x="-20%" y="-20%" width="140%" height="140%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.010 0.014" numOctaves="2" seed="7" result="noise">
-                    <animate attributeName="baseFrequency" dur="22s" values="0.010 0.014;0.016 0.020;0.010 0.014" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="26" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-        </defs>
-    </svg>
+    <!-- Canvas de fondo para red de datos flotante en escala de grises -->
+    <canvas id="techCanvas" class="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none"></canvas>
 
-    <!-- Header / Navegación Superior (Liquid Glass) -->
-    <header class="fixed w-full top-0 z-50 bg-onyx-900/60 backdrop-blur-2xl border-b border-white/10 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Logo -->
-            <a href="#" class="flex items-center gap-3 group shrink-0" onmouseenter="playClickSound()">
-                <div class="w-10 h-10 bg-onyx-500 rounded-lg flex items-center justify-center shadow-neon-purple group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
-                    <i class="fa-solid fa-cube text-white text-xl"></i>
-                </div>
-                <span class="font-pixel text-xs sm:text-sm md:text-base tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-onyx-400 via-white to-onyx-400">eOnyCraft</span>
-            </a>
+    <!-- Orbes de luz blanca difuminados para simular relieves tridimensionales -->
+    <div class="glow-sphere absolute top-[5%] left-[10%] w-[600px] h-[600px] rounded-full bg-white -z-10"></div>
+    <div class="glow-sphere absolute bottom-[15%] right-[5%] w-[500px] h-[500px] rounded-full bg-white -z-10"></div>
 
-            <!-- Navegación de Escritorio -->
-            <nav class="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-gray-300">
-                <a href="#inicio" class="hover:text-onyx-500 hover:scale-105 transition-all" onmouseenter="playClickSound()">Inicio</a>
-                <a href="#empezar" class="hover:text-onyx-500 hover:scale-105 transition-all" onmouseenter="playClickSound()">Cómo Unirte</a>
-                <a href="#modalidades" class="hover:text-onyx-500 hover:scale-105 transition-all" onmouseenter="playClickSound()">Modalidades</a>
-                <a href="#tienda" class="hover:text-onyx-500 hover:scale-105 transition-all" onmouseenter="playClickSound()">Tienda</a>
-                <a href="#equipo" class="hover:text-onyx-500 hover:scale-105 transition-all" onmouseenter="playClickSound()">Staff</a>
-                <a href="#galeria" class="hover:text-onyx-500 hover:scale-105 transition-all" onmouseenter="playClickSound()">Galería</a>
-            </nav>
-
-            <!-- Acciones / Discord y Botón Hamburguesa -->
-            <div class="flex items-center gap-3">
-                <a href="https://discord.gg" target="_blank" onclick="playClickSound()" onmouseenter="playClickSound()" class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-500/25 shrink-0 hover:scale-105">
-                    <i class="fa-brands fa-discord text-base sm:text-lg"></i>
-                    <span class="hidden xs:inline sm:inline">Discord</span>
-                </a>
-
-                <button id="menu-btn" onclick="toggleMobileMenu(); playClickSound();" class="md:hidden p-2 text-gray-300 hover:text-onyx-500 focus:outline-none transition-colors" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
-                    <i id="menu-icon" class="fa-solid fa-bars text-xl sm:text-2xl"></i>
-                </button>
+    <!-- Encabezado / Barra de Navegación -->
+    <header class="w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center z-10">
+        <div class="flex items-center space-x-3 group cursor-pointer">
+            <div class="relative w-10 h-10 rounded-lg bg-black border border-zinc-800 flex items-center justify-center shadow-lg overflow-hidden transition-transform duration-300 group-hover:scale-105">
+                <img src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" alt="e-Onyx Logo" class="w-8 h-8 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <span class="hidden font-tech font-bold text-lg text-white">eO</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-tech font-bold tracking-wider text-lg text-white">e-Onyx</span>
+                <span class="text-[8px] text-zinc-400 tracking-[0.3em] uppercase font-bold">Technologies</span>
             </div>
         </div>
-
-        <!-- Menú Móvil Desplegable -->
-        <div id="mobile-menu" class="hidden md:hidden absolute top-20 left-0 w-full bg-onyx-900/95 backdrop-blur-2xl border-b border-white/10 z-40 transition-all duration-300 shadow-2xl">
-            <nav class="flex flex-col p-6 space-y-4 text-center font-semibold text-gray-200">
-                <a href="#inicio" onclick="toggleMobileMenu(); playClickSound();" class="hover:text-onyx-500 py-2 border-b border-white/5 transition-colors">Inicio</a>
-                <a href="#empezar" onclick="toggleMobileMenu(); playClickSound();" class="hover:text-onyx-500 py-2 border-b border-white/5 transition-colors">Cómo Unirte</a>
-                <a href="#modalidades" onclick="toggleMobileMenu(); playClickSound();" class="hover:text-onyx-500 py-2 border-b border-white/5 transition-colors">Modalidades</a>
-                <a href="#tienda" onclick="toggleMobileMenu(); playClickSound();" class="hover:text-onyx-500 py-2 border-b border-white/5 transition-colors">Tienda</a>
-                <a href="#equipo" onclick="toggleMobileMenu(); playClickSound();" class="hover:text-onyx-500 py-2 border-b border-white/5 transition-colors">Staff</a>
-                <a href="#galeria" onclick="toggleMobileMenu(); playClickSound();" class="hover:text-onyx-500 py-2 transition-colors">Galería</a>
-            </nav>
+        <div class="flex items-center gap-4">
+            <span class="hidden sm:inline-flex items-center gap-2 text-xs text-zinc-400 font-tech uppercase tracking-widest">
+                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                Servidores Activos
+            </span>
+            <a href="#servicios" class="onyx-card px-4 py-2 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white transition-all">
+                Servicios
+            </a>
         </div>
     </header>
 
-    <main>
-    <!-- Sección de Héroe -->
-    <section id="inicio" class="relative pt-28 pb-16 sm:pt-40 sm:pb-24 lg:pt-48 lg:pb-36 hero-bg overflow-hidden flex items-center min-h-[95vh]">
-        <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-onyx-500/10 rounded-full blur-[100px] pointer-events-none animate-aurora"></div>
-        <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[300px] sm:w-[450px] h-[300px] sm:h-[450px] bg-mc-diamond/10 rounded-full blur-[120px] pointer-events-none animate-aurora" style="animation-delay: -3s;"></div>
-
-        <canvas id="mc-particle-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center w-full">
-
-            <div class="inline-flex items-center gap-2 px-4 py-2 bg-black/60 backdrop-blur-xl border border-emerald-500/30 rounded-full text-emerald-400 text-xs sm:text-sm font-semibold mb-6 shadow-[0_0_15px_rgba(16,185,129,0.15)] select-none">
-                <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981] animate-pulse"></span>
-                <span id="player-count-hero" class="count-up">148</span> Jugadores Explorando Ahora
+    <!-- Contenido Principal -->
+    <main class="flex-grow flex flex-col items-center justify-center px-4 py-12 z-10">
+        <div class="text-center max-w-4xl w-full">
+            
+            <!-- Badge Superior -->
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-[10px] font-bold tracking-wider uppercase mb-8">
+                <span class="w-1 h-1 rounded-full bg-white"></span>
+                Servicios Digitales de Alto Rendimiento
             </div>
-
-            <div class="relative mb-6 select-none max-w-full">
-                <h1 class="text-4xl sm:text-6xl md:text-8xl font-pixel tracking-wider text-white drop-shadow-[0_6px_12px_rgba(0,0,0,0.9)]">
-                    eOny<span class="text-onyx-500">Craft</span>
-                </h1>
-                <div id="splash-text" class="mc-splash absolute -bottom-5 right-2 sm:-right-8 font-pixel text-[8px] sm:text-[11px] md:text-sm text-yellow-300 drop-shadow-[2px_2px_0px_#000] uppercase tracking-wider select-none pointer-events-none whitespace-nowrap">
-                    ¡Cargando diversión!
-                </div>
-            </div>
-
-            <p class="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 max-w-2xl mb-8 leading-relaxed font-medium px-2 drop-shadow-md">
-                La experiencia definitiva de Minecraft Survival Custom, Skyblock y Minijuegos con una economía equilibrada, eventos diarios y comunidad activa. ¡Entra ya!
+            
+            <!-- Título Principal de la Empresa -->
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-4 font-tech text-white">
+                Inteligencia, Software &<br class="hidden sm:inline">
+                Soluciones Digitales.
+            </h1>
+            
+            <p class="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto mb-12 leading-relaxed">
+                Estamos preparando la suite de servicios digitales de e-Onyx Technologies. La nueva infraestructura impulsada por IA estará en línea según el temporizador.
             </p>
 
-            <!-- Panel de Conexión — Liquid Glass -->
-            <div class="animate-float relative w-full max-w-md md:max-w-lg rounded-2xl p-4 sm:p-6 mx-auto mb-10 liquid-glass">
-                <div class="liquid-glass-distort rounded-2xl"></div>
-                <p class="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-3">Dirección de Conexión</p>
-
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="flex-grow bg-black/50 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between min-w-0">
-                        <span id="ip-text" class="font-mono text-onyx-400 font-bold tracking-wider text-sm sm:text-base md:text-lg truncate">play.eonycraft.net</span>
-                        <span class="text-[10px] sm:text-xs bg-onyx-500/20 text-onyx-400 font-bold px-2 py-1 rounded shrink-0 ml-2">1.16 - 1.21+</span>
-                    </div>
-                    <button onclick="copyServerIP()" onmouseenter="playClickSound()" class="mc-btn mc-btn-purple text-white font-pixel text-xs sm:text-sm px-6 py-3 shrink-0 flex items-center justify-center gap-2">
-                        <i id="copy-icon" class="fa-solid fa-copy"></i>
-                        <span id="copy-text">COPIAR IP</span>
-                    </button>
+            <!-- CONTENEDOR DEL TEMPORIZADOR EN VIVO (ALTA PRECISIÓN EN BLANCO Y NEGRO) -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-16">
+                
+                <!-- DÍAS -->
+                <div class="onyx-card rounded-xl p-5 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div id="days" class="text-4xl md:text-5xl font-bold font-tech text-white tracking-tight">00</div>
+                    <div class="text-[10px] text-zinc-500 font-semibold uppercase tracking-widest mt-2">Días</div>
+                    <div class="absolute bottom-0 left-0 w-full h-[1px] bg-white opacity-20"></div>
                 </div>
 
-                <div class="mt-4 flex flex-col sm:flex-row justify-around gap-2 text-[10px] sm:text-xs text-gray-400 text-center">
-                    <span class="flex items-center justify-center gap-1"><i class="fa-solid fa-shield text-mc-emerald"></i> Premium & No-Premium</span>
-                    <span class="flex items-center justify-center gap-1"><i class="fa-solid fa-bolt text-mc-diamond"></i> Latencia baja (Global)</span>
+                <!-- HORAS -->
+                <div class="onyx-card rounded-xl p-5 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div id="hours" class="text-4xl md:text-5xl font-bold font-tech text-white tracking-tight">00</div>
+                    <div class="text-[10px] text-zinc-500 font-semibold uppercase tracking-widest mt-2">Horas</div>
+                    <div class="absolute bottom-0 left-0 w-full h-[1px] bg-white opacity-20"></div>
+                </div>
+
+                <!-- MINUTOS -->
+                <div class="onyx-card rounded-xl p-5 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div id="minutes" class="text-4xl md:text-5xl font-bold font-tech text-white tracking-tight">00</div>
+                    <div class="text-[10px] text-zinc-500 font-semibold uppercase tracking-widest mt-2">Minutos</div>
+                    <div class="absolute bottom-0 left-0 w-full h-[1px] bg-white opacity-20"></div>
+                </div>
+
+                <!-- SEGUNDOS -->
+                <div class="onyx-card rounded-xl p-5 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div id="seconds" class="text-4xl md:text-5xl font-bold font-tech text-white tracking-tight">00</div>
+                    <div class="text-[10px] text-zinc-500 font-semibold uppercase tracking-widest mt-2">Segundos</div>
+                    <div class="absolute bottom-0 left-0 w-full h-[1px] bg-white opacity-20"></div>
+                </div>
+
+                <!-- MILISEGUNDOS (Sincronización de Alta Frecuencia) -->
+                <div class="onyx-card rounded-xl p-5 flex flex-col items-center justify-center relative overflow-hidden col-span-2 md:col-span-1">
+                    <div id="milliseconds" class="text-4xl md:text-5xl font-bold font-tech text-zinc-400 tracking-tight">00</div>
+                    <div class="text-[10px] text-zinc-500 font-semibold uppercase tracking-widest mt-2">Milisegundos</div>
+                    <div class="absolute bottom-0 left-0 w-full h-[1px] bg-white"></div>
+                </div>
+
+            </div>
+
+            <!-- Barra de Progreso de la Línea de Tiempo -->
+            <div class="max-w-2xl mx-auto px-4 mb-20">
+                <div class="flex justify-between text-[11px] text-zinc-500 mb-2 font-tech uppercase tracking-wider">
+                    <span id="startRangeText">Fase Inicial</span>
+                    <span>Lanzamiento Oficial: 27 Julio, 2026</span>
+                </div>
+                <div class="w-full bg-zinc-950 rounded-full h-2 p-0.5 border border-zinc-900">
+                    <div id="progressBar" class="bg-white h-1 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(255,255,255,0.8)]" style="width: 0%"></div>
+                </div>
+                <p id="progressPercentageText" class="text-[10px] text-zinc-400 mt-2 text-center font-tech uppercase tracking-widest">Sincronización global en progreso: 0.00000%</p>
+            </div>
+
+            <!-- Nuestros Servicios Digitales -->
+            <div id="servicios" class="max-w-4xl mx-auto mb-20">
+                <h3 class="text-xs uppercase font-bold text-zinc-400 tracking-[0.25em] mb-10 font-tech">Nuestros Servicios Digitales</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <!-- Servicio 1: eTranslator -->
+                    <div class="onyx-card rounded-xl p-6">
+                        <div class="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white mb-4">
+                            <!-- Icono de Traducción / Lenguaje -->
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 0H3m13 11a3 3 0 100-6 3 3 0 000 6zm0 0v-3m0 3h.01M19 19l2-2m-2 2H9.5a5.5 5.5 0 010-11H12"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-tech font-bold text-white mb-2 text-base">eTranslator</h4>
+                        <p class="text-xs text-zinc-400 leading-relaxed">Servicio de traducción inteligente de máxima precisión, completamente integrado y potenciado por nuestro motor de IA neural proprietary <strong class="text-white">eOnyx AI</strong>.</p>
+                    </div>
+                    <!-- Servicio 2: eCoodex -->
+                    <div class="onyx-card rounded-xl p-6">
+                        <div class="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white mb-4">
+                            <!-- Icono de Código / Terminal -->
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-tech font-bold text-white mb-2 text-base">eCoodex</h4>
+                        <p class="text-xs text-zinc-400 leading-relaxed">Servicio avanzado de codificación e ingeniería de software a medida. Diseñado para escalar la infraestructura técnica de negocios y empresas de alto nivel.</p>
+                    </div>
+                    <!-- Servicio 3: eOnyx AI -->
+                    <div class="onyx-card rounded-xl p-6">
+                        <div class="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white mb-4">
+                            <!-- Icono de Red Neuronal / IA -->
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-tech font-bold text-white mb-2 text-base">eOnyx AI</h4>
+                        <p class="text-xs text-zinc-400 leading-relaxed">Nuestra inteligencia artificial propietaria. El núcleo cognitivo y autónomo detrás de todos nuestros desarrollos, optimizaciones lógicas y procesamiento de datos.</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Caja de Chat de Minecraft Interactiva -->
-            <div class="w-full max-w-lg relative rounded-xl p-4 text-left font-mono text-xs sm:text-sm liquid-glass">
-                <div class="liquid-glass-distort rounded-xl" style="opacity:0.3;"></div>
-                <div class="flex items-center gap-2 border-b border-white/10 pb-2 mb-2">
-                    <div class="w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></div>
-                    <span class="font-bold text-gray-300 uppercase tracking-widest text-[10px]">Chat Multijugador en Vivo</span>
-                </div>
-
-                <div id="minecraft-chat-box" class="h-32 overflow-y-auto space-y-1 mb-3 scrollbar-none pr-1">
-                    <div><span class="text-mc-gold">[Server]</span> <span class="text-gray-300">¡Bienvenido al portal interactivo de eOnyCraft!</span></div>
-                    <div><span class="text-mc-diamond">&lt;Staff_Steve&gt;</span> <span class="text-white">¡No olviden reclamar su kit gratis hoy!</span></div>
-                    <div><span class="text-mc-emerald">&lt;Miner_Craft&gt;</span> <span class="text-white">Alguien para hacer pvp en arena gladiadores?</span></div>
-                </div>
-
-                <form id="chat-form" onsubmit="sendChatMessage(event)" class="flex gap-2">
-                    <label for="chat-input" class="sr-only">Mensaje de chat</label>
-                    <input id="chat-input" type="text" placeholder="Escribe un mensaje en el chat del lobby..." class="flex-grow bg-black/50 border border-white/20 rounded px-3 py-2 text-white outline-none focus:border-onyx-500 text-xs sm:text-sm font-mono" maxlength="80">
-                    <button type="submit" onmouseenter="playClickSound()" class="mc-btn text-white font-pixel text-[10px] px-4 py-2 shrink-0">
-                        ENVIAR
-                    </button>
+            <!-- Formulario de Acceso Prioritario -->
+            <div class="max-w-xl mx-auto onyx-card rounded-xl p-6 md:p-8 text-left border border-zinc-800 mb-20 relative">
+                <div class="absolute -top-3 left-6 px-3 py-0.5 bg-white rounded text-[9px] font-bold uppercase tracking-wider text-black font-tech">Suscripción</div>
+                <h3 class="text-base font-bold text-white mb-2 font-tech">Acceso técnico anticipado</h3>
+                <p class="text-xs text-zinc-400 mb-6">Regístrate para recibir credenciales de prueba para <strong>eTranslator</strong>, la API corporativa de <strong>eCoodex</strong> y el kit de integración exclusivo de <strong>eOnyx AI</strong>.</p>
+                
+                <form id="leadForm" onsubmit="handleLeadSubmit(event)" class="space-y-4">
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="email" id="leadEmail" required class="flex-grow input-monochrome rounded-lg px-4 py-3 text-sm focus:outline-none text-zinc-200 placeholder-zinc-600 font-tech" placeholder="correo@tuempresa.com">
+                        <button type="submit" class="bg-white hover:bg-zinc-200 text-black font-bold text-xs px-6 py-3 sm:py-0 rounded-lg transition duration-300 font-tech uppercase tracking-wider">
+                            Reservar
+                        </button>
+                    </div>
+                    <div id="formFeedback" class="hidden text-xs rounded-lg p-3"></div>
                 </form>
             </div>
 
-        </div>
-
-        <!-- Toast de Logro (Advancement) -->
-        <div id="toast" class="fixed bottom-5 right-5 z-50 advancement-toast text-white px-4 py-3 rounded-md translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 max-w-[90vw] w-[340px]">
-            <div class="advancement-icon w-10 h-10 rounded-sm flex items-center justify-center shrink-0">
-                <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
-            </div>
-            <div>
-                <p class="text-[9px] sm:text-[10px] text-mc-gold font-pixel tracking-wide">¡Logro obtenido!</p>
-                <p id="toast-text" class="font-bold text-xs sm:text-sm text-white">IP Copiada con éxito</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Características del Servidor -->
-    <section class="py-8 sm:py-12 bg-onyx-800 border-y border-white/5 relative overflow-hidden crafting-grid-bg">
-        <div class="absolute -top-32 -left-32 w-64 h-64 bg-mc-emerald/5 rounded-full blur-[80px] pointer-events-none"></div>
-        <div class="absolute -bottom-32 -right-32 w-64 h-64 bg-mc-diamond/5 rounded-full blur-[80px] pointer-events-none"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 relative z-10">
-
-            <div class="reveal flex items-center gap-4 liquid-glass rounded-2xl p-5 sm:p-6 hover:scale-[1.03] hover:shadow-neon-emerald transition-transform duration-300">
-                <div class="inv-slot w-12 h-12 rounded-md flex items-center justify-center text-xl sm:text-2xl shrink-0 text-mc-emerald">
-                    <i class="fa-solid fa-heart-pulse animate-flicker"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-sm sm:text-base text-white">Estado Activo</h3>
-                    <p class="text-gray-400 text-xs sm:text-sm">Servidores online las 24/7 sin caídas ni lag.</p>
-                </div>
-            </div>
-
-            <div class="reveal flex items-center gap-4 liquid-glass rounded-2xl p-5 sm:p-6 hover:scale-[1.03] hover:shadow-neon-diamond transition-transform duration-300" style="--reveal-delay:100ms;">
-                <div class="inv-slot w-12 h-12 rounded-md flex items-center justify-center text-xl sm:text-2xl shrink-0 text-mc-diamond">
-                    <i class="fa-solid fa-user-shield animate-flicker"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-sm sm:text-base text-white">Anti-DDoS Premium</h3>
-                    <p class="text-gray-400 text-xs sm:text-sm">Protección avanzada para un juego competitivo fluido.</p>
-                </div>
-            </div>
-
-            <div class="reveal flex items-center gap-4 liquid-glass rounded-2xl p-5 sm:p-6 sm:col-span-2 md:col-span-1 hover:scale-[1.03] hover:shadow-neon-gold transition-transform duration-300" style="--reveal-delay:200ms;">
-                <div class="inv-slot w-12 h-12 rounded-md flex items-center justify-center text-xl sm:text-2xl shrink-0 text-mc-gold">
-                    <i class="fa-solid fa-trophy animate-flicker"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-sm sm:text-base text-white">Eventos Semanales</h3>
-                    <p class="text-gray-400 text-xs sm:text-sm">Participa y gana recompensas directamente en la tienda.</p>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Cómo Empezar (proceso real de 3 pasos) -->
-    <section id="empezar" class="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-mc-emerald/5 rounded-full blur-[140px] pointer-events-none"></div>
-
-        <div class="text-center mb-12 sm:mb-16 reveal">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Cómo <span class="text-onyx-500">Unirte</span></h2>
-            <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Solo necesitas tres pasos para empezar tu aventura en eOnyCraft, seas Premium o No-Premium.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative">
-            <div class="hidden md:block absolute top-10 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-onyx-500/0 via-onyx-500/40 to-onyx-500/0"></div>
-
-            <div class="reveal liquid-glass rounded-2xl p-6 sm:p-8 text-center relative">
-                <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-onyx-500/15 border border-onyx-500/40 flex items-center justify-center font-pixel text-onyx-300 text-lg">01</div>
-                <h3 class="text-base sm:text-lg font-bold text-white mb-2">Abre Minecraft Java</h3>
-                <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Cualquier versión entre 1.16 y 1.21+. No importa si tu cuenta es Premium o No-Premium (Pirata).</p>
-            </div>
-
-            <div class="reveal liquid-glass rounded-2xl p-6 sm:p-8 text-center relative" style="--reveal-delay:120ms;">
-                <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-onyx-500/15 border border-onyx-500/40 flex items-center justify-center font-pixel text-onyx-300 text-lg">02</div>
-                <h3 class="text-base sm:text-lg font-bold text-white mb-2">Añade el servidor</h3>
-                <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Pega la IP <span class="text-onyx-400 font-mono">play.eonycraft.net</span> en "Agregar Servidor" dentro de Multijugador.</p>
-            </div>
-
-            <div class="reveal liquid-glass rounded-2xl p-6 sm:p-8 text-center relative" style="--reveal-delay:240ms;">
-                <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-onyx-500/15 border border-onyx-500/40 flex items-center justify-center font-pixel text-onyx-300 text-lg">03</div>
-                <h3 class="text-base sm:text-lg font-bold text-white mb-2">Elige tu modo y juega</h3>
-                <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Selecciona Survival, Skyblock o OneBlock en el lobby y reclama tu kit de bienvenida.</p>
-            </div>
-        </div>
-
-        <div class="text-center mt-10 reveal">
-            <button onclick="copyServerIP()" onmouseenter="playClickSound()" class="mc-btn mc-btn-purple text-white font-pixel text-xs sm:text-sm px-8 py-4 inline-flex items-center gap-2">
-                <i class="fa-solid fa-copy"></i> COPIAR IP Y EMPEZAR
-            </button>
-        </div>
-    </section>
-
-    <!-- Modalidades de Juego -->
-    <section id="modalidades" class="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-onyx-500/5 rounded-full blur-[140px] pointer-events-none"></div>
-
-        <div class="text-center mb-12 sm:mb-16 reveal">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Nuestras <span class="text-onyx-500">Modalidades</span></h2>
-            <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Explora mundos infinitos y vive aventuras únicas con nuestros sistemas de juego optimizados y personalizados.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-
-            <!-- Modalidad 1: Survival Custom -->
-            <div class="reveal tilt-card bg-onyx-800/40 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/5 group hover:border-mc-emerald/40 transition-all duration-300 flex flex-col justify-between shadow-xl relative">
-                <div class="tilt-glare"></div>
-                <div>
-                    <div class="relative h-44 sm:h-48 overflow-hidden bg-black">
-                        <img src="https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=Survival+Custom'" alt="Minecraft Survival" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                        <div class="absolute inset-0 bg-gradient-to-t from-onyx-900 to-transparent"></div>
-                        <span class="absolute top-4 left-4 bg-mc-emerald text-black font-black px-3 py-1 rounded text-[10px] uppercase tracking-wider pixel-borders z-10">¡Más Jugado!</span>
+            <!-- Roadmap del Lanzamiento (Fases) -->
+            <div class="max-w-3xl mx-auto text-left pt-6 border-t border-zinc-900 mb-10">
+                <h3 class="text-base font-bold font-tech text-center mb-8 text-white uppercase tracking-widest">Plan de Despliegue de Servicios</h3>
+                <div class="space-y-6 relative border-l border-zinc-800 ml-4 md:ml-6">
+                    <!-- Fase 1 -->
+                    <div class="relative pl-6 sm:pl-8">
+                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-zinc-600 border border-zinc-400 flex items-center justify-center"></div>
+                        <span class="text-[9px] uppercase font-bold text-zinc-500 tracking-wider font-tech">Fase 1 (Terminada)</span>
+                        <h5 class="text-xs font-semibold text-zinc-400 mt-1">Setup de Infraestructura & eOnyx AI Core</h5>
+                        <p class="text-xs text-zinc-500 mt-1">Consolidación del motor de lenguaje natural inicial de eOnyx AI y preparación de los entornos aislados de computación.</p>
                     </div>
-                    <div class="p-5 sm:p-6">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-tree text-mc-emerald"></i> Survival Custom 1.21
-                        </h3>
-                        <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-4">
-                            Sumérgete en un survival clásico mejorado con misiones diarias, habilidades especiales (estilo RPG), trabajos, protecciones de terreno sencillas y una gran economía comunitaria.
-                        </p>
-                        <ul class="space-y-2 text-xs text-gray-300">
-                            <li><i class="fa-solid fa-check text-mc-emerald mr-2"></i>Clanes y guerras territoriales</li>
-                            <li><i class="fa-solid fa-check text-mc-emerald mr-2"></i>Tiendas creadas por los jugadores</li>
-                            <li><i class="fa-solid fa-check text-mc-emerald mr-2"></i>Dungeons personalizadas con jefes</li>
-                        </ul>
+                    <!-- Fase 2 -->
+                    <div class="relative pl-6 sm:pl-8">
+                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-white flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.8)]"></div>
+                        <span class="text-[9px] uppercase font-bold text-white tracking-wider font-tech">Fase 2 (En Desarrollo)</span>
+                        <h5 class="text-xs font-semibold text-zinc-200 mt-1">Betas Privadas: eTranslator & eCoodex</h5>
+                        <p class="text-xs text-zinc-400 mt-1">Pruebas internas de velocidad de traducción y compilación asistida por IA con socios corporativos seleccionados.</p>
                     </div>
-                </div>
-                <div class="p-5 sm:p-6 pt-0">
-                    <button onclick="copyServerIP()" onmouseenter="playClickSound()" class="mc-btn w-full text-white font-pixel text-xs py-3">
-                        JUGAR SURVIVAL
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modalidad 2: Skyblock -->
-            <div class="reveal tilt-card bg-onyx-800/40 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/5 group hover:border-mc-diamond/40 transition-all duration-300 flex flex-col justify-between shadow-xl relative" style="--reveal-delay:120ms;">
-                <div class="tilt-glare"></div>
-                <div>
-                    <div class="relative h-44 sm:h-48 overflow-hidden bg-black">
-                        <img src="https://images.unsplash.com/photo-1615678815958-5910c6811c25?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=Skyblock'" alt="Minecraft Skyblock" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                        <div class="absolute inset-0 bg-gradient-to-t from-onyx-900 to-transparent"></div>
-                        <span class="absolute top-4 left-4 bg-mc-diamond text-black font-black px-3 py-1 rounded text-[10px] uppercase tracking-wider pixel-borders z-10">Clásico</span>
-                    </div>
-                    <div class="p-5 sm:p-6">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-cloud text-mc-diamond"></i> Skyblock Evolution
-                        </h3>
-                        <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-4">
-                            Empieza en una isla flotante desierta con recursos mínimos. Genera cobble con minerales integrados, completa retos, automatiza granjas masivas y lidera el TOP de las islas más valiosas.
-                        </p>
-                        <ul class="space-y-2 text-xs text-gray-300">
-                            <li><i class="fa-solid fa-check text-mc-diamond mr-2"></i>Generador de minerales mejorable</li>
-                            <li><i class="fa-solid fa-check text-mc-diamond mr-2"></i>Misiones de isla cooperativas</li>
-                            <li><i class="fa-solid fa-check text-mc-diamond mr-2"></i>Mercado global interactivo</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="p-5 sm:p-6 pt-0">
-                    <button onclick="copyServerIP()" onmouseenter="playClickSound()" class="mc-btn w-full text-white font-pixel text-xs py-3">
-                        JUGAR SKYBLOCK
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modalidad 3: OneBlock -->
-            <div class="reveal tilt-card bg-onyx-800/40 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/5 group hover:border-mc-gold/40 transition-all duration-300 flex flex-col justify-between shadow-xl md:col-span-2 lg:col-span-1 relative" style="--reveal-delay:240ms;">
-                <div class="tilt-glare"></div>
-                <div>
-                    <div class="relative h-44 sm:h-48 overflow-hidden bg-black">
-                        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=OneBlock'" alt="Minecraft OneBlock" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                        <div class="absolute inset-0 bg-gradient-to-t from-onyx-900 to-transparent"></div>
-                        <span class="absolute top-4 left-4 bg-mc-gold text-black font-black px-3 py-1 rounded text-[10px] uppercase tracking-wider pixel-borders z-10">Divertido</span>
-                    </div>
-                    <div class="p-5 sm:p-6">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-cube text-mc-gold"></i> OneBlock Adventures
-                        </h3>
-                        <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-4">
-                            ¡Un único bloque infinito bajo tus pies! Rompe el bloque para subir de fase (llanura, bosque, nether, end, etc.), desbloquea mobs misteriosos y expande tu imperio en las nubes.
-                        </p>
-                        <ul class="space-y-2 text-xs text-gray-300">
-                            <li><i class="fa-solid fa-check text-mc-gold mr-2"></i>10 Fases temáticas de progresión</li>
-                            <li><i class="fa-solid fa-check text-mc-gold mr-2"></i>Mascotas y cosméticos exclusivos</li>
-                            <li><i class="fa-solid fa-check text-mc-gold mr-2"></i>Eventos de invasión de monstruos</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="p-5 sm:p-6 pt-0">
-                    <button onclick="copyServerIP()" onmouseenter="playClickSound()" class="mc-btn w-full text-white font-pixel text-xs py-3">
-                        JUGAR ONEBLOCK
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Tienda y Rangos VIP -->
-    <section id="tienda" class="py-16 sm:py-20 lg:py-24 bg-onyx-800/20 border-t border-b border-white/5 relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-onyx-500/10 rounded-full blur-[160px] pointer-events-none"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-12 sm:mb-16 reveal">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Adquiere tus <span class="text-onyx-500">Rangos</span></h2>
-                <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Apoya al servidor y obtén beneficios estéticos, kits exclusivos, comandos útiles y resalta en el chat.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-
-                <!-- Rango: VIP -->
-                <div class="reveal tilt-card liquid-glass rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden">
-                    <div class="tilt-glare"></div>
-                    <div class="absolute -right-12 -top-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl"></div>
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="text-[10px] uppercase font-black text-amber-400 tracking-wider px-2.5 py-1 bg-amber-400/10 rounded-lg border border-amber-400/20">Acceso Inicial</span>
-                            <i class="fa-solid fa-gem text-amber-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl sm:text-2xl font-black text-white mb-2">Rango VIP</h3>
-                        <p class="text-2xl sm:text-3xl font-pixel text-amber-400 mb-6">$3.99 <span class="text-xs sm:text-sm font-sans text-gray-400">/ mes</span></p>
-
-                        <div class="border-t border-white/5 my-4"></div>
-
-                        <ul class="space-y-4 text-xs sm:text-sm text-gray-300 mb-8">
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-amber-400 mt-0.5 shrink-0"></i>
-                                <span>Prefijo exclusivo <span class="bg-amber-500/20 text-amber-300 font-bold px-1.5 py-0.5 rounded text-[10px] inline-block">[VIP]</span> en chat</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-amber-400 mt-0.5 shrink-0"></i>
-                                <span>Acceso al kit diario <span class="font-bold text-white">/kit vip</span></span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-amber-400 mt-0.5 shrink-0"></i>
-                                <span>Capacidad para crear hasta 5 homes</span>
-                            </li>
-                            <li class="flex items-start gap-2 text-gray-500 line-through">
-                                <i class="fa-solid fa-circle-xmark mt-0.5 shrink-0"></i>
-                                <span>Prioridad de entrada al servidor</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <a href="https://tienda.eonycraft.net" target="_blank" onclick="playClickSound()" onmouseenter="playClickSound()" class="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-3 sm:py-4 rounded-xl text-center transition-all block text-sm">
-                        Ver en la Tienda
-                    </a>
-                </div>
-
-                <!-- Rango: ONYX (Destacado) -->
-                <div class="reveal tilt-card liquid-glass rounded-3xl border-2 !border-onyx-500 p-6 sm:p-8 flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 relative shadow-neon-purple" style="--reveal-delay:120ms;">
-                    <div class="tilt-glare"></div>
-                    <span class="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 bg-onyx-500 text-white font-black text-[10px] uppercase px-4 py-1.5 rounded-full tracking-wider shadow-lg whitespace-nowrap">El Más Popular</span>
-                    <div class="absolute -right-12 -top-12 w-32 h-32 bg-onyx-500/20 rounded-full blur-2xl"></div>
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="text-[10px] uppercase font-black text-onyx-400 tracking-wider px-2.5 py-1 bg-onyx-500/10 rounded-lg border border-onyx-500/20">Mejor Valor</span>
-                            <i class="fa-solid fa-wand-magic-sparkles text-onyx-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl sm:text-2xl font-black text-white mb-2">Rango ONYX</h3>
-                        <p class="text-2xl sm:text-3xl font-pixel text-onyx-400 mb-6">$8.99 <span class="text-xs sm:text-sm font-sans text-gray-400">/ mes</span></p>
-
-                        <div class="border-t border-white/5 my-4"></div>
-
-                        <ul class="space-y-4 text-xs sm:text-sm text-gray-200 mb-8">
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-onyx-400 mt-0.5 shrink-0"></i>
-                                <span>Prefijo neon <span class="bg-onyx-500/30 text-onyx-300 font-bold px-1.5 py-0.5 rounded text-[10px] inline-block">[ONYX]</span> llamativo</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-onyx-400 mt-0.5 shrink-0"></i>
-                                <span>Kit legendario <span class="font-bold text-white">/kit onyx</span> semanal</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-onyx-400 mt-0.5 shrink-0"></i>
-                                <span>Capacidad para crear hasta 15 homes</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-onyx-400 mt-0.5 shrink-0"></i>
-                                <span>Entrar con el servidor lleno (Slot Reservado)</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-onyx-400 mt-0.5 shrink-0"></i>
-                                <span>Acceso al comando <span class="font-bold text-white">/fly</span> en parcelas</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <a href="https://tienda.eonycraft.net" target="_blank" onclick="playClickSound()" onmouseenter="playClickSound()" class="w-full bg-gradient-to-r from-onyx-500 to-indigo-600 hover:from-onyx-400 hover:to-indigo-500 text-white font-black py-3 sm:py-4 rounded-xl text-center transition-all block shadow-md shadow-onyx-500/25 text-sm">
-                        Ver en la Tienda
-                    </a>
-                </div>
-
-                <!-- Rango: EMERALD -->
-                <div class="reveal tilt-card liquid-glass rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden" style="--reveal-delay:240ms;">
-                    <div class="tilt-glare"></div>
-                    <div class="absolute -right-12 -top-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
-                    <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="text-[10px] uppercase font-black text-emerald-400 tracking-wider px-2.5 py-1 bg-emerald-400/10 rounded-lg border border-emerald-400/20">Rango Supremo</span>
-                            <i class="fa-solid fa-crown text-emerald-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl sm:text-2xl font-black text-white mb-2">Rango ESMERALDA</h3>
-                        <p class="text-2xl sm:text-3xl font-pixel text-emerald-400 mb-6">$14.99 <span class="text-xs sm:text-sm font-sans text-gray-400">/ mes</span></p>
-
-                        <div class="border-t border-white/5 my-4"></div>
-
-                        <ul class="space-y-4 text-xs sm:text-sm text-gray-300 mb-8">
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 shrink-0"></i>
-                                <span>Prefijo supremo <span class="bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.5 rounded text-[10px] inline-block">[ESMERALDA]</span></span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 shrink-0"></i>
-                                <span>Kit supremo <span class="font-bold text-white">/kit esmeralda</span> mensual</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 shrink-0"></i>
-                                <span>Creación ilimitada de homes</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 shrink-0"></i>
-                                <span>Acceso al comando <span class="font-bold text-white">/fly</span> global</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 shrink-0"></i>
-                                <span>Escribir en colores en el chat global</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <a href="https://tienda.eonycraft.net" target="_blank" onclick="playClickSound()" onmouseenter="playClickSound()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-3 sm:py-4 rounded-xl text-center transition-all block text-sm">
-                        Ver en la Tienda
-                    </a>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonios (citas reales del chat de la comunidad) -->
-    <section class="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12 sm:mb-16 reveal">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Lo que dice la <span class="text-onyx-500">comunidad</span></h2>
-            <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Mensajes reales tomados de nuestro chat multijugador.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="reveal liquid-glass rounded-2xl p-6 relative">
-                <i class="fa-solid fa-quote-left text-onyx-500/40 text-2xl mb-3"></i>
-                <p class="text-sm text-gray-200 leading-relaxed mb-4">"eOnyCraft es el mejor server de supervivencia que jugué. La economía está súper balanceada."</p>
-                <p class="text-xs font-bold text-onyx-400">— Miner_Craft</p>
-            </div>
-            <div class="reveal liquid-glass rounded-2xl p-6 relative" style="--reveal-delay:120ms;">
-                <i class="fa-solid fa-quote-left text-onyx-500/40 text-2xl mb-3"></i>
-                <p class="text-sm text-gray-200 leading-relaxed mb-4">"El spawn medieval es una locura, el equipo de build se lució. Vale la pena solo por explorarlo."</p>
-                <p class="text-xs font-bold text-onyx-400">— LoverCraft</p>
-            </div>
-            <div class="reveal liquid-glass rounded-2xl p-6 relative" style="--reveal-delay:240ms;">
-                <i class="fa-solid fa-quote-left text-onyx-500/40 text-2xl mb-3"></i>
-                <p class="text-sm text-gray-200 leading-relaxed mb-4">"Derroté al jefe de la dungeon hoy con mi clan. El staff siempre está activo para ayudar."</p>
-                <p class="text-xs font-bold text-onyx-400">— PVP_King</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Galería de Fotos -->
-    <section id="galeria" class="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12 sm:mb-16 reveal">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">La vida en <span class="text-onyx-500">eOnyCraft</span></h2>
-            <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Capturas de pantalla tomadas por nuestra propia comunidad usando shaders cinemáticos.</p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-
-            <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg">
-                <img src="https://images.unsplash.com/photo-1621961401340-9a4f40f00f07?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Lobby+Inmortal'" alt="Lobby Inmortal" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
-                    <div>
-                        <p class="text-xs sm:text-sm font-bold text-white">Spawn Principal</p>
-                        <p class="text-[10px] sm:text-xs text-onyx-400">Por: Administrador</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:80ms;">
-                <img src="https://images.unsplash.com/photo-1627856014754-2907e2455b51?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Mundo+Survival'" alt="Mundo Survival" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
-                    <div>
-                        <p class="text-xs sm:text-sm font-bold text-white">Ciudad Medieval del Spawn</p>
-                        <p class="text-[10px] sm:text-xs text-onyx-400">Por: BuildTeam</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:160ms;">
-                <img src="https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Catedral+Nether'" alt="Catedral Nether" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
-                    <div>
-                        <p class="text-xs sm:text-sm font-bold text-white">Catedral del Nether</p>
-                        <p class="text-[10px] sm:text-xs text-onyx-400">Por: BuildTeam</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:240ms;">
-                <img src="https://images.unsplash.com/photo-1601042879364-f3947d3f9c16?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Arenas+PvP'" alt="Arenas PvP" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
-                    <div>
-                        <p class="text-xs sm:text-sm font-bold text-white">Arena Gladiadores</p>
-                        <p class="text-[10px] sm:text-xs text-onyx-400">Por: ModeradorPvP</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:320ms;">
-                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Eventos+Especiales'" alt="Eventos Especiales" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
-                    <div>
-                        <p class="text-xs sm:text-sm font-bold text-white">Evento "El Rey de la Colina"</p>
-                        <p class="text-[10px] sm:text-xs text-onyx-400">Por: EventMaster</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:400ms;">
-                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Fortaleza+Medieval'" alt="Fortaleza Medieval" class="w-full h-full object-cover blur-card-img" loading="lazy">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
-                    <div>
-                        <p class="text-xs sm:text-sm font-bold text-white">Base de Clan OnyxLegend</p>
-                        <p class="text-[10px] sm:text-xs text-onyx-400">Por: ClanMember</p>
+                    <!-- Fase 3 -->
+                    <div class="relative pl-6 sm:pl-8">
+                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center"></div>
+                        <span class="text-[9px] uppercase font-bold text-zinc-600 tracking-wider font-tech">Fase 3 (Próximamente)</span>
+                        <h5 class="text-xs font-semibold text-zinc-500 mt-1">Lanzamiento Comercial de la Suite Digital</h5>
+                        <p class="text-xs text-zinc-500 mt-1">Apertura total de los portales de autoservicio de eCoodex, eTranslator y el hub central de eOnyx AI.</p>
                     </div>
                 </div>
             </div>
 
         </div>
-    </section>
-
-    <!-- Equipo de Administración -->
-    <section id="equipo" class="py-16 sm:py-20 lg:py-24 bg-onyx-800/30 border-t border-white/5 relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-onyx-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-12 sm:mb-16 reveal">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Equipo de <span class="text-onyx-500">Administración</span></h2>
-                <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">El responsable de mantener el orden, añadir novedades y dar soporte las 24 horas del día.</p>
-            </div>
-
-            <div class="flex justify-center">
-                <div class="reveal animate-float liquid-glass p-6 sm:p-8 rounded-3xl flex flex-col items-center text-center group max-w-md w-full relative">
-                    <div class="w-28 h-28 bg-onyx-700/50 rounded-full flex items-center justify-center p-2 mb-4 relative overflow-hidden shadow-inner border border-white/10">
-                        <img src="https://p.novaskin.me/6263033205.png" alt="Skin de leonelnvlnc" class="w-20 h-20 object-contain group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" onerror="this.onerror=null; this.src='https://minotar.net/avatar/Steve'">
-                        <span class="absolute bottom-1 right-1 bg-onyx-500 text-white text-[9px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap shadow-md border border-white/10">Propietario</span>
-                    </div>
-
-                    <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-onyx-400 transition-colors">leonelnvlnc</h3>
-                    <p class="text-[10px] sm:text-xs text-onyx-400 uppercase tracking-widest font-black mb-4">Owner & Dev</p>
-                    <p class="text-xs sm:text-sm text-gray-300 leading-relaxed px-2">Fundador y desarrollador de eOnyCraft. Encargado del desarrollo del sistema general, soporte y la infraestructura técnica.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ -->
-    <section id="faq" class="py-16 sm:py-20 lg:py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12 sm:mb-16 reveal">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Preguntas <span class="text-onyx-500">Frecuentes</span></h2>
-            <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Todo lo que necesitas saber antes de entrar al servidor.</p>
-        </div>
-
-        <div class="space-y-4">
-            <details class="faq-item reveal liquid-glass rounded-2xl p-5 sm:p-6" open>
-                <summary class="flex items-center justify-between gap-4 font-bold text-white text-sm sm:text-base">
-                    ¿Necesito cuenta Premium para jugar?
-                    <i class="fa-solid fa-chevron-down faq-chevron text-onyx-400 shrink-0"></i>
-                </summary>
-                <p class="text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed">No. eOnyCraft acepta cuentas Premium y No-Premium (Pirata) por igual, sin restricciones de contenido entre ambas.</p>
-            </details>
-
-            <details class="faq-item reveal liquid-glass rounded-2xl p-5 sm:p-6" style="--reveal-delay:80ms;">
-                <summary class="flex items-center justify-between gap-4 font-bold text-white text-sm sm:text-base">
-                    ¿Qué versiones de Minecraft son compatibles?
-                    <i class="fa-solid fa-chevron-down faq-chevron text-onyx-400 shrink-0"></i>
-                </summary>
-                <p class="text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed">El servidor soporta desde la versión 1.16 hasta la 1.21+ gracias a ViaVersion, así que puedes conectarte con casi cualquier cliente reciente.</p>
-            </details>
-
-            <details class="faq-item reveal liquid-glass rounded-2xl p-5 sm:p-6" style="--reveal-delay:160ms;">
-                <summary class="flex items-center justify-between gap-4 font-bold text-white text-sm sm:text-base">
-                    ¿Los rangos dan ventajas competitivas (Pay to Win)?
-                    <i class="fa-solid fa-chevron-down faq-chevron text-onyx-400 shrink-0"></i>
-                </summary>
-                <p class="text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed">No. Los rangos son principalmente cosméticos y de comodidad (homes extra, kits, /fly en parcelas). No otorgan objetos ni estadísticas que rompan el balance del PvP o la economía.</p>
-            </details>
-
-            <details class="faq-item reveal liquid-glass rounded-2xl p-5 sm:p-6" style="--reveal-delay:240ms;">
-                <summary class="flex items-center justify-between gap-4 font-bold text-white text-sm sm:text-base">
-                    ¿Cómo reporto a un jugador o pido ayuda del staff?
-                    <i class="fa-solid fa-chevron-down faq-chevron text-onyx-400 shrink-0"></i>
-                </summary>
-                <p class="text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed">Únete a nuestro Discord y abre un ticket de soporte, o usa el comando <span class="font-mono text-onyx-400">/reportar</span> dentro del juego para notificar directamente al staff en línea.</p>
-            </details>
-        </div>
-    </section>
     </main>
 
-    <!-- Pie de Página -->
-    <footer class="bg-onyx-900 border-t border-white/10 pt-12 pb-8 relative z-10 crafting-grid-bg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-10 border-b border-white/5">
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 bg-onyx-500 rounded-lg flex items-center justify-center shadow-neon-purple">
-                            <i class="fa-solid fa-cube text-white text-sm"></i>
-                        </div>
-                        <span class="font-pixel text-[10px] sm:text-xs tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-onyx-400 to-white">eOnyCraft</span>
-                    </div>
-                    <p class="text-gray-500 text-xs leading-relaxed">Survival, Skyblock y OneBlock con comunidad activa 24/7. Premium y No-Premium bienvenidos.</p>
-                </div>
-
-                <div>
-                    <h4 class="text-white font-bold text-sm mb-4">Navegación</h4>
-                    <ul class="space-y-2 text-xs text-gray-400">
-                        <li><a href="#empezar" class="hover:text-onyx-400 transition-colors">Cómo Unirte</a></li>
-                        <li><a href="#modalidades" class="hover:text-onyx-400 transition-colors">Modalidades</a></li>
-                        <li><a href="#tienda" class="hover:text-onyx-400 transition-colors">Tienda</a></li>
-                        <li><a href="#galeria" class="hover:text-onyx-400 transition-colors">Galería</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="text-white font-bold text-sm mb-4">Comunidad</h4>
-                    <ul class="space-y-2 text-xs text-gray-400">
-                        <li><a href="#equipo" class="hover:text-onyx-400 transition-colors">Staff</a></li>
-                        <li><a href="#faq" class="hover:text-onyx-400 transition-colors">Preguntas Frecuentes</a></li>
-                        <li><a href="https://discord.gg" target="_blank" class="hover:text-onyx-400 transition-colors">Discord</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="text-white font-bold text-sm mb-4">Síguenos</h4>
-                    <div class="flex gap-4 text-gray-400 text-lg">
-                        <a href="https://twitter.com" target="_blank" onclick="playClickSound()" onmouseenter="playClickSound()" class="hover:text-onyx-500 transition-colors" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-                        <a href="https://youtube.com" target="_blank" onclick="playClickSound()" onmouseenter="playClickSound()" class="hover:text-onyx-500 transition-colors" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                        <a href="https://discord.gg" target="_blank" onclick="playClickSound()" onmouseenter="playClickSound()" class="hover:text-onyx-500 transition-colors" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
-                    </div>
-                </div>
+    <!-- Pie de página -->
+    <footer class="w-full py-8 text-center text-xs text-zinc-600 border-t border-zinc-950 bg-black/40 z-10 font-tech">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p>© 2026 e-Onyx Technologies. Todos los derechos reservados.</p>
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-white transition">Términos de Servicio</a>
+                <span class="text-zinc-800">|</span>
+                <a href="#" class="hover:text-white transition">Privacidad</a>
             </div>
-
-            <p class="text-gray-500 text-[10px] sm:text-xs text-center pt-6 leading-normal">
-                &copy; 2026 eOnyCraft Server. Todos los derechos reservados.<br>
-                <span class="text-gray-600">No afiliado con Mojang AB ni Microsoft Studios.</span>
-            </p>
         </div>
     </footer>
 
-    <!-- Elementos Interactivos JS -->
+    <!-- Contenedor del Mensaje de Finalización (Lanzamiento Realizado) -->
+    <div id="finishOverlay" class="fixed inset-0 bg-black/98 flex flex-col items-center justify-center z-50 opacity-0 pointer-events-none transition-all duration-1000">
+        <div class="text-center p-8 max-w-xl">
+            <div class="inline-flex p-2 rounded-xl bg-black border border-zinc-800 mb-6 shadow-xl relative overflow-hidden w-20 h-20 items-center justify-center">
+                <img src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" alt="e-Onyx Logo" class="w-14 h-14 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <svg class="hidden w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h2 class="text-4xl font-bold font-tech text-white mb-4 tracking-tight">¡Sistemas e-Onyx en Línea!</h2>
+            <p class="text-sm text-zinc-400 mb-8 leading-relaxed">
+                e-Onyx Technologies ha completado el despliegue de sus suites digitales eTranslator, eCoodex y su núcleo eOnyx AI. Ya puedes operar.
+            </p>
+            <div id="subscribersBadge" class="onyx-card p-4 rounded-lg text-white italic text-xs mb-8 hidden">
+                <!-- Información del usuario suscrito -->
+            </div>
+            <button onclick="closeOverlay()" class="px-8 py-3 bg-white text-black font-semibold rounded-lg hover:bg-zinc-200 transition duration-300 font-tech uppercase tracking-widest text-xs">
+                Acceder a eOnyx Console
+            </button>
+        </div>
+    </div>
+
     <script>
-        /* Sintetizador de Efectos de Sonido Retro Web Audio API */
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+        // --- FECHA OBJETIVO ---
+        // 27 de Julio del 2026, 00:00:00 (Medianoche)
+        const TARGET_DATE = new Date('2026-07-27T00:00:00').getTime();
+        
+        // Base de cálculo para barra de progreso: 28 de junio de 2026
+        const START_DATE = new Date('2026-06-28T00:00:00').getTime();
+
+        // Elementos DOM
+        const elDays = document.getElementById('days');
+        const elHours = document.getElementById('hours');
+        const elMinutes = document.getElementById('minutes');
+        const elSeconds = document.getElementById('seconds');
+        const elMilliseconds = document.getElementById('milliseconds');
+        const elProgressBar = document.getElementById('progressBar');
+        const elProgressPercentageText = document.getElementById('progressPercentageText');
+        const elStartRangeText = document.getElementById('startRangeText');
+        const elFinishOverlay = document.getElementById('finishOverlay');
+        const elSubscribersBadge = document.getElementById('subscribersBadge');
+
+        // Formateador helper
+        function padZero(num, size = 2) {
+            let s = num + "";
+            while (s.length < size) s = "0" + s;
+            return s;
         }
 
-        function playClickSound() {
-            try {
-                initAudio();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+        // Configuración de fecha inicial formateada
+        const formattedStartDate = new Date(START_DATE).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+        elStartRangeText.textContent = `Fase Alfa (${formattedStartDate} de 2026)`;
 
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.06);
+        // Ciclo del temporizador
+        function updateTimer() {
+            const now = new Date().getTime();
+            const difference = TARGET_DATE - now;
 
-                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+            if (difference <= 0) {
+                // Finalizado
+                elDays.textContent = '00';
+                elHours.textContent = '00';
+                elMinutes.textContent = '00';
+                elSeconds.textContent = '00';
+                elMilliseconds.textContent = '00';
+                elProgressBar.style.width = '100%';
+                elProgressPercentageText.textContent = 'DESPLIEGUE COMPLETO: 100.00000%';
 
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.06);
-            } catch (e) {}
-        }
-
-        function playLevelUpSound() {
-            try {
-                initAudio();
-                const playNote = (freq, time, duration) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, time);
-                    gain.gain.setValueAtTime(0.12, time);
-                    gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(time);
-                    osc.stop(time + duration);
-                };
-
-                const now = audioCtx.currentTime;
-                playNote(880, now, 0.15);
-                playNote(1760, now + 0.1, 0.35);
-            } catch (e) {}
-        }
-
-        /* Menú hamburguesa móvil */
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
-            const menuBtn = document.getElementById('menu-btn');
-            const isHidden = mobileMenu.classList.contains('hidden');
-
-            if (isHidden) {
-                mobileMenu.classList.remove('hidden');
-                menuIcon.className = 'fa-solid fa-xmark text-xl sm:text-2xl';
-                menuBtn.setAttribute('aria-expanded', 'true');
-            } else {
-                mobileMenu.classList.add('hidden');
-                menuIcon.className = 'fa-solid fa-bars text-xl sm:text-2xl';
-                menuBtn.setAttribute('aria-expanded', 'false');
-            }
-        }
-
-        /* Frases Clásicas de Minecraft Splash Text */
-        const splashPool = [
-            "¡100% No-Lag!", "¡Survival Custom!", "¡Skyblock Pro!",
-            "¡No-Premium y Premium!", "¡Comunidad Activa!", "¡Eventos hoy!",
-            "¡Staff 24/7!", "¡Vuela en parcelas!", "¡Dungeons OP!",
-            "¡eOnyCraft al mando!", "¡Exploración ilimitada!"
-        ];
-
-        window.onload = function() {
-            const splashTextElem = document.getElementById('splash-text');
-            if (splashTextElem) {
-                splashTextElem.innerText = splashPool[Math.floor(Math.random() * splashPool.length)];
-            }
-            initCanvasParticles();
-            initScrollReveal();
-            initTiltCards();
-        }
-
-        /* Toast de logro (Advancement) reutilizable */
-        function showAdvancement(title, iconClass, iconColorClass) {
-            const toast = document.getElementById('toast');
-            const toastText = document.getElementById('toast-text');
-            const toastIcon = document.getElementById('toast-icon');
-
-            toastText.innerText = title;
-            toastIcon.className = `fa-solid ${iconClass} text-lg ${iconColorClass}`;
-
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            clearTimeout(window._advToastTimer);
-            window._advToastTimer = setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3500);
-        }
-
-        /* Copiar dirección IP */
-        function copyServerIP() {
-            const ipString = 'play.eonycraft.net';
-
-            const tempInput = document.createElement('textarea');
-            tempInput.value = ipString;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    playLevelUpSound();
-                    showAdvancement('IP Copiada con éxito', 'fa-circle-check', 'text-emerald-400');
-                    const copyBtnText = document.getElementById('copy-text');
-                    const copyBtnIcon = document.getElementById('copy-icon');
-                    copyBtnText.innerText = '¡COPIADO!';
-                    copyBtnIcon.className = 'fa-solid fa-check';
-                    setTimeout(() => {
-                        copyBtnText.innerText = 'COPIAR IP';
-                        copyBtnIcon.className = 'fa-solid fa-copy';
-                    }, 3500);
+                const hasRegistered = localStorage.getItem('e_onyx_registered_email');
+                if (hasRegistered) {
+                    elSubscribersBadge.textContent = `Invitación y prioridad de acceso lista para: ${hasRegistered}`;
+                    elSubscribersBadge.classList.remove('hidden');
                 }
-            } catch (err) {
-                console.error('Error al intentar copiar:', err);
-            }
-
-            document.body.removeChild(tempInput);
-        }
-
-        /* Mecánica del Simulador de Chat Interactivo */
-        const mockResponses = [
-            "&lt;Miner_Craft&gt; eOnyCraft es el mejor server de supervivencia que jugué.",
-            "&lt;BuildMaster&gt; ¿Alguien quiere comerciar esmeraldas?",
-            "&lt;PVP_King&gt; ¡He derrotado al Boss de la dungeon hoy!",
-            "&lt;OnyxNoob&gt; ¿Cómo consigo dinero? Ayuda porfa.",
-            "&lt;Staff_Steve&gt; @OnyxNoob usa /jobs join para empezar a ganar dinero.",
-            "&lt;RedstonePro&gt; La economía del servidor está super equilibrada.",
-            "&lt;LoverCraft&gt; eOnyCraft tiene el mejor spawn medieval."
-        ];
-
-        function sendChatMessage(event) {
-            event.preventDefault();
-            initAudio();
-            playClickSound();
-
-            const input = document.getElementById('chat-input');
-            const chatBox = document.getElementById('minecraft-chat-box');
-            const userMessage = input.value.trim();
-
-            if (!userMessage) return;
-
-            const userLine = document.createElement('div');
-            userLine.innerHTML = `<span class="text-onyx-400">&lt;Tú&gt;</span> <span class="text-white">${escapeHtml(userMessage)}</span>`;
-            chatBox.appendChild(userLine);
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            input.value = '';
-
-            setTimeout(() => {
-                const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
-                const replyLine = document.createElement('div');
-                replyLine.innerHTML = randomResponse;
-                chatBox.appendChild(replyLine);
-                chatBox.scrollTop = chatBox.scrollHeight;
-                playClickSound();
-            }, 1000 + Math.random() * 1500);
-        }
-
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        /* Motor de Partículas del Juego (Esferas de Experiencia, Redstone, Diamante, Amatista) */
-        function initCanvasParticles() {
-            const canvas = document.getElementById('mc-particle-canvas');
-            const ctx = canvas.getContext('2d');
-
-            let particles = [];
-            const types = ['xp', 'redstone', 'diamond', 'amethyst'];
-
-            function resize() {
-                canvas.width = canvas.parentElement.offsetWidth;
-                canvas.height = canvas.parentElement.offsetHeight;
-            }
-            window.addEventListener('resize', resize);
-            resize();
-
-            class Particle {
-                constructor() {
-                    this.reset();
-                    this.y = Math.random() * canvas.height;
-                }
-                reset() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = canvas.height + 20;
-                    this.size = Math.random() * 6 + 4;
-                    this.speedY = -(Math.random() * 1.3 + 0.4);
-                    this.speedX = Math.random() * 0.8 - 0.4;
-                    this.rotation = Math.random() * Math.PI;
-                    this.rotSpeed = (Math.random() - 0.5) * 0.03;
-                    this.type = types[Math.floor(Math.random() * types.length)];
-                    this.alpha = Math.random() * 0.4 + 0.3;
-                    this.pulseSpeed = Math.random() * 0.04 + 0.02;
-                    this.pulseDir = 1;
-                }
-                update() {
-                    this.y += this.speedY;
-                    this.x += this.speedX;
-                    this.rotation += this.rotSpeed;
-
-                    this.alpha += this.pulseSpeed * this.pulseDir;
-                    if (this.alpha >= 0.95 || this.alpha <= 0.25) {
-                        this.pulseDir *= -1;
-                    }
-
-                    if (this.y < -15 || this.x < -15 || this.x > canvas.width + 15) {
-                        this.reset();
-                    }
-                }
-                draw() {
-                    ctx.save();
-                    ctx.globalAlpha = this.alpha;
-
-                    if (this.type === 'xp') {
-                        ctx.shadowColor = '#a3e635';
-                        ctx.shadowBlur = 6;
-                        ctx.fillStyle = '#a3e635';
-                        ctx.fillRect(this.x, this.y, this.size, this.size);
-                        ctx.fillStyle = '#fef08a';
-                        ctx.fillRect(this.x + 1, this.y + 1, this.size - 2, this.size - 2);
-                    } else if (this.type === 'redstone') {
-                        ctx.shadowColor = '#ef4444';
-                        ctx.shadowBlur = 10;
-                        ctx.fillStyle = '#dc2626';
-                        ctx.fillRect(this.x, this.y, this.size - 1, this.size - 1);
-                    } else if (this.type === 'diamond') {
-                        ctx.shadowColor = '#06b6d4';
-                        ctx.shadowBlur = 8;
-                        ctx.fillStyle = '#22d3ee';
-                        ctx.fillRect(this.x, this.y, this.size, this.size);
-                    } else {
-                        // Cristal de amatista (rombo rotado, coherente con el liquid glass morado)
-                        ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
-                        ctx.rotate(this.rotation);
-                        ctx.shadowColor = '#a78bfa';
-                        ctx.shadowBlur = 9;
-                        ctx.fillStyle = '#c4b5fd';
-                        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-                    }
-                    ctx.restore();
-                }
-            }
-
-            const particleCount = 48;
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
-
-            function animateParticles() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
-                requestAnimationFrame(animateParticles);
-            }
-            animateParticles();
-        }
-
-        /* Revelado de secciones al hacer scroll */
-        function initScrollReveal() {
-            const els = document.querySelectorAll('.reveal');
-            if (!('IntersectionObserver' in window)) {
-                els.forEach(el => el.classList.add('reveal-visible'));
+                elFinishOverlay.classList.remove('opacity-0', 'pointer-events-none');
                 return;
             }
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('reveal-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-            els.forEach(el => observer.observe(el));
+
+            // Cálculos
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+            const milliseconds = Math.floor((difference % 1000) / 10);
+
+            // Renderizar valores
+            elDays.textContent = padZero(days);
+            elHours.textContent = padZero(hours);
+            elMinutes.textContent = padZero(minutes);
+            elSeconds.textContent = padZero(seconds);
+            elMilliseconds.textContent = padZero(milliseconds);
+
+            // Progreso
+            const totalDuration = TARGET_DATE - START_DATE;
+            const elapsed = now - START_DATE;
+            let percentage = (elapsed / totalDuration) * 100;
+            percentage = Math.max(0, Math.min(percentage, 100));
+
+            elProgressBar.style.width = `${percentage}%`;
+            elProgressPercentageText.textContent = `Progreso de Despliegue de Red: ${percentage.toFixed(5)}%`;
+
+            requestAnimationFrame(updateTimer);
         }
 
-        /* Tilt 3D + reflejo de cristal en tarjetas */
-        function initTiltCards() {
-            const cards = document.querySelectorAll('.tilt-card');
-            const isTouch = window.matchMedia('(pointer: coarse)').matches;
-            if (isTouch) return;
+        requestAnimationFrame(updateTimer);
 
-            cards.forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const cx = rect.width / 2;
-                    const cy = rect.height / 2;
-                    const rotateX = ((y - cy) / cy) * -6;
-                    const rotateY = ((x - cx) / cx) * 6;
+        function closeOverlay() {
+            elFinishOverlay.classList.add('opacity-0', 'pointer-events-none');
+        }
 
-                    card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
-                    card.style.setProperty('--gx', `${(x / rect.width) * 100}%`);
-                    card.style.setProperty('--gy', `${(y / rect.height) * 100}%`);
-                });
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0px)';
-                });
+        // Manejador del Formulario Lead sin alerts estáticos
+        function handleLeadSubmit(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('leadEmail');
+            const feedback = document.getElementById('formFeedback');
+            const email = emailInput.value.trim();
+
+            if (!email) return;
+
+            localStorage.setItem('e_onyx_registered_email', email);
+
+            feedback.classList.remove('hidden', 'bg-zinc-900', 'text-zinc-400');
+            feedback.classList.add('bg-zinc-100', 'text-black', 'border', 'border-white', 'font-tech');
+            feedback.innerHTML = `<strong>¡Registro completado!</strong> Acceso prioritario reservado para: <strong>${email}</strong>. Te enviaremos credenciales piloto para eTranslator, eCoodex y eOnyx AI.`;
+            
+            emailInput.value = '';
+            
+            setTimeout(() => {
+                feedback.classList.add('hidden');
+            }, 8000);
+        }
+
+        // Revisar si ya está registrado en la base local para no duplicar procesos
+        const savedEmail = localStorage.getItem('e_onyx_registered_email');
+        if (savedEmail) {
+            const feedback = document.getElementById('formFeedback');
+            feedback.classList.remove('hidden');
+            feedback.classList.add('bg-zinc-950', 'text-zinc-300', 'border', 'border-zinc-800');
+            feedback.innerHTML = `Ya has reservado prioridad para: <strong>${savedEmail}</strong>. ¡Gracias por tu interés en e-Onyx!`;
+        }
+
+        // Sistema de red tecnológica en Canvas (Constelación inteligente)
+        const canvas = document.getElementById('techCanvas');
+        const ctx = canvas.getContext('2d');
+        let nodes = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initNodes();
+        }
+
+        class Node {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 0.15;
+                this.vy = (Math.random() - 0.5) * 0.15;
+                this.pulseSpeed = Math.random() * 0.008 + 0.002;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.pulseDir = 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Rebotar en los extremos del viewport
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                this.opacity += this.pulseSpeed * this.pulseDir;
+                if (this.opacity > 0.6 || this.opacity < 0.1) {
+                    this.pulseDir *= -1;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; // Monocromático blanco
+                ctx.fill();
+            }
+        }
+
+        function initNodes() {
+            nodes = [];
+            // Determinar cantidad de nodos de forma balanceada
+            const count = Math.floor((canvas.width * canvas.height) / 12000);
+            for (let i = 0; i < Math.min(count, 100); i++) {
+                nodes.push(new Node());
+            }
+        }
+
+        function animateNodes() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar las conexiones en escala de grises suave
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dist = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        const opacity = (1 - dist / 120) * 0.06;
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`; // Conexión blanca muy sutil
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Actualizar y dIbujar nodos
+            nodes.forEach(node => {
+                node.update();
+                node.draw();
             });
+
+            requestAnimationFrame(animateNodes);
         }
 
-        /* Simulador de contador activo de jugadores */
-        const playerCountHero = document.getElementById('player-count-hero');
-        let currentPlayers = 148;
-
-        setInterval(() => {
-            const variation = Math.floor(Math.random() * 5) - 2;
-            currentPlayers = Math.max(120, Math.min(380, currentPlayers + variation));
-            if (playerCountHero) {
-                playerCountHero.innerText = currentPlayers;
-            }
-        }, 4000);
-
-        /* Notificación de logro al enviar el primer mensaje de chat */
-        let hasChattedBefore = false;
-        document.addEventListener('DOMContentLoaded', () => {
-            const chatForm = document.getElementById('chat-form');
-            if (chatForm) {
-                chatForm.addEventListener('submit', () => {
-                    if (!hasChattedBefore) {
-                        hasChattedBefore = true;
-                        setTimeout(() => showAdvancement('¡Rompe el hielo!', 'fa-comment', 'text-onyx-400'), 200);
-                    }
-                });
-            }
-        });
+        window.addEventListener('resize', resizeCanvas);
+        window.onload = function() {
+            resizeCanvas();
+            animateNodes();
+        }
     </script>
 </body>
 </html>
