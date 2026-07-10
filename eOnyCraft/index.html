@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="eOnyCraft — Servidor de Minecraft Premium & No-Premium. Survival Custom, Skyblock y OneBlock con economía equilibrada, eventos diarios y comunidad activa las 24/7.">
+    <meta name="description" content="eOnyCraft — Servidor de Minecraft Java y Bedrock, Premium & No-Premium. IP: eOnyCraft.aternos.me Puerto: 47468. Survival Custom, Skyblock y OneBlock, siempre en la última versión.">
     <meta name="theme-color" content="#060508">
     <meta property="og:title" content="eOnyCraft | Servidor de Minecraft Premium & No-Premium">
-    <meta property="og:description" content="Survival Custom, Skyblock y OneBlock con economía equilibrada y comunidad activa. play.eonycraft.net">
+    <meta property="og:description" content="Survival Custom, Skyblock y OneBlock en Java y Bedrock. IP: eOnyCraft.aternos.me · Puerto: 47468">
     <meta property="og:type" content="website">
     <title>eOnyCraft | Servidor de Minecraft Premium & No-Premium</title>
     <!-- Tailwind CSS CDN -->
@@ -14,6 +14,8 @@
     <!-- Google Fonts (Minecraft-like & Modern Gaming) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -79,6 +81,32 @@
             background-image:
                 radial-gradient(circle at 15% 8%, rgba(139,92,246,0.08), transparent 40%),
                 radial-gradient(circle at 85% 92%, rgba(6,182,212,0.06), transparent 40%);
+        }
+
+        /* ============================================================
+           RENDIMIENTO — renderiza secciones fuera de pantalla bajo demanda
+           ============================================================ */
+        .cv-auto {
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 900px;
+        }
+
+        /* El fondo "fixed" es costoso (repintado en cada scroll) y en muchos
+           móviles ni siquiera se soporta bien: se usa solo en escritorio. */
+        @media (max-width: 900px) {
+            .hero-bg { background-attachment: scroll; }
+        }
+
+        /* En pantallas pequeñas se reduce el costo de los blur/backdrop-filter
+           (uno de los mayores consumidores de GPU en móviles de gama baja). */
+        @media (max-width: 640px) {
+            .liquid-glass {
+                backdrop-filter: blur(12px) saturate(140%);
+                -webkit-backdrop-filter: blur(12px) saturate(140%);
+            }
+            .liquid-glass-distort { display: none; }
+            .liquid-glass::before { animation: none; background-position: 0% 0%; }
+            .crafting-grid-bg { background-size: 24px 24px; }
         }
 
         /* Personalización de barra de desplazamiento */
@@ -398,22 +426,35 @@
             <!-- Panel de Conexión — Liquid Glass -->
             <div class="animate-float relative w-full max-w-md md:max-w-lg rounded-2xl p-4 sm:p-6 mx-auto mb-10 liquid-glass">
                 <div class="liquid-glass-distort rounded-2xl"></div>
-                <p class="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-3">Dirección de Conexión</p>
+                <p class="text-gray-400 text-[10px] sm:text-xs uppercase tracking-widest font-bold mb-3">Datos de Conexión</p>
 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="flex-grow bg-black/50 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between min-w-0">
-                        <span id="ip-text" class="font-mono text-onyx-400 font-bold tracking-wider text-sm sm:text-base md:text-lg truncate">play.eonycraft.net</span>
-                        <span class="text-[10px] sm:text-xs bg-onyx-500/20 text-onyx-400 font-bold px-2 py-1 rounded shrink-0 ml-2">1.16 - 1.21+</span>
+                <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div class="bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 min-w-0">
+                        <p class="text-[9px] uppercase tracking-widest text-gray-500 font-bold">IP del Servidor</p>
+                        <span id="ip-text" class="font-mono text-onyx-400 font-bold tracking-wider text-sm sm:text-base block truncate">eOnyCraft.aternos.me</span>
                     </div>
-                    <button onclick="copyServerIP()" onmouseenter="playClickSound()" class="mc-btn mc-btn-purple text-white font-pixel text-xs sm:text-sm px-6 py-3 shrink-0 flex items-center justify-center gap-2">
+                    <button onclick="copyServerIP()" onmouseenter="playClickSound()" class="mc-btn mc-btn-purple text-white font-pixel text-[10px] sm:text-xs px-5 sm:px-6 py-3 shrink-0 flex items-center justify-center gap-2">
                         <i id="copy-icon" class="fa-solid fa-copy"></i>
                         <span id="copy-text">COPIAR IP</span>
                     </button>
                 </div>
 
-                <div class="mt-4 flex flex-col sm:flex-row justify-around gap-2 text-[10px] sm:text-xs text-gray-400 text-center">
-                    <span class="flex items-center justify-center gap-1"><i class="fa-solid fa-shield text-mc-emerald"></i> Premium & No-Premium</span>
-                    <span class="flex items-center justify-center gap-1"><i class="fa-solid fa-bolt text-mc-diamond"></i> Latencia baja (Global)</span>
+                <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 sm:gap-3">
+                    <div class="bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 min-w-0">
+                        <p class="text-[9px] uppercase tracking-widest text-gray-500 font-bold">Puerto</p>
+                        <span id="port-text" class="font-mono text-onyx-400 font-bold tracking-wider text-sm sm:text-base block truncate">47468</span>
+                    </div>
+                    <button onclick="copyServerPort()" onmouseenter="playClickSound()" class="mc-btn text-white font-pixel text-[10px] sm:text-xs px-5 sm:px-6 py-3 shrink-0 flex items-center justify-center gap-2">
+                        <i id="copy-port-icon" class="fa-solid fa-copy"></i>
+                        <span id="copy-port-text">COPIAR</span>
+                    </button>
+                </div>
+
+                <div class="mt-4 flex flex-wrap justify-center gap-2 text-[10px] sm:text-xs text-gray-300 text-center">
+                    <span class="flex items-center gap-1.5 bg-white/5 px-2.5 py-1.5 rounded-full border border-white/10"><i class="fa-solid fa-shield text-mc-emerald"></i> Premium & No-Premium</span>
+                    <span class="flex items-center gap-1.5 bg-white/5 px-2.5 py-1.5 rounded-full border border-white/10"><i class="fa-solid fa-desktop text-mc-gold"></i> Java</span>
+                    <span class="flex items-center gap-1.5 bg-white/5 px-2.5 py-1.5 rounded-full border border-white/10"><i class="fa-solid fa-mobile-screen-button text-mc-diamond"></i> Bedrock</span>
+                    <span class="flex items-center gap-1.5 bg-white/5 px-2.5 py-1.5 rounded-full border border-white/10"><i class="fa-solid fa-arrow-up-right-dots text-onyx-400"></i> Última versión</span>
                 </div>
             </div>
 
@@ -455,7 +496,7 @@
     </section>
 
     <!-- Características del Servidor -->
-    <section class="py-8 sm:py-12 bg-onyx-800 border-y border-white/5 relative overflow-hidden crafting-grid-bg">
+    <section class="cv-auto py-8 sm:py-12 bg-onyx-800 border-y border-white/5 relative overflow-hidden crafting-grid-bg">
         <div class="absolute -top-32 -left-32 w-64 h-64 bg-mc-emerald/5 rounded-full blur-[80px] pointer-events-none"></div>
         <div class="absolute -bottom-32 -right-32 w-64 h-64 bg-mc-diamond/5 rounded-full blur-[80px] pointer-events-none"></div>
 
@@ -495,12 +536,12 @@
     </section>
 
     <!-- Cómo Empezar (proceso real de 3 pasos) -->
-    <section id="empezar" class="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <section id="empezar" class="cv-auto py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-mc-emerald/5 rounded-full blur-[140px] pointer-events-none"></div>
 
         <div class="text-center mb-12 sm:mb-16 reveal">
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Cómo <span class="text-onyx-500">Unirte</span></h2>
-            <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Solo necesitas tres pasos para empezar tu aventura en eOnyCraft, seas Premium o No-Premium.</p>
+            <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Solo necesitas tres pasos para empezar tu aventura en eOnyCraft, seas Premium o No-Premium, en Java o en Bedrock.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative">
@@ -508,14 +549,17 @@
 
             <div class="reveal liquid-glass rounded-2xl p-6 sm:p-8 text-center relative">
                 <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-onyx-500/15 border border-onyx-500/40 flex items-center justify-center font-pixel text-onyx-300 text-lg">01</div>
-                <h3 class="text-base sm:text-lg font-bold text-white mb-2">Abre Minecraft Java</h3>
-                <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Cualquier versión entre 1.16 y 1.21+. No importa si tu cuenta es Premium o No-Premium (Pirata).</p>
+                <h3 class="text-base sm:text-lg font-bold text-white mb-2">Abre Minecraft</h3>
+                <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Funciona en <span class="text-white font-semibold">Java</span> y en <span class="text-white font-semibold">Bedrock</span> (móvil, consola o Windows), siempre en la última versión. No importa si tu cuenta es Premium o No-Premium.</p>
             </div>
 
             <div class="reveal liquid-glass rounded-2xl p-6 sm:p-8 text-center relative" style="--reveal-delay:120ms;">
                 <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-onyx-500/15 border border-onyx-500/40 flex items-center justify-center font-pixel text-onyx-300 text-lg">02</div>
                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">Añade el servidor</h3>
-                <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Pega la IP <span class="text-onyx-400 font-mono">play.eonycraft.net</span> en "Agregar Servidor" dentro de Multijugador.</p>
+                <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                    <span class="text-white font-semibold">Java:</span> pega <span class="text-onyx-400 font-mono">eOnyCraft.aternos.me:47468</span> en "Agregar Servidor".<br>
+                    <span class="text-white font-semibold">Bedrock:</span> introduce IP <span class="text-onyx-400 font-mono">eOnyCraft.aternos.me</span> y puerto <span class="text-onyx-400 font-mono">47468</span> en campos separados.
+                </p>
             </div>
 
             <div class="reveal liquid-glass rounded-2xl p-6 sm:p-8 text-center relative" style="--reveal-delay:240ms;">
@@ -533,7 +577,7 @@
     </section>
 
     <!-- Modalidades de Juego -->
-    <section id="modalidades" class="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <section id="modalidades" class="cv-auto py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-onyx-500/5 rounded-full blur-[140px] pointer-events-none"></div>
 
         <div class="text-center mb-12 sm:mb-16 reveal">
@@ -548,7 +592,7 @@
                 <div class="tilt-glare"></div>
                 <div>
                     <div class="relative h-44 sm:h-48 overflow-hidden bg-black">
-                        <img src="https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=Survival+Custom'" alt="Minecraft Survival" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                        <img src="https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=Survival+Custom'" alt="Minecraft Survival" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                         <div class="absolute inset-0 bg-gradient-to-t from-onyx-900 to-transparent"></div>
                         <span class="absolute top-4 left-4 bg-mc-emerald text-black font-black px-3 py-1 rounded text-[10px] uppercase tracking-wider pixel-borders z-10">¡Más Jugado!</span>
                     </div>
@@ -578,7 +622,7 @@
                 <div class="tilt-glare"></div>
                 <div>
                     <div class="relative h-44 sm:h-48 overflow-hidden bg-black">
-                        <img src="https://images.unsplash.com/photo-1615678815958-5910c6811c25?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=Skyblock'" alt="Minecraft Skyblock" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                        <img src="https://images.unsplash.com/photo-1615678815958-5910c6811c25?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=Skyblock'" alt="Minecraft Skyblock" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                         <div class="absolute inset-0 bg-gradient-to-t from-onyx-900 to-transparent"></div>
                         <span class="absolute top-4 left-4 bg-mc-diamond text-black font-black px-3 py-1 rounded text-[10px] uppercase tracking-wider pixel-borders z-10">Clásico</span>
                     </div>
@@ -608,7 +652,7 @@
                 <div class="tilt-glare"></div>
                 <div>
                     <div class="relative h-44 sm:h-48 overflow-hidden bg-black">
-                        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=OneBlock'" alt="Minecraft OneBlock" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/600x400/121017/8b5cf6?text=OneBlock'" alt="Minecraft OneBlock" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                         <div class="absolute inset-0 bg-gradient-to-t from-onyx-900 to-transparent"></div>
                         <span class="absolute top-4 left-4 bg-mc-gold text-black font-black px-3 py-1 rounded text-[10px] uppercase tracking-wider pixel-borders z-10">Divertido</span>
                     </div>
@@ -637,7 +681,7 @@
     </section>
 
     <!-- Tienda y Rangos VIP -->
-    <section id="tienda" class="py-16 sm:py-20 lg:py-24 bg-onyx-800/20 border-t border-b border-white/5 relative overflow-hidden">
+    <section id="tienda" class="cv-auto py-16 sm:py-20 lg:py-24 bg-onyx-800/20 border-t border-b border-white/5 relative overflow-hidden">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-onyx-500/10 rounded-full blur-[160px] pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -776,7 +820,7 @@
     </section>
 
     <!-- Testimonios (citas reales del chat de la comunidad) -->
-    <section class="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="cv-auto py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12 sm:mb-16 reveal">
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Lo que dice la <span class="text-onyx-500">comunidad</span></h2>
             <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Mensajes reales tomados de nuestro chat multijugador.</p>
@@ -802,7 +846,7 @@
     </section>
 
     <!-- Galería de Fotos -->
-    <section id="galeria" class="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="galeria" class="cv-auto py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12 sm:mb-16 reveal">
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">La vida en <span class="text-onyx-500">eOnyCraft</span></h2>
             <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Capturas de pantalla tomadas por nuestra propia comunidad usando shaders cinemáticos.</p>
@@ -811,7 +855,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 
             <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg">
-                <img src="https://images.unsplash.com/photo-1621961401340-9a4f40f00f07?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Lobby+Inmortal'" alt="Lobby Inmortal" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1621961401340-9a4f40f00f07?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Lobby+Inmortal'" alt="Lobby Inmortal" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
                     <div>
                         <p class="text-xs sm:text-sm font-bold text-white">Spawn Principal</p>
@@ -821,7 +865,7 @@
             </div>
 
             <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:80ms;">
-                <img src="https://images.unsplash.com/photo-1627856014754-2907e2455b51?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Mundo+Survival'" alt="Mundo Survival" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1627856014754-2907e2455b51?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Mundo+Survival'" alt="Mundo Survival" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
                     <div>
                         <p class="text-xs sm:text-sm font-bold text-white">Ciudad Medieval del Spawn</p>
@@ -831,7 +875,7 @@
             </div>
 
             <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:160ms;">
-                <img src="https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Catedral+Nether'" alt="Catedral Nether" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Catedral+Nether'" alt="Catedral Nether" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
                     <div>
                         <p class="text-xs sm:text-sm font-bold text-white">Catedral del Nether</p>
@@ -841,7 +885,7 @@
             </div>
 
             <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:240ms;">
-                <img src="https://images.unsplash.com/photo-1601042879364-f3947d3f9c16?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Arenas+PvP'" alt="Arenas PvP" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1601042879364-f3947d3f9c16?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Arenas+PvP'" alt="Arenas PvP" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
                     <div>
                         <p class="text-xs sm:text-sm font-bold text-white">Arena Gladiadores</p>
@@ -851,7 +895,7 @@
             </div>
 
             <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:320ms;">
-                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Eventos+Especiales'" alt="Eventos Especiales" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Eventos+Especiales'" alt="Eventos Especiales" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
                     <div>
                         <p class="text-xs sm:text-sm font-bold text-white">Evento "El Rey de la Colina"</p>
@@ -861,7 +905,7 @@
             </div>
 
             <div class="reveal relative rounded-2xl overflow-hidden aspect-video border border-white/5 group shadow-lg" style="--reveal-delay:400ms;">
-                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Fortaleza+Medieval'" alt="Fortaleza Medieval" class="w-full h-full object-cover blur-card-img" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://placehold.co/800x450/121017/8b5cf6?text=Fortaleza+Medieval'" alt="Fortaleza Medieval" class="w-full h-full object-cover blur-card-img" loading="lazy" decoding="async">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
                     <div>
                         <p class="text-xs sm:text-sm font-bold text-white">Base de Clan OnyxLegend</p>
@@ -874,7 +918,7 @@
     </section>
 
     <!-- Equipo de Administración -->
-    <section id="equipo" class="py-16 sm:py-20 lg:py-24 bg-onyx-800/30 border-t border-white/5 relative overflow-hidden">
+    <section id="equipo" class="cv-auto py-16 sm:py-20 lg:py-24 bg-onyx-800/30 border-t border-white/5 relative overflow-hidden">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-onyx-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -899,7 +943,7 @@
     </section>
 
     <!-- FAQ -->
-    <section id="faq" class="py-16 sm:py-20 lg:py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="faq" class="cv-auto py-16 sm:py-20 lg:py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12 sm:mb-16 reveal">
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-pixel text-white mb-4">Preguntas <span class="text-onyx-500">Frecuentes</span></h2>
             <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">Todo lo que necesitas saber antes de entrar al servidor.</p>
@@ -916,10 +960,10 @@
 
             <details class="faq-item reveal liquid-glass rounded-2xl p-5 sm:p-6" style="--reveal-delay:80ms;">
                 <summary class="flex items-center justify-between gap-4 font-bold text-white text-sm sm:text-base">
-                    ¿Qué versiones de Minecraft son compatibles?
+                    ¿Qué versiones y ediciones de Minecraft son compatibles?
                     <i class="fa-solid fa-chevron-down faq-chevron text-onyx-400 shrink-0"></i>
                 </summary>
-                <p class="text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed">El servidor soporta desde la versión 1.16 hasta la 1.21+ gracias a ViaVersion, así que puedes conectarte con casi cualquier cliente reciente.</p>
+                <p class="text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed">eOnyCraft se mantiene siempre actualizado a la última versión de Minecraft y es compatible tanto con <span class="text-white font-semibold">Java Edition</span> como con <span class="text-white font-semibold">Bedrock Edition</span> (móvil, consola y Windows) usando la misma IP y puerto.</p>
             </details>
 
             <details class="faq-item reveal liquid-glass rounded-2xl p-5 sm:p-6" style="--reveal-delay:160ms;">
@@ -1101,34 +1145,66 @@
             }, 3500);
         }
 
-        /* Copiar dirección IP */
-        function copyServerIP() {
-            const ipString = 'play.eonycraft.net';
+        /* Datos reales del servidor */
+        const SERVER_IP = 'eOnyCraft.aternos.me';
+        const SERVER_PORT = '47468';
 
+        /* Utilidad genérica para copiar texto al portapapeles (con fallback) */
+        async function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (e) { /* fallback abajo */ }
+            }
             const tempInput = document.createElement('textarea');
-            tempInput.value = ipString;
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.opacity = '0';
             document.body.appendChild(tempInput);
             tempInput.select();
-
+            let successful = false;
             try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    playLevelUpSound();
-                    showAdvancement('IP Copiada con éxito', 'fa-circle-check', 'text-emerald-400');
-                    const copyBtnText = document.getElementById('copy-text');
-                    const copyBtnIcon = document.getElementById('copy-icon');
-                    copyBtnText.innerText = '¡COPIADO!';
-                    copyBtnIcon.className = 'fa-solid fa-check';
-                    setTimeout(() => {
-                        copyBtnText.innerText = 'COPIAR IP';
-                        copyBtnIcon.className = 'fa-solid fa-copy';
-                    }, 3500);
-                }
+                successful = document.execCommand('copy');
             } catch (err) {
                 console.error('Error al intentar copiar:', err);
             }
-
             document.body.removeChild(tempInput);
+            return successful;
+        }
+
+        function flashButtonFeedback(textEl, iconEl, defaultText) {
+            const original = textEl.innerText;
+            textEl.innerText = '¡COPIADO!';
+            iconEl.className = 'fa-solid fa-check';
+            setTimeout(() => {
+                textEl.innerText = defaultText;
+                iconEl.className = 'fa-solid fa-copy';
+            }, 3500);
+        }
+
+        /* Copiar dirección IP */
+        async function copyServerIP() {
+            const successful = await copyToClipboard(SERVER_IP);
+            if (successful) {
+                playLevelUpSound();
+                showAdvancement('IP Copiada con éxito', 'fa-circle-check', 'text-emerald-400');
+                const copyBtnText = document.getElementById('copy-text');
+                const copyBtnIcon = document.getElementById('copy-icon');
+                if (copyBtnText && copyBtnIcon) flashButtonFeedback(copyBtnText, copyBtnIcon, 'COPIAR IP');
+            }
+        }
+
+        /* Copiar puerto */
+        async function copyServerPort() {
+            const successful = await copyToClipboard(SERVER_PORT);
+            if (successful) {
+                playLevelUpSound();
+                showAdvancement('Puerto copiado con éxito', 'fa-circle-check', 'text-emerald-400');
+                const copyBtnText = document.getElementById('copy-port-text');
+                const copyBtnIcon = document.getElementById('copy-port-icon');
+                if (copyBtnText && copyBtnIcon) flashButtonFeedback(copyBtnText, copyBtnIcon, 'COPIAR');
+            }
         }
 
         /* Mecánica del Simulador de Chat Interactivo */
@@ -1179,15 +1255,45 @@
             const canvas = document.getElementById('mc-particle-canvas');
             const ctx = canvas.getContext('2d');
 
+            // Respeta la preferencia de movimiento reducido del sistema
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (prefersReducedMotion) return;
+
             let particles = [];
+            let running = true;
             const types = ['xp', 'redstone', 'diamond', 'amethyst'];
+            // Menos partículas y menos "glow" en pantallas pequeñas: ahorra GPU/batería
+            const isSmallScreen = window.innerWidth < 768;
+            const shadowBlurScale = isSmallScreen ? 0 : 1; // sin sombras en móvil (caro de renderizar)
 
             function resize() {
                 canvas.width = canvas.parentElement.offsetWidth;
                 canvas.height = canvas.parentElement.offsetHeight;
             }
-            window.addEventListener('resize', resize);
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(resize, 150);
+            });
             resize();
+
+            // Pausa el bucle cuando la pestaña no está visible (ahorra batería/CPU)
+            document.addEventListener('visibilitychange', () => {
+                running = !document.hidden;
+                if (running) requestAnimationFrame(animateParticles);
+            });
+
+            // Pausa el bucle cuando el héroe sale de la pantalla al hacer scroll
+            let heroVisible = true;
+            if ('IntersectionObserver' in window) {
+                const heroObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        heroVisible = entry.isIntersecting;
+                        if (heroVisible && running) requestAnimationFrame(animateParticles);
+                    });
+                }, { threshold: 0 });
+                heroObserver.observe(canvas);
+            }
 
             class Particle {
                 constructor() {
@@ -1227,19 +1333,19 @@
 
                     if (this.type === 'xp') {
                         ctx.shadowColor = '#a3e635';
-                        ctx.shadowBlur = 6;
+                        ctx.shadowBlur = 6 * shadowBlurScale;
                         ctx.fillStyle = '#a3e635';
                         ctx.fillRect(this.x, this.y, this.size, this.size);
                         ctx.fillStyle = '#fef08a';
                         ctx.fillRect(this.x + 1, this.y + 1, this.size - 2, this.size - 2);
                     } else if (this.type === 'redstone') {
                         ctx.shadowColor = '#ef4444';
-                        ctx.shadowBlur = 10;
+                        ctx.shadowBlur = 10 * shadowBlurScale;
                         ctx.fillStyle = '#dc2626';
                         ctx.fillRect(this.x, this.y, this.size - 1, this.size - 1);
                     } else if (this.type === 'diamond') {
                         ctx.shadowColor = '#06b6d4';
-                        ctx.shadowBlur = 8;
+                        ctx.shadowBlur = 8 * shadowBlurScale;
                         ctx.fillStyle = '#22d3ee';
                         ctx.fillRect(this.x, this.y, this.size, this.size);
                     } else {
@@ -1247,7 +1353,7 @@
                         ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
                         ctx.rotate(this.rotation);
                         ctx.shadowColor = '#a78bfa';
-                        ctx.shadowBlur = 9;
+                        ctx.shadowBlur = 9 * shadowBlurScale;
                         ctx.fillStyle = '#c4b5fd';
                         ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
                     }
@@ -1255,12 +1361,13 @@
                 }
             }
 
-            const particleCount = 48;
+            const particleCount = isSmallScreen ? 22 : 48;
             for (let i = 0; i < particleCount; i++) {
                 particles.push(new Particle());
             }
 
             function animateParticles() {
+                if (!running || !heroVisible) return;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 particles.forEach(p => {
                     p.update();
