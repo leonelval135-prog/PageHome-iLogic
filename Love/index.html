@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nuestra Historia</title>
+    <!-- Importamos fuentes elegantes -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos Base */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #030303;
+            color: white;
+            font-family: 'Playfair Display', serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Canvas de Corazones (Se eleva por encima de todo al final) */
+        #hearts-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50; 
+        }
+
+        /* ----- PANTALLA INICIAL PARA ACTIVAR MÚSICA ----- */
+        #audio-prompt-scene {
+            position: absolute;
+            z-index: 60; 
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #030303;
+            transition: opacity 1.5s ease;
+        }
+
+        .btn-style {
+            padding: 15px 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            animation: gentle-pulse 2s infinite;
+            transition: transform 0.3s, background 0.3s;
+            text-align: center;
+            max-width: 80%;
+        }
+        .btn-style:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes gentle-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+            50% { box-shadow: 0 0 35px rgba(255,255,255,0.4); }
+        }
+
+        /* ----- SECUENCIA CINEMATOGRÁFICA ----- */
+        #intro-scene {
+            position: absolute;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            height: 100%;
+            text-align: center;
+        }
+        .cinematic-text {
+            position: absolute;
+            opacity: 0;
+            font-size: 1.5rem;
+            line-height: 1.4;
+            text-shadow: 0 0 15px rgba(255,255,255,0.4);
+            transform: scale(0.95);
+            transition: opacity 2.5s ease-in-out, transform 4s ease-out;
+            padding: 0 20px;
+        }
+        .cinematic-text.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .cinematic-text.hidden {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+
+        #start-btn {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            bottom: 15%;
+            transition: opacity 2s ease-in-out;
+        }
+        #start-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ----- ESCENA DEL LIBRO ----- */
+        #book-scene {
+            position: absolute;
+            z-index: 5;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #2a0a18 0%, #030303 100%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s ease-in-out; /* Transición para cuando desaparezca */
+        }
+        #book-scene.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Contenedor del Libro 3D */
+        .book {
+            position: relative;
+            width: 90vw;
+            max-width: 420px;
+            height: 80vh;
+            max-height: 700px;
+            perspective: 2500px; 
+            transition: transform 2s ease-in-out; /* Para la animación de alejar el libro */
+        }
+
+        /* Estructura de la Página */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: left center;
+            transition: transform 1.6s cubic-bezier(0.645, 0.045, 0.355, 1); 
+            transform-style: preserve-3d;
+            cursor: pointer;
+            border-radius: 2px 12px 12px 2px;
+            box-shadow: -2px 0 15px rgba(0,0,0,0.6), 5px 5px 20px rgba(0,0,0,0.4);
+        }
+        .page.flipped {
+            transform: rotateY(-180deg);
+            pointer-events: none;
+        }
+
+        .page-front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            backface-visibility: hidden; 
+            border-radius: inherit;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px 50px 20px;
+            overflow: hidden;
+            justify-content: center;
+        }
+
+        /* Estilos Específicos: Portada y Papel */
+        .cover .page-front {
+            background: linear-gradient(135deg, #4a0c16, #1a050a);
+            border: 2px solid #b38b59;
+            align-items: center;
+            text-align: center;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+            padding: 30px 20px;
+        }
+        .cover-border {
+            position: absolute;
+            width: 90%;
+            height: 94%;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 2px 8px 8px 2px;
+            pointer-events: none;
+        }
+        .cover h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #d4af37;
+            font-size: 3.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+            line-height: 1.1;
+        }
+        .cover p {
+            color: #b38b59;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .paper .page-front {
+            background: #fdfaf0;
+            color: #2c1a10;
+            box-shadow: inset 0 0 40px rgba(139, 69, 19, 0.08);
+        }
+        .paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 20px;
+            background: linear-gradient(to right, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 100%);
+            z-index: 2;
+        }
+        .paper p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            text-align: justify;
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+        }
+
+        @media (max-height: 650px) {
+            .paper p { font-size: 0.95rem; line-height: 1.5; }
+        }
+
+        .signature {
+            font-family: 'Dancing Script', cursive !important;
+            font-size: 2.2rem !important;
+            color: #8b0021;
+            text-align: right !important;
+            margin-top: 30px !important;
+            margin-bottom: 20px;
+        }
+        .big-text {
+            font-size: 1.3rem !important;
+            text-align: center !important;
+            line-height: 1.8 !important;
+        }
+
+        /* Indicador de toque */
+        .tap-instruction {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #a08c8c;
+            font-style: italic;
+            animation: pulse 2s infinite;
+        }
+        .cover .tap-instruction { color: rgba(212, 175, 55, 0.7); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .back-instruction {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(160, 140, 140, 0.5);
+            font-style: italic;
+            pointer-events: none;
+        }
+
+        /* Botón de la Sorpresa Final */
+        .final-trigger {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff0055 !important;
+            font-size: 1.1rem !important;
+            font-weight: bold;
+            font-family: 'Playfair Display', serif;
+            text-shadow: 0 0 10px rgba(255,0,85,0.4);
+            padding: 10px 20px;
+            border: 1.5px solid #ff0055;
+            border-radius: 25px;
+            background: rgba(255, 0, 85, 0.05);
+            cursor: pointer;
+            white-space: nowrap;
+            animation: finalPulse 1.5s infinite !important;
+            z-index: 10;
+        }
+        @keyframes finalPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 5px rgba(255,0,85,0.2); }
+            50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 15px rgba(255,0,85,0.6); }
+        }
+
+
+        /* ----- ESCENA GRAN FINAL (FUEGOS ARTIFICIALES Y CORAZÓN NEÓN) ----- */
+        #finale-scene {
+            position: absolute;
+            z-index: 20; 
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s ease-in-out;
+        }
+        #finale-scene.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #fireworks-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 21;
+        }
+
+        /* Contenedor del Resplandor Externo del Corazón */
+        .neon-heart-wrapper {
+            position: relative;
+            z-index: 25; /* Por encima de los fuegos artificiales */
+            width: 90vw;
+            height: 90vw;
+            max-width: 400px;
+            max-height: 400px;
+            /* Crea el aura neón alrededor del borde del corazón recortado */
+            filter: drop-shadow(0 0 10px #ff0055) drop-shadow(0 0 30px #ff0055);
+            animation: heartbeatAnim 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        /* Máscara en forma de Corazón Perfecto rellenada de texto */
+        .neon-heart-mask {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            /* La magia: Recorta el bloque de texto con la forma del SVG */
+            -webkit-mask-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+            -webkit-mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            
+            display: block;
+            text-align: center;
+            overflow: hidden;
+            
+            /* Color base blanco, sombras neón rosas/rojas */
+            color: #ffffff; 
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem; 
+            line-height: 1.1;
+            word-wrap: break-word;
+            text-shadow: 0 0 5px #fff, 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 40px #ff0055;
+        }
+
+        @keyframes heartbeatAnim {
+            0% { transform: scale(0.95); }
+            5% { transform: scale(1.05); }
+            39% { transform: scale(0.95); }
+            45% { transform: scale(1); }
+            60% { transform: scale(0.95); }
+            100% { transform: scale(0.95); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Música -->
+    <audio id="bg-music" src="PielCanela.mp3" loop preload="auto"></audio>
+
+    <!-- Fondo de Partículas de Corazón (Siempre encima) -->
+    <canvas id="hearts-canvas"></canvas>
+
+    <!-- PANTALLA INICIAL -->
+    <div id="audio-prompt-scene">
+        <button id="play-music-btn" class="btn-style">Presiona para escuchar nuestra canción</button>
+    </div>
+
+    <!-- Escena 1: Intro Cinematográfica -->
+    <div id="intro-scene">
+        <button id="start-btn" class="btn-style">Comenzar a leer</button>
+    </div>
+
+    <!-- Escena 3: GRAN FINAL SORPRESA (Fuegos Artificiales y Corazón Neón) -->
+    <div id="finale-scene">
+        <canvas id="fireworks-canvas"></canvas>
+        <div class="neon-heart-wrapper">
+            <div class="neon-heart-mask" id="neon-heart-text-container">
+                <!-- Se llenará dinámicamente con "Te amo" -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Escena 2: El Libro -->
+    <div id="book-scene">
+        <div class="book">
+            
+            <!-- HOJA 10: Final (Botón para detonar la sorpresa) -->
+            <!-- Ya no tiene flipPage() para que no se pase la hoja -->
+            <div class="page paper" style="z-index: 1;">
+                <div class="page-front" style="padding-bottom: 30px;">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p class="big-text" style="color: #8b0021; font-family: 'Dancing Script', cursive; font-size: 2.5rem !important;">
+                        Te amo, hoy, mañana y en cada versión de mi vida.
+                    </p>
+                    <p class="signature">Atte: Tu Niño Lindo</p>
+                    
+                    <!-- Botón mágico que detona el final -->
+                    <div class="final-trigger" onclick="triggerFinale(event)">✨ Toca para una sorpresa ✨</div>
+                </div>
+            </div>
+
+            <!-- HOJA 9 -->
+            <div class="page paper" style="z-index: 2;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p class="big-text">Y si algún día me preguntan cómo se siente encontrar el hogar en una persona, solo tendré que decir tu nombre.</p>
+                    <div class="tap-instruction">Toca para avanzar</div>
+                </div>
+            </div>
+
+            <!-- HOJA 8 -->
+            <div class="page paper" style="z-index: 3;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p>Quiero despertar a tu lado, compartir un desayuno contigo, caminar de tu mano, reírnos hasta que nos duela el estómago, abrazarte cuando el mundo pese demasiado y celebrar contigo cada pequeña victoria. Quiero vivir los días buenos, pero también los difíciles. Quiero construir una vida donde, al mirar atrás, podamos decir que valió la pena porque nunca dejamos de elegirnos.</p>
+                    <div class="tap-instruction">Toca para avanzar</div>
+                </div>
+            </div>
+
+            <!-- HOJA 7 -->
+            <div class="page paper" style="z-index: 4;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p>Eres la niña de mis ojos. No necesito buscar en ningún otro lugar porque todo lo que alguna vez soñé lo encontré contigo. Desde que llegaste, el sueño de formar una familia dejó de ser una simple idea y se convirtió en un deseo con nombre y apellido.</p>
+                    <div class="tap-instruction">Toca para avanzar</div>
+                </div>
+            </div>
+
+            <!-- HOJA 6 -->
+            <div class="page paper" style="z-index: 5;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p>Si alguna vez llegas a dudar del amor que siento por ti, recuerda esto: hay personas por las que uno cambiaría un plan, un día o una decisión... y luego estás tú, por quien sería capaz de entregar mi vida entera sin pensarlo dos veces. No por obligación, sino porque cuando el amor es verdadero, cuidar a la otra persona deja de sentirse como un sacrificio.</p>
+                    <div class="tap-instruction">Toca para avanzar</div>
+                </div>
+            </div>
+
+            <!-- HOJA 5 -->
+            <div class="page paper" style="z-index: 6;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p>Me enamora tu sonrisa, la forma en la que ves el mundo, la manera en que me cuidas, cómo me haces sentir cuando estoy contigo. Me enamora que seas tú. Sin disfraces, sin intentarlo, simplemente tú. Y eso basta para que mi corazón te elija una y otra vez.</p>
+                    <div class="tap-instruction">Toca para avanzar</div>
+                </div>
+            </div>
+
+            <!-- HOJA 4 -->
+            <div class="page paper" style="z-index: 7;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p>Quiero que sepas que te amo con todo mi corazón. Eres la persona más importante de mi vida. No quiero imaginar un futuro en el que no estés tú. Sé que no soy perfecto, que probablemente no siempre he sido el hombre que mereces, pero también quiero que sepas que cada día intento ser una mejor versión de mí, porque hay metas que valen cualquier esfuerzo, y una de ellas es hacerte feliz.</p>
+                    <div class="tap-instruction">Toca para avanzar</div>
+                </div>
+            </div>
+
+            <!-- HOJA 3 -->
+            <div class="page paper" style="z-index: 8;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p>Con el paso de los días, cada palabra tenía un peso diferente. Cada risa, cada desvelo y cada conversación fueron construyendo un sentimiento que poco a poco aprendimos a llamar amor. No un amor perfecto, sino uno real. De esos que también conocen las diferencias, las discusiones, los malos momentos y las heridas. Porque entendimos que amar no significa nunca caer, sino elegir quedarse incluso cuando levantarse cuesta.</p>
+                    <div class="tap-instruction">Toca para avanzar</div>
+                </div>
+            </div>
+
+            <!-- HOJA 2 -->
+            <div class="page paper" style="z-index: 9;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="back-instruction">Toca la izquierda para volver</div>
+                    <p>Aún recuerdo el día en que te conocí. Lo curioso es que ninguno de los dos sabía que aquella conversación, que parecía una más entre tantas, terminaría convirtiéndose en el inicio de nuestra historia. Empezamos siendo dos personas que simplemente hablaban, pero había algo que ninguno podía explicar. Era como si, sin darnos cuenta, una parte de nosotros ya se hubiera reconocido en el otro.</p>
+                    <div class="tap-instruction">Toca para avanzar</div>
+                </div>
+            </div>
+
+            <!-- HOJA 1: Portada -->
+            <div class="page cover" style="z-index: 10;" onclick="flipPage(this)">
+                <div class="page-front">
+                    <div class="cover-border"></div>
+                    <p>Para la niña de mis ojos</p>
+                    <h1>Nuestra<br>Historia</h1>
+                    <div class="tap-instruction">Toca para abrir</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Variables Globales de Estado
+        let isFinale = false; // Indica si estamos en el clímax
+
+        // --- MANEJO DE AUDIO MEJORADO PARA ANDROID ---
+        const bgMusic = document.getElementById('bg-music');
+        const audioPromptScene = document.getElementById('audio-prompt-scene');
+        const playMusicBtn = document.getElementById('play-music-btn');
+
+        playMusicBtn.addEventListener('click', () => {
+            bgMusic.load();
+            bgMusic.play().catch(e => {
+                if(e.name === 'NotSupportedError' || e.name === 'NotAllowedError'){ }
+            });
+            
+            audioPromptScene.style.opacity = '0';
+            setTimeout(() => {
+                audioPromptScene.style.display = 'none';
+                runCinematicIntro();
+            }, 1500); 
+        });
+
+        document.addEventListener('click', () => {
+            if (bgMusic.paused) { bgMusic.play().catch(()=>{}); }
+        });
+
+        // --- SISTEMA DE PARTÍCULAS (CORAZONES) ---
+        const canvas = document.getElementById('hearts-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class HeartParticle {
+            constructor() {
+                this.reset(true);
+            }
+
+            reset(initial = false) {
+                this.x = Math.random() * width;
+                this.y = initial ? Math.random() * height : height + 20; 
+                this.size = Math.random() * 10 + 5; 
+                // Velocidad base
+                this.baseSpeedY = Math.random() * 1.0 + 0.2; 
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.sway = Math.random() * Math.PI * 2; 
+                this.color = `rgba(255, ${Math.floor(Math.random() * 50)}, ${Math.floor(Math.random() * 80)}, ${this.opacity})`;
+            }
+
+            update() {
+                // Durante el final, los corazones suben MUCHO más rápido
+                let currentSpeed = isFinale ? this.baseSpeedY * 3.5 : this.baseSpeedY;
+                
+                this.y -= currentSpeed;
+                this.sway += 0.015; 
+                // Mayor movimiento lateral durante el final
+                this.x += Math.sin(this.sway) * (isFinale ? 1.0 : 0.4); 
+
+                if (this.y < -30) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.font = `${this.size}px Arial`;
+                ctx.fillText('❤', this.x, this.y);
+            }
+        }
+
+        // Corazones iniciales
+        for(let i=0; i<40; i++) { particles.push(new HeartParticle()); }
+
+        function animateHearts() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Si es el final, aumentamos masivamente la cantidad de corazones (hasta 150)
+            if (isFinale && particles.length < 150) {
+                particles.push(new HeartParticle(true));
+            }
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateHearts);
+        }
+        animateHearts();
+
+        // --- SISTEMA DE FUEGOS ARTIFICIALES ---
+        const fwCanvas = document.getElementById('fireworks-canvas');
+        const fwCtx = fwCanvas.getContext('2d');
+        let fwWidth, fwHeight;
+        let fireworks = [];
+        let sparks = [];
+        const fwColors = ['#ff0055', '#ff4488', '#ffa200', '#00ffcc', '#d000ff'];
+
+        function resizeFwCanvas() {
+            fwWidth = fwCanvas.width = window.innerWidth;
+            fwHeight = fwCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeFwCanvas);
+        resizeFwCanvas();
+
+        function randomFw(min, max) { return Math.random() * (max - min) + min; }
+
+        class Firework {
+            constructor() {
+                this.x = randomFw(fwWidth * 0.2, fwWidth * 0.8);
+                this.y = fwHeight + 10;
+                this.prevX = this.x; 
+                this.prevY = this.y;
+                this.targetY = randomFw(fwHeight * 0.1, fwHeight * 0.4);
+                this.speed = randomFw(5, 8);
+                this.angle = Math.atan2(this.targetY - this.y, fwWidth / 2 - this.x); 
+                this.vx = Math.cos(this.angle) * (this.speed * 0.5); 
+                this.vy = -this.speed;
+                this.color = fwColors[Math.floor(Math.random() * fwColors.length)];
+            }
+            update() {
+                this.prevX = this.x;
+                this.prevY = this.y;
+                this.x += this.vx;
+                this.vy += 0.03; // Gravedad ligera
+                this.y += this.vy;
+
+                // Cuando llega arriba o empieza a caer, explota
+                if (this.vy >= 0 || this.y <= this.targetY) {
+                    this.explode();
+                    return false; 
+                }
+                return true;
+            }
+            draw() {
+                fwCtx.beginPath();
+                fwCtx.moveTo(this.prevX, this.prevY);
+                fwCtx.lineTo(this.x, this.y);
+                fwCtx.strokeStyle = this.color;
+                fwCtx.lineWidth = 3;
+                fwCtx.stroke();
+            }
+            explode() {
+                // Crea chispas explosivas
+                for(let i=0; i<40; i++) {
+                    sparks.push(new Spark(this.x, this.y, this.color));
+                }
+            }
+        }
+
+        class Spark {
+            constructor(x, y, color) {
+                this.x = x; this.y = y;
+                this.prevX = x; this.prevY = y;
+                let angle = randomFw(0, Math.PI * 2);
+                let speed = randomFw(1, 7);
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.friction = 0.94;
+                this.gravity = 0.15;
+                this.alpha = 1;
+                this.decay = randomFw(0.015, 0.03);
+                this.color = color;
+            }
+            update() {
+                this.prevX = this.x; this.prevY = this.y;
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+                return this.alpha > 0;
+            }
+            draw() {
+                fwCtx.save();
+                fwCtx.globalAlpha = this.alpha;
+                fwCtx.beginPath();
+                fwCtx.moveTo(this.prevX, this.prevY);
+                fwCtx.lineTo(this.x, this.y);
+                fwCtx.strokeStyle = this.color;
+                fwCtx.lineWidth = 2;
+                fwCtx.stroke();
+                fwCtx.restore();
+            }
+        }
+
+        let fwTimer = 0;
+        function animateFireworks() {
+            if(!isFinale) return;
+            
+            // Borrar canvas transparente en vez de fondo negro, para no tapar los corazones
+            fwCtx.clearRect(0, 0, fwWidth, fwHeight);
+
+            fwTimer++;
+            // Lanza un fuego artificial cada cierto tiempo
+            if(fwTimer > 35) { 
+                fireworks.push(new Firework());
+                fwTimer = randomFw(0, 15); 
+            }
+
+            fireworks = fireworks.filter(fw => fw.update());
+            fireworks.forEach(fw => fw.draw());
+
+            sparks = sparks.filter(sp => sp.update());
+            sparks.forEach(sp => sp.draw());
+
+            requestAnimationFrame(animateFireworks);
+        }
+
+
+        // --- SECUENCIA CINEMATOGRÁFICA ---
+        const introTexts = [
+            "Aún recuerdo el día en que te conocí...",
+            "Ninguno de los dos sabía lo que esa conversación significaría...",
+            "Pero fue como si una parte de nosotros...",
+            "ya se hubiera reconocido en el otro.",
+            "Esta es nuestra historia."
+        ];
+
+        const introScene = document.getElementById('intro-scene');
+        const startBtn = document.getElementById('start-btn');
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+
+        async function runCinematicIntro() {
+            await delay(500);
+            for(let i = 0; i < introTexts.length; i++) {
+                const textEl = document.createElement('div');
+                textEl.className = 'cinematic-text';
+                textEl.innerText = introTexts[i];
+                introScene.appendChild(textEl);
+                await delay(100);
+                textEl.classList.add('visible');
+                await delay(3500);
+                textEl.classList.remove('visible');
+                textEl.classList.add('hidden');
+                await delay(2000);
+                textEl.remove();
+            }
+            await delay(500);
+            startBtn.classList.add('visible');
+        }
+
+        // --- TRANSICIÓN Y LÓGICA DEL LIBRO ---
+        const bookScene = document.getElementById('book-scene');
+        let flippedPagesArray = []; 
+
+        startBtn.addEventListener('click', () => {
+            introScene.style.opacity = '0';
+            setTimeout(() => introScene.style.display = 'none', 2000);
+            bookScene.classList.add('visible');
+        });
+
+        function flipPage(pageElement) {
+            if(!pageElement.classList.contains('flipped')) {
+                pageElement.classList.add('flipped');
+                flippedPagesArray.push(pageElement);
+            }
+        }
+
+        // Retroceder página tocando la izquierda
+        document.addEventListener('click', (e) => {
+            if (bookScene.classList.contains('visible') && !isFinale) {
+                if (e.clientX < window.innerWidth * 0.3) {
+                    if (flippedPagesArray.length > 0) {
+                        e.stopPropagation();
+                        const lastFlipped = flippedPagesArray.pop();
+                        lastFlipped.classList.remove('flipped');
+                    }
+                }
+            }
+        }, true); 
+
+
+        // --- LÓGICA DE LA SORPRESA FINAL ---
+        let finaleTriggered = false;
+
+        function triggerFinale(e) {
+            e.stopPropagation(); // Evitar que la hoja se regrese accidentalmente
+            if (finaleTriggered) return;
+            finaleTriggered = true;
+            
+            // 1. Efecto del libro desapareciendo
+            const book = document.querySelector('.book');
+            book.style.transform = 'scale(0.5) translateY(100px) rotateY(-15deg)'; // Se hace pequeño y cae
+            bookScene.style.opacity = '0'; // Se desvanece
+            
+            // 2. Rellenar el corazón de Neón dinámicamente con puros "Te amo"
+            // Se repite 400 veces para garantizar que llene cualquier pantalla móvil
+            const heartTextEl = document.getElementById('neon-heart-text-container');
+            heartTextEl.innerText = "Te amo ".repeat(400);
+
+            // 3. Iniciar el acto final después de 1.5 segundos
+            setTimeout(() => {
+                bookScene.style.display = 'none';
+                
+                // Mostrar la escena de neón y fuegos
+                const finaleScene = document.getElementById('finale-scene');
+                finaleScene.classList.add('visible');
+                
+                // Activar el acelerador de corazones (variable global)
+                isFinale = true;
+                
+                // Iniciar motor de fuegos artificiales
+                animateFireworks();
+
+            }, 1500);
+        }
+
+    </script>
+</body>
+</html>
