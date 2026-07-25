@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eMusic Ultimate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+        
+        :root {
+            --bg-color: #000000;
+            --surface-color: #121212;
+            --surface-color-hover: #282828;
+            --primary-color: #3b82f6; /* Cambiado a azul */
+            --text-main: #ffffff;
+            --text-secondary: #9ca3af;
+        }
+
+        html, body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden;
+            overscroll-behavior: none;
+            user-select: none;
+            max-width: 100vw;
+            width: 100%;
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        img, svg { max-width: 100%; }
+
+        /* Evita overflow horizontal en cualquier contenedor */
+        #view-container, #main-scroll, main { max-width: 100%; overflow-x: hidden; }
+
+        /* Respeta el "notch" / gestos del sistema en móvil */
+        #mobile-nav { padding-bottom: calc(1.25rem + env(safe-area-inset-bottom)); }
+        #expanded-player { padding-bottom: env(safe-area-inset-bottom); }
+
+        /* Scrollbars */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.4); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Animaciones */
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-hover { transition: all 0.2s ease; cursor: pointer; }
+        .btn-hover:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .btn-hover:active { transform: scale(0.95); }
+
+        .card-hover { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer;}
+        .card-hover:hover { background-color: var(--surface-color-hover); transform: translateY(-4px);}
+        
+        .play-overlay { transition: all 0.3s ease; opacity: 0; transform: translateY(10px); }
+        .card-hover:hover .play-overlay { opacity: 1; transform: translateY(0); }
+
+        /* Glassmorphism */
+        .glass-header {
+            background: rgba(18, 18, 18, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-bottom-bar {
+            background: rgba(24, 24, 24, 0.85); 
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.8s ease; 
+        }
+
+        #expanded-player {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(100%);
+        }
+        #expanded-player.active { transform: translateY(0); }
+        
+        .expanded-bg-blur {
+            position: absolute; inset: -10%; width: 120%; height: 120%;
+            object-fit: cover; filter: blur(40px) brightness(0.4) saturate(1.5);
+            z-index: 0; transition: opacity 0.8s ease;
+        }
+
+        .playing-pulse { animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+        @keyframes pulse-ring {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } /* Azul */
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        .cover-art-transition { transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .cover-art-hidden { opacity: 0; transform: scale(0.9) rotate(-5deg); }
+
+        /* UI Components */
+        .nav-item {
+            display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem;
+            border-radius: 0.5rem; font-weight: 700; color: var(--text-secondary);
+            transition: all 0.2s; cursor: pointer;
+        }
+        .nav-item:hover, .nav-item.active { color: var(--text-main); }
+        .nav-item.active { background-color: rgba(255,255,255,0.1); }
+
+        .mobile-nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+            color: var(--text-secondary); transition: color 0.2s; width: 100%; cursor: pointer;
+        }
+        .mobile-nav-item.active { color: var(--text-main); }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%; height: 4px; background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px; cursor: pointer; position: relative;
+        }
+        .progress-bar {
+            height: 100%; background: var(--text-main); border-radius: 2px;
+            width: 0%; transition: width 0.1s linear, background-color 0.2s; pointer-events: none;
+        }
+        .progress-container:hover .progress-bar { background: var(--primary-color); }
+        .progress-thumb {
+            position: absolute; top: 50%; transform: translate(-50%, -50%) scale(0);
+            width: 12px; height: 12px; background: #fff; border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: transform 0.2s; pointer-events: none;
+        }
+        .progress-container:hover .progress-thumb { transform: translate(-50%, -50%) scale(1); }
+
+        /* Grid / Layouts */
+        .grid-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+        .list-results { display: flex; flex-direction: column; gap: 0.5rem; }
+        
+        /* Lyrics Animation */
+        .lyric-line { transition: all 0.3s ease; opacity: 0.3; transform: scale(0.95); }
+        .lyric-line.active { opacity: 1; transform: scale(1.1); color: #fff; font-weight: 900; }
+
+        /* ================= RESPONSIVE FIXES ================= */
+        @media (max-width: 480px) {
+            .grid-results { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 0.75rem; }
+        }
+        .truncate-safe { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
+        /* ================= VIEW TRANSITIONS ================= */
+        .view-slide-in { animation: viewSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        @keyframes viewSlideIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .stagger-item { opacity: 0; animation: staggerIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        @keyframes staggerIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ================= SKELETON LOADING ================= */
+        .skeleton {
+            background: linear-gradient(100deg, rgba(255,255,255,0.05) 30%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 70%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s ease-in-out infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 150% 0; } 100% { background-position: -50% 0; } }
+
+        /* ================= TABS (Discografía) ================= */
+        .tab-pill {
+            position: relative; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 700;
+            font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; transition: all 0.25s ease;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .tab-pill:hover { color: #fff; }
+        .tab-pill.active { color: #000; background: #fff; }
+
+        /* ================= ANIMATED GRADIENT (DJ AI banner) ================= */
+        .animated-gradient {
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ================= MINI EQ BARS (indicador "sonando") ================= */
+        .eq-bars { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+        .eq-bars span { width: 3px; background: var(--primary-color); border-radius: 2px; animation: eqBounce 0.9s ease-in-out infinite; }
+        .eq-bars span:nth-child(1) { animation-delay: -0.6s; }
+        .eq-bars span:nth-child(2) { animation-delay: -0.3s; }
+        .eq-bars span:nth-child(3) { animation-delay: -0.9s; }
+        .eq-bars span:nth-child(4) { animation-delay: -0.15s; }
+        @keyframes eqBounce {
+            0%, 100% { height: 3px; } 50% { height: 14px; }
+        }
+        .eq-bars.paused span { animation-play-state: paused; height: 3px; }
+
+        /* ================= EQUALIZER SLIDERS (profesional) ================= */
+        .eq-slider {
+            -webkit-appearance: none; appearance: none;
+            width: 120px; height: 4px; background: rgba(255,255,255,0.15);
+            border-radius: 4px; outline: none; transform: rotate(-90deg);
+            transition: background 0.2s ease;
+        }
+        .eq-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 16px; height: 16px; border-radius: 50%;
+            background: var(--primary-color); cursor: pointer;
+            box-shadow: 0 0 8px rgba(59,130,246,0.6); border: 2px solid #fff;
+            transition: transform 0.15s ease;
+        }
+        .eq-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .eq-slider::-moz-range-thumb {
+            width: 16px; height: 16px; border-radius: 50%; border: 2px solid #fff;
+            background: var(--primary-color); cursor: pointer; box-shadow: 0 0 8px rgba(59,130,246,0.6);
+        }
+        .eq-band-col { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 40px; }
+        .eq-slider-wrap { height: 120px; display: flex; align-items: center; justify-content: center; width: 40px; }
+        .preset-chip {
+            padding: 0.4rem 0.9rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;
+            background: rgba(255,255,255,0.08); color: var(--text-secondary); cursor: pointer;
+            transition: all 0.2s ease; white-space: nowrap; border: 1px solid transparent;
+        }
+        .preset-chip:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .preset-chip.active { background: var(--primary-color); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+        /* ================= VISUALIZER ================= */
+        #eq-visualizer { width: 100%; height: 48px; display: block; }
+
+        /* Modal genérico de panel deslizante (EQ) */
+        #eq-modal-content { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+
+        /* Rotación de disco al reproducir (portada mini opcional) */
+        .spin-slow { animation: spinSlow 8s linear infinite; }
+        @keyframes spinSlow { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <!-- Audio Player Oculto -->
+    <audio id="main-audio" crossorigin="anonymous"></audio>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar Desktop -->
+        <nav class="w-64 bg-black flex-col hidden md:flex border-r border-gray-900 z-20">
+            <div class="p-6 pb-4 flex items-center gap-3 cursor-pointer" onclick="goHome()">
+                <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-full p-1 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                    <i data-lucide="play-circle" class="text-white w-7 h-7"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-tight text-white">eMusic</span>
+            </div>
+
+            <div class="px-4 space-y-1" id="desktop-nav">
+                <div class="nav-item active" onclick="switchView('home', this)">
+                    <i data-lucide="home"></i> Inicio
+                </div>
+                <div class="nav-item" onclick="switchView('search', this)">
+                    <i data-lucide="search"></i> Explorar
+                </div>
+                <div class="nav-item" onclick="switchView('library', this)">
+                    <i data-lucide="library"></i> Tu Biblioteca
+                </div>
+                <div class="nav-item" onclick="switchView('social', this)">
+                    <i data-lucide="hash"></i> Connect
+                </div>
+                <div class="nav-item" onclick="switchView('profile', this)">
+                    <i data-lucide="user-circle"></i> Perfil
+                </div>
+            </div>
+
+            <div class="mt-6 px-4">
+                <button onclick="toggleSettings()" class="flex items-center gap-4 text-gray-400 hover:text-white transition-colors p-2 w-full font-medium btn-hover rounded-lg hover:bg-white/5">
+                    <i data-lucide="settings"></i> Ajustes
+                </button>
+            </div>
+
+            <hr class="border-gray-800 mx-4 mt-4 mb-4" />
+            
+            <div class="flex-1 overflow-y-auto px-4 space-y-3 custom-scrollbar text-sm font-medium text-gray-400 pb-24">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Playlists</p>
+                <p class="hover:text-white cursor-pointer truncate transition-colors">Tus Favoritos 2023</p>
+                <p class="hover:text-white cursor-pointer truncate transition-colors">Rock en Español 90s</p>
+                <p class="hover:text-white cursor-pointer truncate transition-colors flex items-center gap-2"><i data-lucide="users" class="w-3 h-3"></i> Viaje a la playa (Collab)</p>
+                <p class="hover:text-white cursor-pointer truncate transition-colors">Podcasts: The Daily</p>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 bg-gradient-to-b from-gray-900 to-black overflow-y-auto relative custom-scrollbar pb-28 md:pb-24" id="main-scroll">
+            
+            <header class="sticky top-0 z-30 hidden md:flex items-center justify-between px-8 py-4 glass-header">
+                <div class="flex gap-2">
+                    <button class="bg-black/60 p-2 rounded-full hover:bg-black text-gray-400 hover:text-white transition-all btn-hover" onclick="goBack()">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+                    <button class="bg-black/60 p-2 rounded-full hover:bg-black text-gray-400 hover:text-white transition-all btn-hover">
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="bg-white text-black font-bold text-sm px-5 py-2 rounded-full btn-hover shadow-lg">
+                        Descubrir Premium
+                    </button>
+                    <button class="bg-black/60 p-2 rounded-full text-gray-300 hover:text-white transition-colors">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                    </button>
+                    <button class="bg-black p-1.5 rounded-full text-gray-300 hover:text-white border border-gray-800 btn-hover" onclick="switchView('profile', document.querySelectorAll('.nav-item')[4])">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100&h=100" class="w-7 h-7 rounded-full object-cover">
+                    </button>
+                </div>
+            </header>
+
+            <div id="view-container" class="px-4 md:px-8 pt-4 md:pt-6">
+                <!-- Vistas dinámicas -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Nav -->
+    <nav class="md:hidden flex justify-around items-center glass-header pt-2 pb-6 px-2 fixed bottom-0 w-full z-40 border-t border-gray-900" id="mobile-nav">
+        <div class="mobile-nav-item active" onclick="switchView('home', this, true)">
+            <i data-lucide="home"></i><span class="text-[10px] font-medium">Inicio</span>
+        </div>
+        <div class="mobile-nav-item" onclick="switchView('search', this, true)">
+            <i data-lucide="search"></i><span class="text-[10px] font-medium">Explorar</span>
+        </div>
+        <div class="mobile-nav-item" onclick="switchView('library', this, true)">
+            <i data-lucide="library"></i><span class="text-[10px] font-medium">Biblioteca</span>
+        </div>
+        <div class="mobile-nav-item" onclick="switchView('social', this, true)">
+            <i data-lucide="hash"></i><span class="text-[10px] font-medium">Connect</span>
+        </div>
+        <div class="mobile-nav-item" onclick="switchView('profile', this, true)">
+            <i data-lucide="user-circle"></i><span class="text-[10px] font-medium">Perfil</span>
+        </div>
+    </nav>
+
+    <!-- Mini Player -->
+    <div id="mini-player" 
+         class="glass-bottom-bar h-[64px] md:h-[90px] flex items-center justify-between px-3 md:px-4 z-50 fixed bottom-[72px] md:bottom-0 w-[calc(100%-16px)] md:w-full mx-2 md:mx-0 rounded-xl md:rounded-none cursor-pointer md:cursor-default shadow-2xl transition-all hover:bg-opacity-90 group"
+         onclick="if(window.innerWidth < 768) toggleExpandedPlayer()">
+        
+        <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 md:w-1/3 md:flex-none">
+            <div class="relative overflow-hidden rounded-md shadow-lg shrink-0">
+                <img id="mp-cover" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=300&h=300" class="w-11 h-11 sm:w-12 sm:h-12 md:w-16 md:h-16 object-cover cover-art-transition">
+                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity md:hidden">
+                    <i data-lucide="maximize-2" class="text-white w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="truncate min-w-0 flex-1">
+                <h4 id="mp-title" class="text-white text-sm font-bold truncate flex items-center gap-1 hover:underline cursor-pointer">
+                    Bienvenido
+                </h4>
+                <p id="mp-artist" class="text-xs text-gray-300 truncate hover:underline cursor-pointer">eMusic</p>
+            </div>
+            <button class="text-gray-400 hover:text-white hidden md:block ml-2 btn-hover shrink-0" onclick="event.stopPropagation(); this.querySelector('i').classList.toggle('text-blue-500'); this.querySelector('i').classList.toggle('fill-blue-500');">
+                <i data-lucide="heart" class="w-5 h-5 transition-colors"></i>
+            </button>
+        </div>
+
+        <!-- Controles Desktop -->
+        <div class="hidden md:flex flex-col items-center w-1/3">
+            <div class="flex items-center gap-5 mb-1.5">
+                <button id="mp-shuffle" class="text-gray-400 hover:text-white transition-colors" onclick="toggleShuffle()"><i data-lucide="shuffle" class="w-5 h-5"></i></button>
+                <button class="text-gray-300 hover:text-white transition-transform hover:scale-110" onclick="prevTrack()"><i data-lucide="skip-back" class="w-5 h-5 fill-current"></i></button>
+                <button id="mp-play-btn" onclick="togglePlay(event)" class="bg-white text-black p-2.5 rounded-full btn-hover shadow-lg relative">
+                    <i id="mp-play-icon" data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+                    <div id="mp-play-ring" class="absolute inset-0 rounded-full border-2 border-blue-500 opacity-0"></div>
+                </button>
+                <button class="text-gray-300 hover:text-white transition-transform hover:scale-110" onclick="nextTrack(true)"><i data-lucide="skip-forward" class="w-5 h-5 fill-current"></i></button>
+                <button id="mp-repeat" class="text-gray-400 hover:text-white transition-colors" onclick="toggleRepeat()"><i id="mp-repeat-icon" data-lucide="repeat" class="w-5 h-5"></i></button>
+            </div>
+            <div class="w-full flex items-center gap-2 text-xs text-gray-400 font-medium">
+                <span id="mp-time-current">0:00</span>
+                <div class="progress-container" onclick="seek(event)">
+                    <div id="mp-progress" class="progress-bar"></div>
+                    <div id="mp-thumb" class="progress-thumb"></div>
+                </div>
+                <span id="mp-time-total">0:00</span>
+            </div>
+        </div>
+
+        <!-- Controles Mobile -->
+        <div class="md:hidden flex items-center gap-3 text-white z-10 shrink-0">
+            <div id="mp-eq-bars-mobile" class="eq-bars paused hidden xs:flex"><span></span><span></span><span></span><span></span></div>
+            <button id="mp-play-btn-mobile" onclick="togglePlay(event)" class="btn-hover text-white shrink-0">
+                <i id="mp-play-icon-mobile" data-lucide="play" class="w-7 h-7 fill-current ml-1"></i>
+            </button>
+        </div>
+
+        <!-- Controles Derecho -->
+        <div class="hidden md:flex items-center justify-end gap-3 lg:gap-4 w-1/3 text-gray-400 pr-2 shrink-0">
+            <button onclick="toggleEqModal()" class="hover:text-blue-500 transition-colors btn-hover" title="Ecualizador"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></button>
+            <button class="hover:text-blue-500 transition-colors btn-hover" title="Letras" onclick="toggleExpandedPlayer(); setTimeout(toggleLyrics, 300);"><i data-lucide="mic-2" class="w-5 h-5"></i></button>
+            <button class="hover:text-white transition-colors btn-hover" title="Cola de reproducción"><i data-lucide="list-music" class="w-5 h-5"></i></button>
+            <button class="hover:text-white transition-colors btn-hover hidden lg:block" title="Party Mode"><i data-lucide="users" class="w-5 h-5"></i></button>
+            <div class="items-center gap-2 w-20 lg:w-24 group hidden lg:flex">
+                <i data-lucide="volume-2" class="w-5 h-5 group-hover:text-white transition-colors shrink-0"></i>
+                <div class="progress-container h-1" onclick="setVolume(event)">
+                    <div id="mp-volume-bar" class="progress-bar w-full bg-gray-300 group-hover:bg-blue-500"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra móvil -->
+        <div class="absolute bottom-0 left-0 h-[2px] bg-white/10 w-full md:hidden rounded-b-xl overflow-hidden">
+           <div id="mp-progress-mobile" class="h-full bg-blue-500 transition-all duration-100 ease-linear" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Reproductor Expandido -->
+    <div id="expanded-player" class="fixed inset-0 z-[100] bg-gray-900 flex flex-col overflow-hidden">
+        <img id="ep-bg-img" src="" class="expanded-bg-blur">
+        <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/80 to-black z-0"></div>
+
+        <div class="relative z-10 flex justify-between items-center p-6 glass-header bg-transparent border-none pt-8">
+            <button onclick="toggleExpandedPlayer()" class="text-white bg-black/20 p-2 rounded-full hover:bg-black/40 btn-hover">
+                <i data-lucide="chevron-down" class="w-7 h-7"></i>
+            </button>
+            <div class="text-center">
+                <p class="text-[10px] font-bold tracking-[0.2em] text-gray-300 uppercase">Reproduciendo ahora</p>
+                <p id="ep-context" class="text-sm font-bold text-white">eMusic Radio</p>
+            </div>
+            <button class="text-white bg-black/20 p-2 rounded-full hover:bg-black/40 btn-hover">
+                <i data-lucide="more-horizontal" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <div class="relative z-10 flex-1 flex flex-col items-center justify-center px-6 sm:px-12 w-full max-w-md mx-auto">
+            
+            <!-- Contenedor Imagen -->
+            <div id="ep-cover-container" class="w-full aspect-square max-w-[340px] mb-8 relative group">
+                <img id="ep-cover" src="" class="w-full h-full object-cover rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] cover-art-transition">
+            </div>
+
+            <!-- Contenedor Letras (Oculto por defecto) -->
+            <div id="ep-lyrics-container" class="w-full h-64 overflow-y-auto hide-scrollbar text-center space-y-6 mb-8 hidden flex-col justify-center">
+                <p class="lyric-line text-2xl">Cargando letras...</p>
+                <p class="lyric-line active text-3xl">Sincronizando con IA</p>
+                <p class="lyric-line text-2xl">Karaoke mode activado</p>
+            </div>
+
+            <div class="w-full mb-6">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="truncate pr-4 flex-1">
+                        <h2 id="ep-title" class="text-2xl sm:text-3xl font-black text-white truncate mb-1">Título</h2>
+                        <p id="ep-artist" class="text-lg text-gray-300 truncate">Artista</p>
+                    </div>
+                    <button class="btn-hover mb-1" onclick="this.querySelector('i').classList.toggle('text-blue-500'); this.querySelector('i').classList.toggle('fill-blue-500');">
+                        <i data-lucide="heart" class="w-8 h-8 transition-colors"></i>
+                    </button>
+                </div>
+                
+                <!-- Hi-Fi / Spatial Badges -->
+                <div id="ep-badges" class="flex flex-wrap gap-2 mb-4">
+                    <span class="bg-white/20 text-white text-[10px] font-bold px-2 py-1 rounded border border-white/30 flex items-center gap-1"><i data-lucide="disc" class="w-3 h-3"></i> LOSSLESS</span>
+                    <span class="bg-white/20 text-white text-[10px] font-bold px-2 py-1 rounded border border-white/30 flex items-center gap-1"><i data-lucide="headphones" class="w-3 h-3"></i> DOLBY ATMOS</span>
+                </div>
+
+                <div class="w-full flex flex-col gap-3">
+                    <div class="progress-container h-1.5" onclick="seek(event)">
+                        <div id="ep-progress" class="progress-bar"></div>
+                        <div id="ep-thumb" class="progress-thumb"></div>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold text-gray-400">
+                        <span id="ep-time-current">0:00</span>
+                        <span id="ep-time-total">0:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center w-full mb-8">
+                <button id="ep-shuffle" class="text-gray-400 hover:text-white transition-colors btn-hover" onclick="toggleShuffle()"><i data-lucide="shuffle" class="w-6 h-6"></i></button>
+                <button class="text-white btn-hover" onclick="prevTrack()"><i data-lucide="skip-back" class="w-10 h-10 fill-current"></i></button>
+                
+                <button id="ep-play-btn" onclick="togglePlay(event)" class="bg-white text-black p-5 rounded-full btn-hover shadow-[0_0_30px_rgba(255,255,255,0.3)] relative">
+                    <i id="ep-play-icon" data-lucide="play" class="w-8 h-8 fill-current ml-1"></i>
+                    <div id="ep-play-ring" class="absolute inset-0 rounded-full border-[3px] border-blue-500 opacity-0"></div>
+                </button>
+                
+                <button class="text-white btn-hover" onclick="nextTrack(true)"><i data-lucide="skip-forward" class="w-10 h-10 fill-current"></i></button>
+                <button id="ep-repeat" class="text-gray-400 hover:text-white transition-colors btn-hover" onclick="toggleRepeat()"><i id="ep-repeat-icon" data-lucide="repeat" class="w-6 h-6"></i></button>
+            </div>
+
+            <!-- Footer Expandido (Letras, Party, EQ, Share) -->
+            <div class="flex justify-between items-center w-full mt-auto pb-8 pt-4 border-t border-white/10">
+                <button class="text-gray-400 hover:text-white flex flex-col items-center gap-1 btn-hover">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span class="text-[10px] uppercase font-bold">Party</span>
+                </button>
+                <button onclick="toggleEqModal()" class="text-gray-400 hover:text-white flex flex-col items-center gap-1 btn-hover">
+                    <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                    <span class="text-[10px] uppercase font-bold">EQ</span>
+                </button>
+                <button onclick="toggleLyrics()" id="btn-lyrics" class="text-gray-400 bg-white/5 hover:bg-blue-500/20 hover:text-blue-500 p-4 rounded-full btn-hover transition-colors">
+                    <i data-lucide="mic-2" class="w-6 h-6"></i>
+                </button>
+                <button class="text-gray-400 hover:text-white flex flex-col items-center gap-1 btn-hover">
+                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                    <span class="text-[10px] uppercase font-bold">Share</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURACIÓN -->
+    <div id="settings-modal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-gray-900 w-full max-w-md mx-4 rounded-2xl border border-gray-700 shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="settings-content">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/90 backdrop-blur">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-blue-500"></i> Ajustes</h2>
+                <button onclick="toggleSettings()" class="text-gray-400 hover:text-white bg-gray-800 rounded-full p-1.5 btn-hover">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black text-blue-500 uppercase tracking-widest">Audio & Reproducción</h3>
+                    <div class="flex justify-between items-center group cursor-pointer">
+                        <div>
+                            <p class="text-white font-bold group-hover:text-blue-400 transition-colors">Calidad (Wi-Fi)</p>
+                            <p class="text-xs text-gray-400">Lossless (ALAC 24-bit/192 kHz)</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                    </div>
+                    <div class="flex justify-between items-center group cursor-pointer" onclick="toggleSettings(); setTimeout(toggleEqModal, 300);">
+                        <div>
+                            <p class="text-white font-bold group-hover:text-blue-400 transition-colors">Ecualizador (EQ)</p>
+                            <p class="text-xs text-gray-400" id="settings-eq-preset-label">Ajuste manual (Preset: Flat)</p>
+                        </div>
+                        <i data-lucide="sliders" class="w-5 h-5 text-gray-500"></i>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-white font-bold">Crossfade Inteligente</p>
+                            <p class="text-xs text-gray-400">Transición IA por BPM</p>
+                        </div>
+                        <div class="w-12 h-6 bg-blue-500 rounded-full relative cursor-pointer shadow-inner" onclick="this.classList.toggle('bg-gray-600'); this.classList.toggle('bg-blue-500'); this.children[0].classList.toggle('translate-x-6');">
+                            <div class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5 shadow-md transform translate-x-6 transition-transform duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-800" />
+
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black text-blue-500 uppercase tracking-widest">Herramientas</h3>
+                    <div class="flex justify-between items-center group cursor-pointer">
+                        <div>
+                            <p class="text-white font-bold group-hover:text-blue-400 transition-colors">Temporizador (Sleep Timer)</p>
+                            <p class="text-xs text-gray-400">Apagar al terminar la canción</p>
+                        </div>
+                        <i data-lucide="moon" class="w-5 h-5 text-gray-500"></i>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-white font-bold flex items-center gap-2"><i data-lucide="smartphone" class="w-4 h-4"></i> Modo Coche</p>
+                            <p class="text-xs text-gray-400">Soporte CarPlay / Android Auto</p>
+                        </div>
+                        <div class="w-12 h-6 bg-gray-600 rounded-full relative cursor-pointer shadow-inner" onclick="this.classList.toggle('bg-gray-600'); this.classList.toggle('bg-blue-500'); this.children[0].classList.toggle('translate-x-6');">
+                            <div class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5 shadow-md transform transition-transform duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE ECUALIZADOR PROFESIONAL -->
+    <div id="eq-modal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-gray-900 w-full sm:max-w-lg sm:mx-4 rounded-t-3xl sm:rounded-2xl border border-gray-700 shadow-2xl overflow-hidden transform translate-y-4 sm:scale-95 sm:translate-y-0 transition-transform duration-300" id="eq-modal-content">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/90 backdrop-blur">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2"><i data-lucide="sliders-horizontal" class="w-5 h-5 text-blue-500"></i> Ecualizador</h2>
+                <button onclick="toggleEqModal()" class="text-gray-400 hover:text-white bg-gray-800 rounded-full p-1.5 btn-hover">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <p class="text-xs font-black text-blue-500 uppercase tracking-widest">Presets</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-400">Activo</span>
+                            <div id="eq-enabled-toggle" class="w-11 h-6 bg-blue-500 rounded-full relative cursor-pointer shadow-inner" onclick="toggleEqEnabled()">
+                                <div id="eq-enabled-dot" class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5 shadow-md transform translate-x-5 transition-transform duration-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="eq-presets" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <hr class="border-gray-800" />
+
+                <div>
+                    <p class="text-xs font-black text-blue-500 uppercase tracking-widest mb-4">Bandas de frecuencia</p>
+                    <div id="eq-bands" class="flex justify-between items-start gap-1 sm:gap-3 overflow-x-auto hide-scrollbar pb-2"></div>
+                </div>
+
+                <hr class="border-gray-800" />
+
+                <div>
+                    <p class="text-xs font-black text-blue-500 uppercase tracking-widest mb-3">Visualizador en vivo</p>
+                    <canvas id="eq-visualizer"></canvas>
+                    <p class="text-xs text-gray-500 mt-2">El ecualizador se activa automáticamente al reproducir una canción.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- INICIALIZACIÓN Y CONFIGURACIÓN ---
+        const API_URL = "https://itunes.apple.com";
+        const audio = document.getElementById('main-audio');
+        let currentQueue = [];
+        let originalQueue = [];
+        let currentIndex = -1;
+        let isPlaying = false;
+        let isExpanded = false;
+        let showLyrics = false;
+        let viewHistory = [];
+        let isShuffle = false;
+        let repeatMode = 0; // 0: off, 1: all, 2: one
+
+        // --- ECUALIZADOR PROFESIONAL (Web Audio API) ---
+        const EQ_FREQS = [60, 150, 400, 1000, 2400, 6000, 15000];
+        const EQ_LABELS = ['60', '150', '400', '1K', '2.4K', '6K', '15K'];
+        const EQ_PRESETS = {
+            'Flat':        [0, 0, 0, 0, 0, 0, 0],
+            'Rock':        [4, 3, -1, -1, 1, 3, 4],
+            'Pop':         [-1, 2, 4, 3, 0, -1, -1],
+            'Jazz':        [3, 2, 0, 1, 2, 2, 3],
+            'Bass Boost':  [6, 5, 3, 0, -1, -1, 0],
+            'Vocal Boost': [-2, -1, 1, 4, 4, 2, 0],
+            'Electrónica': [4, 3, 0, -1, 1, 3, 4]
+        };
+        let audioCtx = null, eqSourceNode = null, eqFilters = [], eqAnalyser = null, eqGraphReady = false;
+        let eqEnabled = true, eqCurrentPreset = 'Flat', eqGains = [...EQ_PRESETS['Flat']];
+        let visualizerRAF = null;
+
+        function initAudioGraph() {
+            if (eqGraphReady) return;
+            try {
+                const AudioContextCls = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextCls();
+                eqSourceNode = audioCtx.createMediaElementSource(audio);
+
+                let prevNode = eqSourceNode;
+                eqFilters = EQ_FREQS.map((freq, i) => {
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.frequency.value = freq;
+                    filter.type = i === 0 ? 'lowshelf' : (i === EQ_FREQS.length - 1 ? 'highshelf' : 'peaking');
+                    if (filter.type === 'peaking') filter.Q.value = 1.1;
+                    filter.gain.value = 0;
+                    prevNode.connect(filter);
+                    prevNode = filter;
+                    return filter;
+                });
+
+                eqAnalyser = audioCtx.createAnalyser();
+                eqAnalyser.fftSize = 64;
+                eqAnalyser.smoothingTimeConstant = 0.8;
+                prevNode.connect(eqAnalyser);
+                eqAnalyser.connect(audioCtx.destination);
+
+                eqGraphReady = true;
+                applyEqGains(eqGains);
+            } catch (e) { console.warn('No se pudo inicializar el ecualizador:', e); }
+        }
+
+        function applyEqGains(gains) {
+            eqGains = gains;
+            if (eqGraphReady) {
+                eqFilters.forEach((f, i) => { f.gain.value = eqEnabled ? gains[i] : 0; });
+            }
+            const sliders = document.querySelectorAll('.eq-slider');
+            sliders.forEach((s, i) => { if (gains[i] !== undefined) s.value = gains[i]; });
+        }
+
+        function setEqBand(index, value) {
+            eqGains[index] = parseFloat(value);
+            if (eqGraphReady && eqEnabled) eqFilters[index].gain.value = eqGains[index];
+            eqCurrentPreset = 'Personalizado';
+            renderEqPresets();
+        }
+
+        function applyEqPreset(name) {
+            eqCurrentPreset = name;
+            applyEqGains([...EQ_PRESETS[name]]);
+            renderEqPresets();
+            const label = document.getElementById('settings-eq-preset-label');
+            if (label) label.textContent = `Ajuste manual (Preset: ${name})`;
+        }
+
+        function toggleEqEnabled() {
+            eqEnabled = !eqEnabled;
+            const dot = document.getElementById('eq-enabled-dot');
+            const toggle = document.getElementById('eq-enabled-toggle');
+            dot.classList.toggle('translate-x-5', eqEnabled);
+            dot.classList.toggle('translate-x-0', !eqEnabled);
+            toggle.classList.toggle('bg-blue-500', eqEnabled);
+            toggle.classList.toggle('bg-gray-600', !eqEnabled);
+            if (eqGraphReady) eqFilters.forEach((f, i) => { f.gain.value = eqEnabled ? eqGains[i] : 0; });
+        }
+
+        function renderEqPresets() {
+            const wrap = document.getElementById('eq-presets');
+            if (!wrap) return;
+            wrap.innerHTML = Object.keys(EQ_PRESETS).map(name => `
+                <div class="preset-chip ${eqCurrentPreset === name ? 'active' : ''}" onclick="applyEqPreset('${name}')">${name}</div>
+            `).join('') + `<div class="preset-chip ${eqCurrentPreset === 'Personalizado' ? 'active' : ''}">Personalizado</div>`;
+        }
+
+        function renderEqBands() {
+            const wrap = document.getElementById('eq-bands');
+            if (!wrap) return;
+            wrap.innerHTML = EQ_FREQS.map((freq, i) => `
+                <div class="eq-band-col shrink-0">
+                    <span class="text-[10px] text-gray-400 font-bold" id="eq-gain-label-${i}">${eqGains[i] > 0 ? '+' : ''}${eqGains[i]}</span>
+                    <div class="eq-slider-wrap">
+                        <input type="range" min="-12" max="12" step="1" value="${eqGains[i]}" class="eq-slider"
+                               oninput="setEqBand(${i}, this.value); document.getElementById('eq-gain-label-${i}').textContent = (this.value>0?'+':'')+this.value;">
+                    </div>
+                    <span class="text-[10px] text-gray-500 font-bold">${EQ_LABELS[i]}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleEqModal() {
+            initAudioGraph();
+            const modal = document.getElementById('eq-modal');
+            const content = document.getElementById('eq-modal-content');
+            const opening = modal.classList.contains('opacity-0') || modal.classList.contains('pointer-events-none');
+            if (opening) {
+                renderEqPresets();
+                renderEqBands();
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.classList.add('opacity-100', 'pointer-events-auto');
+                content.classList.remove('scale-95', 'translate-y-4');
+                startVisualizer();
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modal.classList.remove('opacity-100', 'pointer-events-auto');
+                content.classList.add('scale-95', 'translate-y-4');
+                stopVisualizer();
+            }
+        }
+
+        function startVisualizer() {
+            const canvas = document.getElementById('eq-visualizer');
+            if (!canvas) return;
+            const ctx2d = canvas.getContext('2d');
+            const resize = () => { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; };
+            resize();
+            const bufferLength = eqAnalyser ? eqAnalyser.frequencyBinCount : 32;
+            const dataArray = new Uint8Array(bufferLength);
+
+            function draw() {
+                visualizerRAF = requestAnimationFrame(draw);
+                ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+                if (eqAnalyser && isPlaying) {
+                    eqAnalyser.getByteFrequencyData(dataArray);
+                } else {
+                    dataArray.fill(0);
+                }
+                const barWidth = canvas.width / bufferLength * 1.5;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = (dataArray[i] / 255) * canvas.height;
+                    const gradient = ctx2d.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
+                    gradient.addColorStop(0, '#3b82f6'); /* Azul primario */
+                    gradient.addColorStop(1, '#60a5fa'); /* Azul secundario */
+                    ctx2d.fillStyle = gradient;
+                    ctx2d.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+                    x += barWidth;
+                }
+            }
+            draw();
+        }
+
+        function stopVisualizer() {
+            if (visualizerRAF) cancelAnimationFrame(visualizerRAF);
+            visualizerRAF = null;
+        }
+
+        function setVolume(e) {
+            e.stopPropagation();
+            const rect = e.currentTarget.getBoundingClientRect();
+            const vol = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+            audio.volume = vol;
+            const bar = document.getElementById('mp-volume-bar');
+            if (bar) bar.style.width = `${vol * 100}%`;
+        }
+
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return 'Buenos días';
+            if (hour < 20) return 'Buenas tardes';
+            return 'Buenas noches';
+        }
+
+        // --- VISTAS EN ESPAÑOL (HTML Templates) ---
+        const views = {
+            home: `
+                <div class="fade-in">
+                    <div class="flex flex-wrap gap-3 justify-between items-center mb-6">
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">${getGreeting()}</h1>
+                        <div class="flex gap-2 overflow-x-auto hide-scrollbar max-w-full">
+                            <button class="bg-white/10 hover:bg-white/20 text-sm px-4 py-1.5 rounded-full font-bold transition-colors whitespace-nowrap shrink-0">Energía</button>
+                            <button class="bg-white/10 hover:bg-white/20 text-sm px-4 py-1.5 rounded-full font-bold transition-colors whitespace-nowrap shrink-0">Relax</button>
+                            <button class="bg-white/10 hover:bg-white/20 text-sm px-4 py-1.5 rounded-full font-bold transition-colors whitespace-nowrap shrink-0">Fiesta</button>
+                        </div>
+                    </div>
+                    
+                    <!-- eMusic DJ AI -->
+                    <div class="animated-gradient bg-gradient-to-r from-indigo-900 via-blue-900 to-blue-900 rounded-2xl p-4 sm:p-5 mb-8 flex items-center justify-between gap-3 cursor-pointer card-hover shadow-xl border border-blue-500/30">
+                        <div class="flex items-center gap-3 sm:gap-4 relative z-10 min-w-0">
+                            <div class="bg-white/10 backdrop-blur p-3 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] animate-pulse shrink-0">
+                                <i data-lucide="radio" class="text-blue-400 w-6 h-6 sm:w-8 sm:h-8"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-white font-black text-base sm:text-xl flex items-center gap-2 truncate">eMusic DJ <i data-lucide="zap" class="text-yellow-400 fill-yellow-400 w-4 h-4 shrink-0"></i></h3>
+                                <p class="text-blue-200 text-xs sm:text-sm font-medium truncate">Estación infinita y comentarios por IA</p>
+                            </div>
+                        </div>
+                        <button class="bg-white text-black px-4 sm:px-6 py-2 rounded-full font-black text-sm btn-hover shrink-0 shadow-lg">
+                            Escuchar
+                        </button>
+                    </div>
+
+                    <h2 class="text-xl font-bold text-white mb-4 hover:underline cursor-pointer">Tendencias y Recomendados</h2>
+                    <div id="home-trending" class="grid-results pb-8">
+                        ${[1,2,3,4,5,6].map(()=>`<div><div class="aspect-square rounded-lg skeleton mb-2"></div><div class="h-3 w-3/4 rounded skeleton"></div></div>`).join('')}
+                    </div>
+                </div>
+            `,
+            search: `
+                <div class="fade-in">
+                    <div class="relative mb-8 max-w-2xl">
+                        <i data-lucide="search" class="absolute left-4 top-3.5 text-gray-500 w-5 h-5"></i>
+                        <input type="text" id="searchInput" placeholder="Canciones, artistas, podcasts, audiolibros..." 
+                            class="w-full bg-white text-black font-bold py-3 pl-12 pr-12 rounded-full outline-none focus:ring-4 focus:ring-blue-500/50 shadow-lg"
+                            oninput="handleSearch(event)" onkeypress="if(event.key==='Enter') handleSearch(event)">
+                        <i data-lucide="mic" class="absolute right-4 top-3.5 text-gray-500 w-5 h-5 cursor-pointer hover:text-blue-500 transition-colors"></i>
+                    </div>
+                    
+                    <div id="search-results">
+                        <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="flame" class="text-orange-500"></i> Explorar todo</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-8">
+                            ${[
+                                {t:"Tendencias eMusic", c:"bg-gradient-to-br from-purple-600 to-blue-600"},
+                                {t:"Éxitos Globales", c:"bg-gradient-to-br from-blue-500 to-emerald-400"},
+                                {t:"Podcasts", c:"bg-gradient-to-br from-emerald-500 to-teal-700"},
+                                {t:"Audiolibros", c:"bg-gradient-to-br from-amber-500 to-red-600"},
+                                {t:"eMusic Live", c:"bg-gradient-to-br from-red-600 to-blue-600"},
+                                {t:"Modo Fiesta", c:"bg-gradient-to-br from-indigo-500 to-purple-800"}
+                            ].map(cat => `
+                                <div class="${cat.c} p-4 rounded-xl h-32 md:h-40 relative overflow-hidden cursor-pointer hover:scale-105 transition-transform shadow-lg">
+                                    <h3 class="text-base sm:text-lg md:text-xl font-bold text-white tracking-wide pr-6 break-words">${cat.t}</h3>
+                                    <div class="absolute -bottom-4 -right-4 w-20 h-20 bg-black bg-opacity-20 rotate-[25deg] rounded-lg shadow-2xl"></div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `,
+            library: `
+                <div class="fade-in pb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h1 class="text-3xl font-bold text-white">Tu Biblioteca</h1>
+                        <div class="flex gap-2">
+                            <button class="text-gray-400 hover:text-white p-2"><i data-lucide="plus"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-6 -mx-4 px-4 md:mx-0 md:px-0">
+                        <button class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 text-white hover:bg-white/20">Playlists</button>
+                        <button class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 text-white hover:bg-white/20">Álbumes</button>
+                        <button class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 text-white hover:bg-white/20">Artistas</button>
+                        <button class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium bg-emerald-600/20 text-emerald-400 border border-emerald-500/50 flex items-center gap-1"><i data-lucide="download" class="w-3 h-3"></i> Descargados</button>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl cursor-pointer transition-colors group">
+                            <div class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-blue-400 rounded-md flex items-center justify-center shadow-lg">
+                                <i data-lucide="heart" class="text-white fill-white w-8 h-8"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-white font-bold text-lg">Tus me gusta</h3>
+                                <p class="text-sm text-gray-400">Playlist • 142 canciones</p>
+                            </div>
+                        </div>
+                        <!-- Filler Content -->
+                        ${[1,2,3].map(i => `
+                            <div class="flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl cursor-pointer transition-colors group">
+                                <div class="w-16 h-16 bg-gray-800 rounded-md shadow-md flex items-center justify-center"><i data-lucide="music" class="text-gray-500"></i></div>
+                                <div><h3 class="text-white font-bold">Mi Playlist ${i}</h3><p class="text-sm text-gray-400">Creada por ti</p></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `,
+            social: `
+                <div class="fade-in pb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-3xl font-bold text-white">Connect</h1>
+                        <button class="bg-white/10 hover:bg-white/20 p-2 rounded-full"><i data-lucide="users" class="text-white"></i></button>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        ${[
+                            {u: "Rosalía", a: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100&h=100", act: "publicó una nueva", t: "eMusic Session #45", art: "Exclusivo", time: "Hace 1 hora", l: 4500, isArt: true},
+                            {u: "Carlos G.", a: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100&h=100", act: "está escuchando", t: "Ojitos Lindos", art: "Bad Bunny, Bomba Estéreo", time: "Hace 2 min", l: 12},
+                            {u: "Elena M.", a: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=100&h=100", act: "creó una playlist colaborativa", t: "Viaje a la Playa 🌴", art: "Únete y añade canciones", time: "Hace 3 horas", l: 5}
+                        ].map(post => `
+                            <div class="bg-white/5 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <img src="${post.a}" class="w-10 h-10 rounded-full object-cover">
+                                        <div>
+                                            <h4 class="text-white font-bold flex items-center gap-1">${post.u} ${post.isArt ? '<i data-lucide="crown" class="w-3 h-3 text-yellow-400 fill-yellow-400"></i>' : ''}</h4>
+                                            <p class="text-xs text-gray-400">${post.act} • ${post.time}</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-white"><i data-lucide="more-horizontal"></i></button>
+                                </div>
+                                <div class="bg-black/40 p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-black/60 transition-colors">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center shrink-0"><i data-lucide="disc" class="text-white"></i></div>
+                                    <div><p class="text-white font-bold">${post.t}</p><p class="text-sm text-gray-400">${post.art}</p></div>
+                                    <button class="ml-auto bg-white/10 p-2 rounded-full hover:bg-blue-500 hover:text-white transition-colors"><i data-lucide="play" class="w-4 h-4 fill-current ml-0.5"></i></button>
+                                </div>
+                                <div class="flex gap-6 mt-4 text-gray-400 px-2">
+                                    <button class="flex items-center gap-1.5 hover:text-blue-500 text-sm font-medium"><i data-lucide="heart" class="w-4 h-4"></i> ${post.l}</button>
+                                    <button class="flex items-center gap-1.5 hover:text-white text-sm font-medium"><i data-lucide="message-circle" class="w-4 h-4"></i> Comentar</button>
+                                    <button class="flex items-center gap-1.5 hover:text-white text-sm font-medium ml-auto"><i data-lucide="share-2" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `,
+            profile: `
+                <div class="fade-in pb-8">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 via-purple-500 to-indigo-500 p-1">
+                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200&h=200" class="w-full h-full rounded-full border-4 border-gray-900 object-cover">
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-bold text-white">eOnyx User Beta</h1>
+                                <p class="text-gray-400 text-sm mt-1">Suscripción: <span class="text-blue-500 font-bold border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 rounded ml-1">eMusic Free</span></p>
+                            </div>
+                        </div>
+                        <button onclick="toggleSettings()" class="text-gray-400 hover:text-white bg-white/5 p-2 rounded-full"><i data-lucide="settings"></i></button>
+                    </div>
+
+                    <!-- Wrapped Stats -->
+                    <div class="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border border-white/10 rounded-2xl p-5 mb-8 shadow-xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2"><i data-lucide="activity" class="text-blue-500 w-5 h-5"></i> Tus Estadísticas</h2>
+                            <span class="text-xs bg-white/10 px-2 py-1 rounded-full text-gray-300">Este mes</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div><p class="text-2xl font-black text-white">42h</p><p class="text-xs text-gray-400">Escuchadas</p></div>
+                            <div><p class="text-2xl font-black text-white">128</p><p class="text-xs text-gray-400">Artistas</p></div>
+                            <div><p class="text-lg font-bold text-blue-400 mt-1 truncate">Pop/Rock</p><p class="text-xs text-gray-400">Top Género</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Planes -->
+                    <h2 class="text-xl font-bold text-white mb-4">Mejora tu plan</h2>
+                    <div class="flex overflow-x-auto gap-4 hide-scrollbar pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+                        ${[
+                            {n: "Premium", p: "$10.99/mes", f: ["Sin anuncios", "Saltos ilimitados", "Descargas offline", "Hi-Fi & Audio Espacial"], pop: true},
+                            {n: "Estudiante", p: "$5.99/mes", f: ["Beneficios Premium", "Verificación universitaria", "Descuento 50%"], pop: false},
+                            {n: "Dúo", p: "$14.99/mes", f: ["2 cuentas", "Duo Mix Playlist", "Factura única"], pop: false},
+                            {n: "Familiar", p: "$16.99/mes", f: ["Hasta 6 cuentas", "eMusic Kids", "Control Parental"], pop: false},
+                            {n: "Max", p: "$19.99/mes", f: ["Premium + 15h Audiolibros", "VIP Tickets anticipados", "Máxima Calidad"], pop: false}
+                        ].map(plan => `
+                            <div class="min-w-[260px] p-5 rounded-xl border relative shadow-lg ${plan.pop ? 'bg-gradient-to-b from-gray-800 to-gray-900 border-blue-500' : 'bg-white/5 border-white/10'}">
+                                ${plan.pop ? '<span class="bg-blue-500 text-white text-[10px] font-black tracking-wider px-2 py-1 rounded-full absolute -top-3 left-4">MÁS POPULAR</span>' : ''}
+                                <h3 class="text-xl font-bold text-white mt-1">${plan.n}</h3>
+                                <p class="text-2xl font-black text-white my-2">${plan.p}</p>
+                                <ul class="space-y-2 mt-4 mb-6 h-28">
+                                    ${plan.f.map(f => `<li class="text-sm text-gray-300 flex items-center gap-2"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div> ${f}</li>`).join('')}
+                                </ul>
+                                <button class="w-full py-2.5 rounded-full font-bold text-sm transition-transform hover:scale-105 ${plan.pop ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}">Elegir ${plan.n}</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `
+        };
+
+        // --- NAVEGACIÓN ---
+        function switchView(viewName, element, isMobile = false) {
+            const selector = isMobile ? '.mobile-nav-item' : '.nav-item';
+            document.querySelectorAll(selector).forEach(el => el.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            if(!isMobile && element) {
+                 document.querySelectorAll('.mobile-nav-item').forEach(el => {
+                     if(el.getAttribute('onclick').includes(viewName)) {
+                         document.querySelectorAll('.mobile-nav-item').forEach(e=>e.classList.remove('active'));
+                         el.classList.add('active');
+                     }
+                 });
+            }
+
+            viewHistory.push(viewName);
+            renderView(viewName);
+        }
+
+        function goBack() {
+            while (viewHistory.length > 1 && !views[viewHistory[viewHistory.length - 1]]) {
+                viewHistory.pop();
+            }
+            if (viewHistory.length > 1) {
+                viewHistory.pop();
+            }
+            const prevView = viewHistory[viewHistory.length - 1] || 'home';
+            renderView(prevView);
+        }
+
+        function goHome() {
+            switchView('home', document.querySelector('.nav-item.active'));
+        }
+
+        function renderView(viewName) {
+            const container = document.getElementById('view-container');
+            document.getElementById('main-scroll').scrollTo({top: 0, behavior: 'smooth'});
+            container.innerHTML = views[viewName];
+            lucide.createIcons();
+
+            if(viewName === 'home') loadTrending();
+            if(viewName === 'search') setTimeout(() => document.getElementById('searchInput').focus(), 100);
+        }
+
+        // --- GESTIÓN DE QUEUE ---
+        function setQueue(tracks) {
+            originalQueue = [...tracks];
+            if (isShuffle) {
+                currentQueue = [...tracks];
+                for (let i = currentQueue.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [currentQueue[i], currentQueue[j]] = [currentQueue[j], currentQueue[i]];
+                }
+            } else {
+                currentQueue = [...tracks];
+            }
+        }
+
+        // --- API & DATA FETCHING ---
+        async function loadTrending() {
+            try {
+                const res = await fetch(`${API_URL}/search?term=pop+hits&entity=song&limit=10`);
+                const data = await res.json();
+                renderTracksToContainer(data.results, 'home-trending', true);
+            } catch (e) {
+                document.getElementById('home-trending').innerHTML = `<p class="text-red-500">Error de conexión.</p>`;
+            }
+        }
+
+        let searchDebounceTimer = null;
+
+        function handleSearch(e) {
+            const query = e.target.value.trim();
+            clearTimeout(searchDebounceTimer);
+            if (e.key === 'Enter') { runSearch(query); return; }
+            searchDebounceTimer = setTimeout(() => { if (query.length >= 2) runSearch(query); }, 450);
+        }
+
+        async function runSearch(query) {
+            if (!query) return;
+            const container = document.getElementById('search-results');
+            if (!container) return;
+            container.innerHTML = `
+                <h3 class="text-xl font-bold text-white mb-4">Buscando "${query}"...</h3>
+                <div class="list-results">${[1,2,3,4,5].map(()=>`<div class="h-14 rounded-xl skeleton"></div>`).join('')}</div>
+            `;
+
+            try {
+                // Fetch de Artistas y de Canciones simultáneo
+                const resArtists = await fetch(`${API_URL}/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=5`);
+                const dataArtists = await resArtists.json();
+                
+                const resSongs = await fetch(`${API_URL}/search?term=${encodeURIComponent(query)}&entity=song&limit=15`);
+                const dataSongs = await resSongs.json();
+
+                if(dataSongs.results.length === 0 && dataArtists.results.length === 0) {
+                    container.innerHTML = `<div class="fade-in text-center py-10"><i data-lucide="search-x" class="w-10 h-10 text-gray-600 mx-auto mb-3"></i><p class="text-gray-400">No se encontraron resultados para "${query}".</p></div>`;
+                    lucide.createIcons();
+                    return;
+                }
+                
+                let html = `<div class="fade-in">`;
+                
+                // Renderizado de artistas para búsqueda combinada
+                if (dataArtists.results.length > 0) {
+                    html += `<h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="users" class="text-blue-500 w-5 h-5"></i> Artistas</h3>
+                             <div class="flex overflow-x-auto gap-4 hide-scrollbar mb-8 -mx-4 px-4 md:mx-0 md:px-0">`;
+                    html += dataArtists.results.map(a => `
+                        <div class="w-28 shrink-0 text-center cursor-pointer group" onclick="loadArtist(${a.artistId}, '${a.artistName.replace(/'/g, "&#39;")}')">
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 mx-auto group-hover:scale-105 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] overflow-hidden relative">
+                                <i data-lucide="user" class="text-white w-10 h-10"></i>
+                                <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                            </div>
+                            <p class="text-sm text-gray-200 truncate group-hover:text-white font-bold">${a.artistName}</p>
+                        </div>
+                    `).join('');
+                    html += `</div>`;
+                }
+
+                // Renderizado de canciones
+                if (dataSongs.results.length > 0) {
+                    html += `<h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="music" class="text-blue-500 w-5 h-5"></i> Canciones</h3>
+                             <div id="search-tracks" class="list-results pb-10"></div>`;
+                }
+                
+                html += `</div>`;
+                container.innerHTML = html;
+                
+                if (dataSongs.results.length > 0) {
+                    renderTracksToList(dataSongs.results, 'search-tracks');
+                } else {
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                container.innerHTML = `<p class="text-red-500">Error al buscar. Verifica tu conexión.</p>`;
+            }
+        }
+
+        function categorizeRelease(a) {
+            const name = (a.collectionName || '').toLowerCase();
+            const count = a.trackCount || 0;
+            if (a.collectionType === 'Single' || count === 1 || / - single$| \(single\)/.test(name)) return 'single';
+            if (/ - ep$| \(ep\)/.test(name) || (count >= 2 && count <= 6)) return 'ep';
+            return 'album';
+        }
+
+        let artistDiscography = { album: [], ep: [], single: [] };
+        let currentArtistCtx = { id: null, name: '', genre: '', img: '' };
+
+        async function loadArtist(artistId, artistName) {
+            viewHistory.push('artist');
+            const safeName = artistName.replace(/'/g, "&#39;");
+            currentArtistCtx = { id: artistId, name: artistName, genre: '', img: '' };
+            const container = document.getElementById('view-container');
+            container.innerHTML = `
+                <div class="fade-in pb-8">
+                    <!-- Banner -->
+                    <div class="relative -mx-4 md:-mx-8 -mt-4 md:-mt-6 mb-6 h-48 sm:h-64 md:h-80 overflow-hidden">
+                        <img id="artist-banner-img" src="" class="w-full h-full object-cover opacity-40 skeleton">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 px-4 md:px-8 pb-4 md:pb-6">
+                            <p id="artist-genre-badge" class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1"></p>
+                            <h1 class="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-1 flex items-center gap-2 break-words leading-tight">
+                                <span class="truncate">${artistName}</span>
+                                <i data-lucide="badge-check" class="text-blue-400 w-6 h-6 md:w-8 md:h-8 fill-current shrink-0"></i>
+                            </h1>
+                            <p id="artist-listeners" class="text-gray-300 font-medium text-sm">Cargando datos...</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 mb-8">
+                        <button onclick="playFromQueue(0)" class="bg-blue-500 text-white w-14 h-14 shrink-0 rounded-full flex items-center justify-center btn-hover shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                            <i data-lucide="play" class="w-6 h-6 fill-current ml-1"></i>
+                        </button>
+                        <button class="bg-white/10 hover:bg-white/20 transition-colors p-3.5 rounded-full btn-hover"><i data-lucide="heart" class="w-5 h-5"></i></button>
+                        <button class="bg-white/10 hover:bg-white/20 transition-colors p-3.5 rounded-full btn-hover"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-4">Populares</h3>
+                    <div id="artist-tracks" class="list-results mb-10">
+                        ${[1,2,3,4].map(()=>`<div class="h-14 rounded-xl skeleton"></div>`).join('')}
+                    </div>
+
+                    <!-- Tabs Discografía -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-white">Discografía</h3>
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-5 -mx-4 px-4 md:mx-0 md:px-0" id="artist-tabs">
+                        <div class="tab-pill active" onclick="switchArtistTab('album', this)">Álbumes</div>
+                        <div class="tab-pill" onclick="switchArtistTab('ep', this)">EPs</div>
+                        <div class="tab-pill" onclick="switchArtistTab('single', this)">Sencillos</div>
+                        <div class="tab-pill" onclick="switchArtistTab('profile', this)">Perfil</div>
+                    </div>
+                    <div id="artist-tab-content" class="min-h-[160px]">
+                        <div class="flex overflow-x-auto gap-4 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0" id="artist-releases-grid">
+                            ${[1,2,3,4].map(()=>`<div class="min-w-[160px] max-w-[180px] w-full"><div class="aspect-square rounded-lg skeleton mb-2"></div><div class="h-3 w-3/4 rounded skeleton"></div></div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+            document.getElementById('main-scroll').scrollTo({top: 0, behavior: 'smooth'});
+
+            try {
+                const resSongs = await fetch(`${API_URL}/lookup?id=${artistId}&entity=song&limit=6`);
+                const dataSongs = await resSongs.json();
+                const tracks = dataSongs.results.filter(t => t.wrapperType === 'track');
+                renderTracksToList(tracks, 'artist-tracks');
+
+                if (tracks[0]) {
+                    const hqImg = tracks[0].artworkUrl100.replace('100x100bb', '1200x1200bb');
+                    currentArtistCtx.img = hqImg;
+                    currentArtistCtx.genre = tracks[0].primaryGenreName || '';
+                    document.getElementById('artist-banner-img').src = hqImg;
+                    document.getElementById('artist-banner-img').classList.remove('skeleton');
+                    document.getElementById('artist-genre-badge').textContent = currentArtistCtx.genre;
+                }
+                const listeners = (Math.floor(Math.random() * 900) + 100) / 10;
+                document.getElementById('artist-listeners').textContent = `${listeners}M de oyentes mensuales`;
+
+                const resAlbums = await fetch(`${API_URL}/lookup?id=${artistId}&entity=album`);
+                const dataAlbums = await resAlbums.json();
+                const releases = dataAlbums.results.filter(a => a.wrapperType === 'collection');
+
+                artistDiscography = { album: [], ep: [], single: [] };
+                releases.forEach(a => artistDiscography[categorizeRelease(a)].push(a));
+
+                switchArtistTab('album', document.querySelector('#artist-tabs .tab-pill'));
+            } catch (e) { console.error(e); }
+        }
+
+        function renderReleaseCards(releases) {
+            if (!releases.length) return '<p class="text-gray-500 px-1">No hay lanzamientos en esta categoría.</p>';
+            return `<div class="flex overflow-x-auto gap-4 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">` +
+                releases.map((a, i) => `
+                <div class="bg-[#181818] hover:bg-[#282828] p-4 rounded-xl cursor-pointer transition-all card-hover border border-transparent hover:border-white/10 shadow-lg min-w-[150px] sm:min-w-[160px] max-w-[180px] stagger-item" style="animation-delay:${i * 0.05}s"
+                     onclick="loadAlbum(${a.collectionId}, '${a.collectionName.replace(/'/g, "&#39;")}', '${a.artworkUrl100.replace('100x100bb', '600x600bb')}')">
+                    <div class="relative mb-3">
+                        <img src="${a.artworkUrl100.replace('100x100bb', '300x300bb')}" class="w-full aspect-square object-cover rounded-lg shadow-md">
+                        <div class="play-overlay absolute bottom-2 right-2 p-3 bg-blue-500 rounded-full text-white shadow-xl hover:scale-110 hover:bg-blue-400">
+                            <i data-lucide="play" class="w-4 h-4 fill-current ml-0.5"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-white font-bold text-sm truncate mb-1">${a.collectionName}</h3>
+                    <p class="text-gray-400 text-xs truncate">${(a.releaseDate||'').substring(0,4)} • ${a.trackCount} canciones</p>
+                </div>
+            `).join('') + `</div>`;
+        }
+
+        function renderArtistProfileTab() {
+            const ctx = currentArtistCtx;
+            const totalReleases = artistDiscography.album.length + artistDiscography.ep.length + artistDiscography.single.length;
+            return `
+                <div class="fade-in pb-8 space-y-6">
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center gap-4">
+                        <img src="${ctx.img}" class="w-20 h-20 rounded-full object-cover border-2 border-blue-500/50 shrink-0">
+                        <div class="min-w-0">
+                            <h3 class="text-white font-black text-lg truncate">${ctx.name}</h3>
+                            <p class="text-blue-400 text-sm font-bold truncate">${ctx.genre || 'Artista verificado'}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-white/5 rounded-xl p-4"><p class="text-2xl font-black text-white">${artistDiscography.album.length}</p><p class="text-xs text-gray-400 mt-1">Álbumes</p></div>
+                        <div class="bg-white/5 rounded-xl p-4"><p class="text-2xl font-black text-white">${artistDiscography.ep.length}</p><p class="text-xs text-gray-400 mt-1">EPs</p></div>
+                        <div class="bg-white/5 rounded-xl p-4"><p class="text-2xl font-black text-white">${artistDiscography.single.length}</p><p class="text-xs text-gray-400 mt-1">Sencillos</p></div>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-3">Acerca de</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">${ctx.name} tiene ${totalReleases} lanzamientos disponibles en eMusic${ctx.genre ? ` dentro del género ${ctx.genre}` : ''}. Explora sus álbumes, EPs y sencillos en las pestañas de arriba, o sigue a este artista para recibir novedades.</p>
+                    </div>
+                    <div id="artist-similar" class="flex overflow-x-auto gap-4 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
+                        ${[1,2,3,4].map(()=>`<div class="w-20 shrink-0"><div class="w-20 h-20 rounded-full skeleton mb-2"></div><div class="h-2 w-14 rounded skeleton mx-auto"></div></div>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadSimilarArtists(genre, excludeName) {
+            if (!genre) { const el = document.getElementById('artist-similar'); if (el) el.innerHTML = ''; return; }
+            try {
+                const res = await fetch(`${API_URL}/search?term=${encodeURIComponent(genre)}&entity=musicArtist&limit=8`);
+                const data = await res.json();
+                const artists = data.results.filter(a => a.artistName !== excludeName).slice(0, 6);
+                const el = document.getElementById('artist-similar');
+                if (!el) return;
+                if (!artists.length) { el.innerHTML = '<p class="text-gray-500">Sin sugerencias.</p>'; return; }
+                el.innerHTML = `<h4 class="w-full text-white font-bold mb-1">Artistas similares</h4>` + artists.map(a => `
+                    <div class="w-20 shrink-0 text-center cursor-pointer group" onclick="loadArtist(${a.artistId}, '${a.artistName.replace(/'/g, "&#39;")}')">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-2 mx-auto group-hover:scale-105 transition-transform shadow-lg">
+                            <i data-lucide="user" class="text-white w-8 h-8"></i>
+                        </div>
+                        <p class="text-xs text-gray-300 truncate group-hover:text-white">${a.artistName}</p>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            } catch (e) { console.error(e); }
+        }
+
+        function switchArtistTab(tab, el) {
+            document.querySelectorAll('#artist-tabs .tab-pill').forEach(t => t.classList.remove('active'));
+            if (el) el.classList.add('active');
+            const content = document.getElementById('artist-tab-content');
+            if (tab === 'profile') {
+                content.innerHTML = renderArtistProfileTab();
+                lucide.createIcons();
+                loadSimilarArtists(currentArtistCtx.genre, currentArtistCtx.name);
+            } else {
+                content.innerHTML = renderReleaseCards(artistDiscography[tab]);
+                lucide.createIcons();
+            }
+        }
+
+        async function loadAlbum(albumId, albumName, coverUrl) {
+            viewHistory.push('album');
+            const container = document.getElementById('view-container');
+            container.innerHTML = `
+                <div class="fade-in pb-8">
+                    <div class="flex flex-col md:flex-row gap-6 md:gap-8 mb-8 items-center md:items-end text-center md:text-left">
+                        <img src="${coverUrl}" class="w-56 h-56 md:w-64 md:h-64 object-cover rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                        <div class="flex flex-col justify-end">
+                            <p class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-2 hidden md:block">Álbum</p>
+                            <h1 class="text-3xl md:text-5xl font-black text-white mb-2 leading-tight">${albumName}</h1>
+                            <div class="flex items-center gap-4 mt-4 justify-center md:justify-start">
+                                <button onclick="playFromQueue(0)" class="bg-blue-500 text-white w-14 h-14 rounded-full flex items-center justify-center btn-hover shadow-lg">
+                                    <i data-lucide="play" class="w-6 h-6 fill-current ml-1"></i>
+                                </button>
+                                <button class="bg-white/10 p-4 rounded-full hover:bg-white/20 transition-colors"><i data-lucide="heart" class="w-6 h-6"></i></button>
+                                <button class="bg-white/10 p-4 rounded-full hover:bg-white/20 transition-colors"><i data-lucide="more-horizontal" class="w-6 h-6"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="album-tracks" class="list-results pb-8"></div>
+                </div>
+            `;
+            lucide.createIcons();
+            document.getElementById('main-scroll').scrollTo({top: 0, behavior: 'smooth'});
+
+            try {
+                const res = await fetch(`${API_URL}/lookup?id=${albumId}&entity=song`);
+                const data = await res.json();
+                const tracks = data.results.filter(t => t.wrapperType === 'track');
+                setQueue(tracks);
+                
+                const tracksHtml = tracks.map((t, idx) => `
+                    <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-white/10 transition-colors group cursor-pointer" onclick="playFromQueue(${idx})">
+                        <span class="text-gray-500 font-bold w-6 text-right group-hover:hidden">${t.trackNumber}</span>
+                        <button class="text-white hidden group-hover:block w-6 text-right"><i data-lucide="play" class="w-4 h-4 fill-current"></i></button>
+                        <div class="flex-1 truncate">
+                            <p class="text-white font-bold truncate group-hover:text-blue-400 transition-colors">${t.trackName}</p>
+                            <p class="text-xs text-gray-400 hover:underline" onclick="event.stopPropagation(); loadArtist(${t.artistId}, '${t.artistName.replace(/'/g, "&#39;")}')">${t.artistName}</p>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('album-tracks').innerHTML = tracksHtml;
+                lucide.createIcons();
+            } catch(e) { console.error(e); }
+        }
+
+        // --- RENDERIZADO DE COMPONENTES ---
+        function renderTracksToContainer(tracks, containerId) {
+            setQueue(tracks);
+            const html = tracks.map((t, idx) => {
+                const hqImg = t.artworkUrl100.replace('100x100bb', '300x300bb');
+                const safeArtist = t.artistName.replace(/'/g, "&#39;");
+                return `
+                <div onclick="playFromQueue(${idx})" class="bg-[#181818] hover:bg-[#282828] p-4 rounded-xl cursor-pointer transition-all card-hover border border-transparent hover:border-white/10 shadow-lg stagger-item" style="animation-delay:${Math.min(idx * 0.05, 0.6)}s">
+                    <div class="relative mb-3">
+                        <img src="${hqImg}" class="w-full aspect-square object-cover rounded-lg shadow-md" loading="lazy">
+                        <div class="play-overlay absolute bottom-2 right-2 p-3 bg-blue-500 rounded-full text-white shadow-xl hover:scale-110 hover:bg-blue-400">
+                            <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-white font-bold text-sm truncate mb-1">${t.trackName}</h3>
+                    <p class="text-gray-400 text-xs truncate hover:text-white" onclick="event.stopPropagation(); loadArtist(${t.artistId}, '${safeArtist}')">${t.artistName}</p>
+                </div>
+            `}).join('');
+            document.getElementById(containerId).innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function renderTracksToList(tracks, containerId) {
+            setQueue(tracks);
+            const html = tracks.map((t, idx) => {
+                const safeArtist = t.artistName.replace(/'/g, "&#39;");
+                return `
+                <div class="flex items-center gap-3 sm:gap-4 p-2.5 rounded-xl hover:bg-white/10 transition-colors group cursor-pointer stagger-item" style="animation-delay:${Math.min(idx * 0.04, 0.5)}s" onclick="playFromQueue(${idx})">
+                    <div class="relative shrink-0">
+                        <img src="${t.artworkUrl100}" class="w-12 h-12 rounded object-cover shadow" loading="lazy">
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded transition-opacity">
+                            <i data-lucide="play" class="text-white w-5 h-5 fill-current ml-0.5"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0 truncate">
+                        <p class="text-white font-bold truncate group-hover:text-blue-400 transition-colors">${t.trackName}</p>
+                        <p class="text-xs text-gray-400 hover:text-white transition-colors truncate" onclick="event.stopPropagation(); loadArtist(${t.artistId}, '${safeArtist}')">${t.artistName}</p>
+                    </div>
+                    <button class="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 hidden md:block px-2 shrink-0" onclick="event.stopPropagation(); this.querySelector('i').classList.toggle('text-blue-500'); this.querySelector('i').classList.toggle('fill-blue-500');"><i data-lucide="heart" class="w-5 h-5 transition-colors"></i></button>
+                </div>
+            `}).join('');
+            document.getElementById(containerId).innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // --- LÓGICA DE REPRODUCCIÓN (y Shuffle/Repeat) ---
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            updateShuffleUI();
+            
+            if (currentQueue.length > 0) {
+                if (isShuffle) {
+                    const currentTrack = currentQueue[currentIndex];
+                    // Barajar el queue actual
+                    for (let i = currentQueue.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [currentQueue[i], currentQueue[j]] = [currentQueue[j], currentQueue[i]];
+                    }
+                    // Ajustar el indice actual si está sonando algo
+                    if (currentTrack) {
+                        currentIndex = currentQueue.findIndex(t => t.trackId === currentTrack.trackId);
+                        if (currentIndex === -1) currentIndex = 0;
+                    }
+                } else {
+                    const currentTrack = currentQueue[currentIndex];
+                    // Restaurar orden original
+                    currentQueue = [...originalQueue];
+                    if (currentTrack) {
+                        currentIndex = currentQueue.findIndex(t => t.trackId === currentTrack.trackId);
+                        if (currentIndex === -1) currentIndex = 0;
+                    }
+                }
+            }
+        }
+
+        function updateShuffleUI() {
+            const mpShuff = document.getElementById('mp-shuffle');
+            const epShuff = document.getElementById('ep-shuffle');
+            
+            if (isShuffle) {
+                mpShuff?.classList.add('text-blue-500'); mpShuff?.classList.remove('text-gray-400');
+                epShuff?.classList.add('text-blue-500'); epShuff?.classList.remove('text-gray-400');
+            } else {
+                mpShuff?.classList.remove('text-blue-500'); mpShuff?.classList.add('text-gray-400');
+                epShuff?.classList.remove('text-blue-500'); epShuff?.classList.add('text-gray-400');
+            }
+        }
+
+        function toggleRepeat() {
+            repeatMode = (repeatMode + 1) % 3; // 0: off, 1: all, 2: one
+            updateRepeatUI();
+        }
+
+        function updateRepeatUI() {
+            const mpRep = document.getElementById('mp-repeat');
+            const epRep = document.getElementById('ep-repeat');
+            const mpIcon = document.getElementById('mp-repeat-icon');
+            const epIcon = document.getElementById('ep-repeat-icon');
+            
+            const iconName = repeatMode === 2 ? 'repeat-1' : 'repeat';
+            
+            if (mpIcon) mpIcon.setAttribute('data-lucide', iconName);
+            if (epIcon) epIcon.setAttribute('data-lucide', iconName);
+            
+            if (repeatMode > 0) {
+                mpRep?.classList.add('text-blue-500'); mpRep?.classList.remove('text-gray-400');
+                epRep?.classList.add('text-blue-500'); epRep?.classList.remove('text-gray-400');
+            } else {
+                mpRep?.classList.remove('text-blue-500'); mpRep?.classList.add('text-gray-400');
+                epRep?.classList.remove('text-blue-500'); epRep?.classList.add('text-gray-400');
+            }
+            lucide.createIcons();
+        }
+
+        function playFromQueue(index) {
+            if(index < 0 || index >= originalQueue.length) return;
+            initAudioGraph();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // Si el orden esta alterado por shuffle, encontramos la misma canción en la cola actual basandonos en la lista visual original
+            if (isShuffle) {
+                const trackIdToPlay = originalQueue[index].trackId;
+                currentIndex = currentQueue.findIndex(t => t.trackId === trackIdToPlay);
+                if (currentIndex === -1) currentIndex = index; 
+            } else {
+                currentIndex = index;
+            }
+            
+            playCurrentIndex();
+        }
+
+        function playCurrentIndex() {
+            const track = currentQueue[currentIndex];
+            if(track && track.previewUrl) {
+                audio.src = track.previewUrl;
+                audio.play();
+                isPlaying = true;
+                updatePlayerUI(track);
+                updateEqBarsState();
+            } else {
+                showToast("Sin preview disponible para esta canción.");
+                nextTrack(true); // Saltamos si no hay URL
+            }
+        }
+
+        function togglePlay(e) {
+            if(e) e.stopPropagation();
+            if(currentIndex === -1) return;
+            initAudioGraph();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
+            if(isPlaying) {
+                audio.pause();
+                isPlaying = false;
+            } else {
+                audio.play();
+                isPlaying = true;
+            }
+            updatePlayPauseIcons();
+        }
+
+        function updateEqBarsState() {
+            document.querySelectorAll('.eq-bars').forEach(el => el.classList.toggle('paused', !isPlaying));
+        }
+
+        function showToast(msg) {
+            let toast = document.getElementById('app-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'app-toast';
+                toast.className = 'fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-28 bg-gray-800 text-white text-sm font-medium px-4 py-2.5 rounded-full shadow-2xl border border-white/10 z-[200] transition-all duration-300 opacity-0 pointer-events-none';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => { toast.classList.remove('opacity-100'); toast.classList.add('opacity-0'); }, 2500);
+        }
+
+        function nextTrack(isManual = false) {
+            if(currentQueue.length === 0) return;
+            
+            // Si no fue salto manual y estamos en "Repeat 1", se reinicia la actual
+            if(!isManual && repeatMode === 2) {
+                audio.currentTime = 0;
+                audio.play();
+                return;
+            }
+
+            let nextIdx = currentIndex + 1;
+            if (nextIdx >= currentQueue.length) {
+                if (repeatMode === 1 || isShuffle) {
+                    nextIdx = 0; // Vuelve al inicio
+                } else {
+                    // Detener al llegar al final
+                    audio.pause();
+                    isPlaying = false;
+                    updatePlayPauseIcons();
+                    return;
+                }
+            }
+            currentIndex = nextIdx;
+            playCurrentIndex();
+        }
+
+        function prevTrack() {
+            if(currentQueue.length === 0) return;
+            if(audio.currentTime > 3) {
+                audio.currentTime = 0;
+            } else {
+                let prevIdx = currentIndex - 1;
+                if (prevIdx < 0) {
+                    if (repeatMode === 1 || isShuffle) {
+                        prevIdx = currentQueue.length - 1;
+                    } else {
+                        prevIdx = 0;
+                    }
+                }
+                currentIndex = prevIdx;
+                playCurrentIndex();
+            }
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            if(audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                const percent = `${progress}%`;
+                
+                document.getElementById('mp-progress').style.width = percent;
+                document.getElementById('mp-progress-mobile').style.width = percent;
+                document.getElementById('ep-progress').style.width = percent;
+                document.getElementById('mp-thumb').style.left = percent;
+                document.getElementById('ep-thumb').style.left = percent;
+
+                const timeStr = formatTime(audio.currentTime);
+                document.getElementById('mp-time-current').textContent = timeStr;
+                document.getElementById('ep-time-current').textContent = timeStr;
+                document.getElementById('mp-time-total').textContent = formatTime(audio.duration);
+                document.getElementById('ep-time-total').textContent = formatTime(audio.duration);
+            }
+        });
+
+        audio.addEventListener('ended', () => nextTrack(false));
+        audio.addEventListener('play', updatePlayPauseIcons);
+        audio.addEventListener('pause', updatePlayPauseIcons);
+
+        function updatePlayerUI(track) {
+            const hqImg = track.artworkUrl100.replace('100x100bb', '600x600bb');
+            const covers = [document.getElementById('mp-cover'), document.getElementById('ep-cover')];
+            covers.forEach(c => c.classList.add('cover-art-hidden'));
+            
+            setTimeout(() => {
+                document.getElementById('mp-title').innerHTML = `${track.trackName}`;
+                document.getElementById('mp-artist').textContent = track.artistName;
+                document.getElementById('mp-cover').src = hqImg;
+                
+                document.getElementById('ep-title').textContent = track.trackName;
+                document.getElementById('ep-artist').textContent = track.artistName;
+                document.getElementById('ep-cover').src = hqImg;
+                document.getElementById('ep-bg-img').src = hqImg;
+                
+                covers.forEach(c => c.classList.remove('cover-art-hidden'));
+                updatePlayPauseIcons();
+            }, 300);
+        }
+
+        function updatePlayPauseIcons() {
+            const iconName = isPlaying ? 'pause' : 'play';
+            const icons = ['mp-play-icon', 'mp-play-icon-mobile', 'ep-play-icon'];
+            
+            icons.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.setAttribute('data-lucide', iconName);
+            });
+            lucide.createIcons();
+
+            const rings = [document.getElementById('mp-play-ring'), document.getElementById('ep-play-ring')];
+            rings.forEach(r => r?.classList.toggle('playing-pulse', isPlaying));
+            updateEqBarsState();
+        }
+
+        function seek(e) {
+            if(currentIndex === -1 || !audio.duration) return;
+            e.stopPropagation();
+            const rect = e.currentTarget.getBoundingClientRect();
+            const newProgress = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = newProgress * audio.duration;
+        }
+
+        // --- UI TOGGLES ---
+        function toggleExpandedPlayer() {
+            const player = document.getElementById('expanded-player');
+            isExpanded = !isExpanded;
+            if(isExpanded) {
+                player.classList.add('active');
+            } else {
+                player.classList.remove('active');
+                if(showLyrics) toggleLyrics(); // Reset lyrics on close
+            }
+        }
+
+        function toggleLyrics() {
+            showLyrics = !showLyrics;
+            const cover = document.getElementById('ep-cover-container');
+            const lyrics = document.getElementById('ep-lyrics-container');
+            const btn = document.getElementById('btn-lyrics');
+
+            if(showLyrics) {
+                cover.classList.add('hidden');
+                lyrics.classList.remove('hidden');
+                lyrics.classList.add('flex');
+                btn.classList.add('text-blue-500', 'bg-blue-500/20');
+                btn.classList.remove('bg-white/5');
+            } else {
+                cover.classList.remove('hidden');
+                lyrics.classList.add('hidden');
+                lyrics.classList.remove('flex');
+                btn.classList.remove('text-blue-500', 'bg-blue-500/20');
+                btn.classList.add('bg-white/5');
+            }
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-content');
+            
+            if (modal.classList.contains('opacity-0')) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.classList.add('opacity-100', 'pointer-events-auto');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modal.classList.remove('opacity-100', 'pointer-events-auto');
+                content.classList.add('scale-95');
+                content.classList.remove('scale-100');
+            }
+        }
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${min}:${sec}`;
+        }
+
+        // Cierra los modales al hacer click en el fondo (fuera del contenido)
+        document.getElementById('settings-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'settings-modal') toggleSettings();
+        });
+        document.getElementById('eq-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'eq-modal') toggleEqModal();
+        });
+
+        // Cierra el reproductor expandido con la tecla Escape, por comodidad de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (isExpanded) toggleExpandedPlayer();
+                const eqModal = document.getElementById('eq-modal');
+                if (!eqModal.classList.contains('opacity-0')) toggleEqModal();
+                const settingsModal = document.getElementById('settings-modal');
+                if (!settingsModal.classList.contains('opacity-0')) toggleSettings();
+            }
+        });
+
+        // Init
+        window.onload = () => {
+            switchView('home', document.querySelector('.nav-item.active'));
+            renderEqPresets();
+            updateShuffleUI();
+            updateRepeatUI();
+        };
+
+    </script>
+</body>
+</html>
