@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Onyx Technologies - Términos y Condiciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Variables de diseño */
+        :root {
+            --bg-color: #000000;
+            --glass-bg: rgba(10, 10, 10, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #646464;
+            --accent: #ffffff;
+            --glow-1: rgba(255, 255, 255, 0.06);
+            --glow-2: rgba(120, 120, 120, 0.08);
+        }
+
+        /* Reseteo general */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        /* Esferas de luz difuminadas de fondo (Efectos Blur) */
+        .bg-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.7;
+            animation: floatGlow 15s infinite alternate ease-in-out;
+        }
+
+        .bg-glow-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--glow-1) 0%, rgba(255, 255, 255, 0) 70%);
+            top: -10%;
+            left: -10%;
+        }
+
+        .bg-glow-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--glow-2) 0%, rgba(120, 120, 120, 0) 70%);
+            bottom: -15%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 30px) scale(1.1); }
+        }
+
+        /* Header de la página */
+        header {
+            width: 100%;
+            border-bottom: 1px solid var(--glass-border);
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background-color: rgba(255, 255, 255, 0.02);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Contenido Principal con Layout de Doble Columna (Responsivo) */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+        }
+
+        /* Barra de navegación de secciones (Izquierda, se esconde en móvil) */
+        .sidebar {
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 140px);
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+
+        /* Scrollbar personalizado para el menú */
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 2px;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .sections-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sections-menu a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13.5px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid transparent;
+        }
+
+        .sections-menu a:hover {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.03);
+            padding-left: 16px;
+        }
+
+        .sections-menu a.active {
+            color: var(--text-primary);
+            font-weight: 600;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--accent);
+            padding-left: 16px;
+        }
+
+        /* Contenedor del documento (Efecto Glassmorphism principal) */
+        .doc-container {
+            background-color: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Cabecera del documento */
+        .doc-header {
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .doc-title-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            background-color: rgba(255, 255, 255, 0.06);
+            padding: 4px 10px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .doc-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.8px;
+            margin-bottom: 10px;
+        }
+
+        .doc-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .doc-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Contenido del texto */
+        .doc-body {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .section-block {
+            scroll-margin-top: 100px; /* Evita que el header tape el título al saltar */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 35px;
+        }
+
+        .section-block:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .section-block h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-block h3 span {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .section-block p {
+            font-size: 14.5px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .section-block ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            padding-left: 5px;
+        }
+
+        .section-block li {
+            font-size: 14px;
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 20px;
+        }
+
+        /* Viñeta minimalista */
+        .section-block li::before {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 9px;
+            width: 5px;
+            height: 5px;
+            background-color: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Barra de lectura progresiva */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background-color: var(--accent);
+            width: 0%;
+            z-index: 150;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 30px 24px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            margin-top: auto;
+        }
+
+        footer p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Adaptabilidad Móvil */
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+                margin: 20px auto;
+            }
+
+            .sidebar {
+                display: none; /* Ocultar el menú lateral en pantallas pequeñas */
+            }
+
+            .doc-container {
+                padding: 30px 20px;
+            }
+
+            .doc-header h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de progreso de lectura superior -->
+    <div class="scroll-progress" id="progress-bar"></div>
+
+    <!-- Fondos desenfocados interactivos -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- Barra de Navegación Superior -->
+    <header>
+        <div class="header-container">
+            <a href="e-onyx-auth-blur.html" class="logo-area">
+                <div class="logo-dot"></div>
+                <span class="logo-text">e-Onyx Technologies</span>
+            </a>
+            <a href="e-onyx-auth-blur.html" class="back-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H19v-2z"/></svg>
+                Volver al Acceso
+            </a>
+        </div>
+    </header>
+
+    <!-- Layout Principal -->
+    <main>
+        
+        <!-- Menú Lateral Inteligente -->
+        <aside class="sidebar">
+            <h4 class="sidebar-title">Secciones del Documento</h4>
+            <ul class="sections-menu">
+                <li><a href="#sec-1" class="menu-item active" onclick="activateLink(this)">1. Introducción</a></li>
+                <li><a href="#sec-2" class="menu-item" onclick="activateLink(this)">2. Sobre e-Onyx</a></li>
+                <li><a href="#sec-3" class="menu-item" onclick="activateLink(this)">3. eOnyxAI</a></li>
+                <li><a href="#sec-4" class="menu-item" onclick="activateLink(this)">4. Seguridad y Privacidad</a></li>
+                <li><a href="#sec-5" class="menu-item" onclick="activateLink(this)">5. Responsabilidades</a></li>
+                <li><a href="#sec-6" class="menu-item" onclick="activateLink(this)">6. Actividades Prohibidas</a></li>
+                <li><a href="#sec-7" class="menu-item" onclick="activateLink(this)">7. Propiedad Intelectual</a></li>
+                <li><a href="#sec-8" class="menu-item" onclick="activateLink(this)">8. Servicios de Desarrollo</a></li>
+                <li><a href="#sec-9" class="menu-item" onclick="activateLink(this)">9. Servicios de Seguridad</a></li>
+                <li><a href="#sec-10" class="menu-item" onclick="activateLink(this)">10. Disponibilidad</a></li>
+                <li><a href="#sec-11" class="menu-item" onclick="activateLink(this)">11. Actualizaciones</a></li>
+                <li><a href="#sec-12" class="menu-item" onclick="activateLink(this)">12. Limitación</a></li>
+                <li><a href="#sec-13" class="menu-item" onclick="activateLink(this)">13. Cancelación</a></li>
+                <li><a href="#sec-14" class="menu-item" onclick="activateLink(this)">14. Protección de Datos</a></li>
+                <li><a href="#sec-15" class="menu-item" onclick="activateLink(this)">15. Servicios de Terceros</a></li>
+                <li><a href="#sec-16" class="menu-item" onclick="activateLink(this)">16. Modificaciones</a></li>
+                <li><a href="#sec-17" class="menu-item" onclick="activateLink(this)">17. Legislación Aplicable</a></li>
+                <li><a href="#sec-18" class="menu-item" onclick="activateLink(this)">18. Canales de Contacto</a></li>
+                <li><a href="#sec-19" class="menu-item" onclick="activateLink(this)">19. Aceptación</a></li>
+            </ul>
+        </aside>
+
+        <!-- Documento Principal -->
+        <article class="doc-container">
+            <div class="doc-header">
+                <span class="doc-title-badge">Información Legal</span>
+                <h2>Términos y Condiciones de Uso</h2>
+                <div class="doc-meta">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Última actualización: 19 de julio de 2026
+                    </span>
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Servicio Protegido
+                    </span>
+                </div>
+            </div>
+
+            <div class="doc-body">
+                
+                <!-- 1. Introducción -->
+                <section id="sec-1" class="section-block">
+                    <h3><span>01.</span> Introducción</h3>
+                    <p>Bienvenido a e-Onyx Technologies.</p>
+                    <p>Los presentes Términos y Condiciones regulan el acceso y uso de todos los productos, servicios, plataformas, aplicaciones, sitios web, APIs y soluciones tecnológicas desarrolladas, distribuidas o administradas por e-Onyx Technologies.</p>
+                    <p>Al acceder, registrarse o utilizar cualquiera de nuestros servicios, usted declara haber leído, comprendido y aceptado íntegramente estos Términos y Condiciones.</p>
+                    <p>Si no está de acuerdo con cualquiera de estas disposiciones, deberá abstenerse de utilizar nuestros servicios.</p>
+                </section>
+
+                <!-- 2. Sobre e-Onyx Technologies -->
+                <section id="sec-2" class="section-block">
+                    <h3><span>02.</span> Sobre e-Onyx Technologies</h3>
+                    <p>e-Onyx Technologies es una empresa especializada en:</p>
+                    <ul>
+                        <li>Desarrollo de software.</li>
+                        <li>Desarrollo web y móvil.</li>
+                        <li>Ciberseguridad.</li>
+                        <li>Inteligencia Artificial.</li>
+                        <li>Automatización de procesos.</li>
+                        <li>Consultoría tecnológica.</li>
+                        <li>Infraestructura informática.</li>
+                        <li>Auditorías de seguridad.</li>
+                        <li>Soluciones empresariales digitales.</li>
+                        <li>Distribución de servicios tecnológicos.</li>
+                    </ul>
+                    <p>Nuestra misión es ofrecer soluciones innovadoras con los más altos estándares de seguridad, privacidad y calidad.</p>
+                </section>
+
+                <!-- 3. eOnyxAI -->
+                <section id="sec-3" class="section-block">
+                    <h3><span>03.</span> eOnyxAI</h3>
+                    <p>Algunos servicios incorporan eOnyxAI, la Inteligencia Artificial nativa de e-Onyx Technologies.</p>
+                    <p>eOnyxAI tiene como objetivo:</p>
+                    <ul>
+                        <li>Mejorar la productividad.</li>
+                        <li>Asistir en tareas técnicas.</li>
+                        <li>Analizar información.</li>
+                        <li>Detectar amenazas digitales.</li>
+                        <li>Automatizar procesos.</li>
+                        <li>Ayudar en programación.</li>
+                        <li>Brindar soporte inteligente.</li>
+                    </ul>
+                    <p>Aunque eOnyxAI emplea tecnologías avanzadas, sus respuestas pueden contener errores, por lo que el usuario es responsable de verificar cualquier información antes de tomar decisiones importantes.</p>
+                </section>
+
+                <!-- 4. Seguridad y privacidad -->
+                <section id="sec-4" class="section-block">
+                    <h3><span>04.</span> Seguridad y Privacidad</h3>
+                    <p>La seguridad de nuestros usuarios constituye una prioridad absoluta.</p>
+                    <p>Implementamos medidas técnicas y organizativas para proteger:</p>
+                    <ul>
+                        <li>Información personal.</li>
+                        <li>Datos empresariales.</li>
+                        <li>Credenciales.</li>
+                        <li>Archivos.</li>
+                        <li>Comunicaciones.</li>
+                        <li>Infraestructura tecnológica.</li>
+                    </ul>
+                    <p>Entre nuestras medidas se incluyen:</p>
+                    <ul>
+                        <li>Cifrado de información de nivel militar.</li>
+                        <li>Autenticación multifactor y accesos seguros.</li>
+                        <li>Protección proactiva contra accesos no autorizados.</li>
+                        <li>Monitoreo continuo en tiempo real.</li>
+                        <li>Detección automatizada de anomalías y amenazas.</li>
+                        <li>Sistemas inteligentes de prevención de intrusiones.</li>
+                    </ul>
+                    <p>No obstante, ningún sistema conectado a Internet puede garantizar seguridad absoluta.</p>
+                </section>
+
+                <!-- 5. Responsabilidades del usuario -->
+                <section id="sec-5" class="section-block">
+                    <h3><span>05.</span> Responsabilidades del Usuario</h3>
+                    <p>El usuario se compromete formalmente a:</p>
+                    <ul>
+                        <li>Proporcionar información veraz y mantenerla actualizada.</li>
+                        <li>Mantener resguardadas y seguras sus credenciales de acceso.</li>
+                        <li>No transferir o compartir su cuenta personal con terceros.</li>
+                        <li>Utilizar los servicios conforme a la legislación aplicable internacional y local.</li>
+                        <li>Respetar los derechos de propiedad intelectual e industrial vigentes.</li>
+                        <li>No intentar vulnerar, alterar o escanear nuestros sistemas e infraestructura.</li>
+                        <li>No distribuir malware de cualquier índole.</li>
+                        <li>No realizar actividades que constituyan fraude o suplantación.</li>
+                        <li>No emplear nuestros servicios informáticos para fines ilícitos o de espionaje.</li>
+                    </ul>
+                </section>
+
+                <!-- 6. Actividades prohibidas -->
+                <section id="sec-6" class="section-block">
+                    <h3><span>06.</span> Actividades Prohibidas</h3>
+                    <p>Está estrictamente prohibido realizar, participar o incitar a:</p>
+                    <ul>
+                        <li>Intentar acceder sin autorización a sistemas de e-Onyx Technologies o de otros clientes.</li>
+                        <li>Realizar ataques informáticos dirigidos o globales.</li>
+                        <li>Distribuir virus, ransomware, spyware o cualquier código destructivo.</li>
+                        <li>Ejecutar ataques automatizados como DDoS (Denegación de Servicio).</li>
+                        <li>Realizar maniobras de ingeniería social, phishing o suplantación de identidades.</li>
+                        <li>Interferir con la conectividad y funcionamiento de nuestros servidores.</li>
+                        <li>Alterar de forma técnica o de código nuestros servicios públicos y privados.</li>
+                        <li>Extraer datos mediante técnicas de raspado de datos (scraping) sin consentimiento previo.</li>
+                        <li>Realizar ingeniería inversa a nuestros sistemas y compilados fuera del marco de la ley.</li>
+                    </ul>
+                    <p>La violación de cualquiera de estas directivas producirá la inmediata rescisión o suspensión de los servicios y las cuentas involucradas, sin perjuicio de las responsabilidades civiles o penales derivadas.</p>
+                </section>
+
+                <!-- 7. Propiedad intelectual -->
+                <section id="sec-7" class="section-block">
+                    <h3><span>07.</span> Propiedad Intelectual</h3>
+                    <p>Todo el contenido integrado y perteneciente a e-Onyx Technologies es propiedad exclusiva de la empresa, incluyendo de forma enunciativa mas no limitativa:</p>
+                    <ul>
+                        <li>Software, código fuente, ejecutables y librerías de programación.</li>
+                        <li>Interfaces, menús, diseños gráficos y combinaciones estéticas.</li>
+                        <li>Logotipos oficiales, isotipos y marcas registradas de producto.</li>
+                        <li>Documentación técnica, guías operativas e instructivos.</li>
+                        <li>Inteligencia Artificial, algoritmos e instrucciones específicas.</li>
+                        <li>Bases de datos estructuradas e información de sistemas.</li>
+                        <li>Modelos de aprendizaje automático y pesos optimizados.</li>
+                        <li>Contenidos audiovisuales y multimedia de soporte técnico.</li>
+                    </ul>
+                    <p>Queda rigurosamente prohibida su copia, clonación, redistribución, alteración, venta o uso comercial sin autorización escrita explícita de e-Onyx Technologies.</p>
+                </section>
+
+                <!-- 8. Servicios de desarrollo -->
+                <section id="sec-8" class="section-block">
+                    <h3><span>08.</span> Servicios de Desarrollo</h3>
+                    <p>Cuando e-Onyx Technologies realice actividades de desarrollo de software para un cliente:</p>
+                    <ul>
+                        <li>El alcance, requerimientos y entregas se estipularán a través de un contrato exclusivo o propuesta técnico-comercial acordada previamente.</li>
+                        <li>Los calendarios pueden sufrir modificaciones dependiendo de la dificultad técnica, integración o requerimientos añadidos por el usuario.</li>
+                        <li>Cualquier modificación posterior al acuerdo de alcance podrá generar costos y plazos de entrega adicionales.</li>
+                        <li>Las entregas formales se realizarán de mutuo acuerdo según los hitos estipulados de calidad y pruebas.</li>
+                    </ul>
+                </section>
+
+                <!-- 9. Servicios de ciberseguridad -->
+                <section id="sec-9" class="section-block">
+                    <h3><span>09.</span> Servicios de Ciberseguridad</h3>
+                    <p>Nuestras actividades, revisiones e implementaciones de ciberseguridad tienen la única finalidad de mitigar y reducir sustancialmente los riesgos tecnológicos actuales.</p>
+                    <p>No obstante, el cliente debe comprender que:</p>
+                    <ul>
+                        <li>No existe sistema informático 100% infranqueable en la industria digital.</li>
+                        <li>Las tácticas y métodos de ciberamenazas cambian de manera sumamente rápida.</li>
+                        <li>La efectividad de la seguridad informática depende de que el personal y el usuario mantengan excelentes prácticas operativas diarias.</li>
+                    </ul>
+                </section>
+
+                <!-- 10. Disponibilidad del servicio -->
+                <section id="sec-10" class="section-block">
+                    <h3><span>10.</span> Disponibilidad del Servicio</h3>
+                    <p>Ponemos todos nuestros recursos de infraestructura en funcionamiento para asegurar un acceso continuo a nuestras plataformas de software las 24 horas del día.</p>
+                    <p>Sin embargo, podrán ocurrir cortes temporales o degradación de velocidad debidos a:</p>
+                    <ul>
+                        <li>Programación de mantenimientos técnicos preventivos o correctivos.</li>
+                        <li>Despliegue y subida de nuevas versiones del sistema.</li>
+                        <li>Inconvenientes físicos o lógicos de la red global de proveedores y la nube externa.</li>
+                        <li>Sucesos de fuerza mayor, catástrofes de red o ataques informáticos imprevistos.</li>
+                    </ul>
+                </section>
+
+                <!-- 11. Actualizaciones -->
+                <section id="sec-11" class="section-block">
+                    <h3><span>11.</span> Actualizaciones</h3>
+                    <p>e-Onyx Technologies se reserva la facultad de mejorar, refinar o cambiar sus soluciones tecnológicas en cualquier momento con el propósito de:</p>
+                    <ul>
+                        <li>Aumentar los niveles globales de seguridad ante nuevas amenazas descubiertas.</li>
+                        <li>Incorporar herramientas, automatizaciones y funcionalidades avanzadas.</li>
+                        <li>Corregir errores de código (bugs) reportados por los usuarios.</li>
+                        <li>Elevar la velocidad de carga y rendimiento de sus servidores.</li>
+                    </ul>
+                    <p>Dichos ajustes o mejoras podrían cambiar de forma parcial el aspecto de los menús o las dinámicas lógicas del servicio actual.</p>
+                </section>
+
+                <!-- 12. Limitación de responsabilidad -->
+                <section id="sec-12" class="section-block">
+                    <h3><span>12.</span> Limitación de Responsabilidad</h3>
+                    <p>En el máximo grado permitido por la normativa legal y del consumidor aplicable, e-Onyx Technologies no se responsabiliza ante:</p>
+                    <ul>
+                        <li>La pérdida accidental de información empresarial o de logs de uso del cliente.</li>
+                        <li>Interrupciones debidas a servicios contratados de forma externa.</li>
+                        <li>Problemas ajenos a nuestra red que dependan de los proveedores de internet del usuario.</li>
+                        <li>Malas prácticas operativas o configuraciones erróneas de los usuarios.</li>
+                        <li>Toma de decisiones técnicas, comerciales o logísticas sustentadas en respuestas lógicas de eOnyxAI.</li>
+                        <li>Cualquier ciberataque exitoso dirigido a los sistemas del cliente que no estén bajo control directo de nuestra ingeniería.</li>
+                    </ul>
+                </section>
+
+                <!-- 13. Suspensión o cancelación -->
+                <section id="sec-13" class="section-block">
+                    <h3><span>13.</span> Suspensión o Cancelación</h3>
+                    <p>Podremos deshabilitar o pausar permanentemente cualquier perfil registrado si se detecta:</p>
+                    <ul>
+                        <li>Falta o violación explícita a las normas marcadas en el presente acuerdo.</li>
+                        <li>Tráfico sospechoso de fraude o accesos no autorizados.</li>
+                        <li>Uso de recursos o solicitudes desmedidas que arriesguen el servicio de otros clientes.</li>
+                        <li>Solicitud o mandato formal emitido por una entidad gubernamental competente.</li>
+                        <li>Falta de pago o renovación periódica de los servicios que requieran cuotas vigentes.</li>
+                    </ul>
+                </section>
+
+                <!-- 14. Protección de datos -->
+                <section id="sec-14" class="section-block">
+                    <h3><span>14.</span> Protección de Datos</h3>
+                    <p>Manejamos el flujo de tus datos personales conforme a nuestra Política de Privacidad vigente, aplicando esquemas estrictos de cifrado y anonimización de información según sea el caso.</p>
+                    <p>Utilizamos la información almacenada solo para ejecutar correctamente las tareas del servicio contratado, respaldar tu cuenta e implementar optimizaciones de experiencia de usuario.</p>
+                </section>
+
+                <!-- 15. Servicios de terceros -->
+                <section id="sec-15" class="section-block">
+                    <h3><span>15.</span> Servicios de Terceros</h3>
+                    <p>Nuestras plataformas y APIs pueden integrarse o sugerir el uso de recursos y software ajenos a e-Onyx Technologies.</p>
+                    <p>No somos responsables por la calidad, actualizaciones, políticas de manejo de información o el correcto funcionamiento de estos recursos externos, que se regirán bajo sus términos individuales de uso.</p>
+                </section>
+
+                <!-- 16. Modificaciones de estos términos -->
+                <section id="sec-16" class="section-block">
+                    <h3><span>16.</span> Modificaciones de estos Términos</h3>
+                    <p>Nos reservamos el derecho exclusivo de modificar estas cláusulas legales de uso técnico cuando se considere necesario.</p>
+                    <p>Cualquier actualización del documento entrará en vigencia automática al instante de aparecer publicada en la página oficial de e-Onyx Technologies. Seguir utilizando cualquiera de nuestras aplicaciones implica que asimilas y estás de acuerdo con la totalidad de los cambios.</p>
+                </section>
+
+                <!-- 17. Legislación aplicable -->
+                <section id="sec-17" class="section-block">
+                    <h3><span>17.</span> Legislación Aplicable</h3>
+                    <p>Los presentes lineamientos y su interpretación de uso se guiarán conforme a los marcos regulatorios correspondientes al domicilio fiscal de e-Onyx Technologies, quedando bajo la competencia exclusiva de los tribunales competentes del territorio establecido ante cualquier reclamación o disputa legal.</p>
+                </section>
+
+                <!-- 18. Contacto -->
+                <section id="sec-18" class="section-block">
+                    <h3><span>18.</span> Contacto</h3>
+                    <p>Ante cualquier duda, sugerencia técnica o consulta formal sobre nuestros términos legales y alcances, puedes comunicarte con nuestro equipo legal e-Onyx a través de cualquiera de nuestros correos electrónicos de soporte o sistemas oficiales de mensajería tecnológica.</p>
+                </section>
+
+                <!-- 19. Aceptación -->
+                <section id="sec-19" class="section-block">
+                    <h3><span>19.</span> Aceptación</h3>
+                    <p>Al hacer uso o continuar navegando dentro de cualquier sistema operativo, sitio, API, servicio en la nube, programa de escritorio o asistencia prestada por e-Onyx Technologies, confirmas de forma inequívoca que has leído, comprendido y que aceptas en su totalidad estos Términos y Condiciones vigentes.</p>
+                </section>
+
+            </div>
+        </article>
+    </main>
+
+    <!-- Footer de e-Onyx -->
+    <footer>
+        <p>&copy; 2026 e-Onyx Technologies. Todos los derechos reservados. Seguridad, Privacidad e Innovación.</p>
+    </footer>
+
+    <script>
+        // Actualizar barra de progreso superior al hacer scroll
+        window.onscroll = function() {
+            updateProgressBar();
+            updateActiveMenuOnScroll();
+        };
+
+        function updateProgressBar() {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("progress-bar").style.width = scrolled + "%";
+        }
+
+        // Resaltar ítem de menú al hacer clic
+        function activateLink(element) {
+            const items = document.querySelectorAll('.menu-item');
+            items.forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // Sincronizar el menú lateral automáticamente con el scroll de lectura
+        function updateActiveMenuOnScroll() {
+            const sections = document.querySelectorAll('.section-block');
+            const menuItems = document.querySelectorAll('.menu-item');
+            let currentSecId = "";
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                // Sensibilidad al scroll
+                if (pageYOffset >= (sectionTop - 150)) {
+                    currentSecId = section.getAttribute('id');
+                }
+            });
+
+            if (currentSecId) {
+                menuItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('href') === `#${currentSecId}`) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
