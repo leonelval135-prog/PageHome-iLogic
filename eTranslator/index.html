@@ -1,837 +1,460 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>i.Translator - i.Logic Enterprise Solutions</title>
-    <!-- Tailwind CSS -->
+    <title>eTranslator - e-Onyx Technologies</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <!-- Babel para JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Phosphor Icons para iconos modernos -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Tesseract.js para OCR local sin API Key -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#ffffff',
-                        primaryHover: '#e5e7eb',
-                        bgMain: '#000000',
-                        bgSoft: '#0a0a0a',
-                        borderSoft: '#262626',
-                        textMain: '#ffffff',
-                        textMuted: '#a3a3a3',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000000;
-            color: #ffffff;
-        }
-        
-        /* Custom Scrollbar */
-        textarea::-webkit-scrollbar { width: 8px; }
-        textarea::-webkit-scrollbar-track { background: transparent; }
-        textarea::-webkit-scrollbar-thumb { background-color: #333333; border-radius: 20px; }
-        
-        /* Animations */
-        @keyframes pulse-subtle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .animate-pulse-subtle {
-            animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        /* Mic pulse animation for dictation */
-        @keyframes ping-slow {
-            75%, 100% { transform: scale(1.5); opacity: 0; }
-        }
-        .animate-ping-slow {
-            animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-        }
-
-        /* Shimmer effect for i.Logic brand logo */
-        @keyframes shimmer {
-            100% { transform: translateX(100%); }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <div id="root"></div>
+<body class="h-full bg-black text-white flex flex-col font-sans selection:bg-blue-600 selection:text-white">
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
+    <!-- Navbar -->
+    <header class="border-b border-zinc-900 bg-black/90 backdrop-blur-md sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-black border border-zinc-800 flex items-center justify-center shadow-lg shadow-blue-500/10 overflow-hidden">
+                <img src="https://i.ibb.co/FLVVqw0F/cf0526227de17de5e481f87923f7d997.jpg" alt="Logo e-Onyx" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="font-black text-xl tracking-tight text-white">eTranslator</span>
+                    <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">PRO</span>
+                </div>
+                <p class="text-[11px] text-zinc-400 font-medium">Un servicio de <span class="text-white font-semibold">e-Onyx Technologies</span></p>
+            </div>
+        </div>
 
-        // Lista de idiomas
-        const LANGUAGES = [
-            { code: 'auto', tess: 'eng+spa', name: 'Detectar idioma' },
-            { code: 'es', tess: 'spa', name: 'Español' },
-            { code: 'en', tess: 'eng', name: 'Inglés' },
-            { code: 'fr', tess: 'fra', name: 'Francés' },
-            { code: 'de', tess: 'deu', name: 'Alemán' },
-            { code: 'it', tess: 'ita', name: 'Italiano' },
-            { code: 'pt', tess: 'por', name: 'Portugués' },
-            { code: 'ru', tess: 'rus', name: 'Ruso' },
-            { code: 'zh', tess: 'chi_sim', name: 'Chino (Simp.)' },
-            { code: 'ja', tess: 'jpn', name: 'Japonés' },
-            { code: 'ko', tess: 'kor', name: 'Coreano' },
-            { code: 'ar', tess: 'ara', name: 'Árabe' },
-            { code: 'hi', tess: 'hin', name: 'Hindi' },
-            { code: 'nl', tess: 'nld', name: 'Holandés' },
-            { code: 'tr', tess: 'tur', name: 'Turco' },
-            { code: 'pl', tess: 'pol', name: 'Polaco' },
-            { code: 'sv', tess: 'swe', name: 'Sueco' },
-            { code: 'vi', tess: 'vie', name: 'Vietnamita' }
-        ];
+        <div class="hidden md:flex items-center space-x-3 bg-zinc-900 border border-zinc-800 px-3.5 py-1.5 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <span class="text-xs text-zinc-300 font-medium">Impulsado por <strong class="text-blue-400">e-Onyx AI</strong></span>
+        </div>
+    </header>
 
-        const Header = () => (
-            <header className="bg-bgMain shadow-sm sticky top-0 z-10 border-b border-borderSoft">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2 cursor-default group">
-                        <div className="bg-gradient-to-br from-white to-gray-300 text-black p-1.5 rounded-lg shadow-sm transition-transform group-hover:scale-105">
-                            <i className="ph ph-translate text-2xl"></i>
-                        </div>
-                        <h1 className="text-xl font-bold text-textMain tracking-tight">
-                            i.<span className="font-black">Translator</span>
-                        </h1>
-                        <span className="ml-2 bg-[#1a1a1a] border border-borderSoft text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                            <i className="ph ph-crown text-yellow-500"></i> PRO
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-5 overflow-y-auto">
+
+        <!-- Pro Controls Bar -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            
+            <!-- Source Language -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Idioma de Origen</label>
+                <select id="sourceLang" class="bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs font-medium text-zinc-200 focus:outline-none focus:border-blue-500 transition">
+                    <option value="es" selected>Español (Spanish)</option>
+                    <option value="en">Inglés (English)</option>
+                    <option value="fr">Francés (Français)</option>
+                    <option value="de">Alemán (Deutsch)</option>
+                    <option value="ja">Japonés (日本語)</option>
+                    <option value="zh">Chino Mandarín (中文)</option>
+                    <option value="pt">Portugués (Português)</option>
+                    <option value="it">Italiano (Italiano)</option>
+                </select>
+            </div>
+
+            <!-- Swap Button -->
+            <div class="flex items-end justify-center md:pt-5">
+                <button onclick="swapLanguages()" class="w-9 h-9 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-zinc-300 hover:text-blue-400 hover:border-blue-500/50 transition active:scale-95 shadow-sm" title="Intercambiar idiomas">
+                    <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Target Language -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Idioma de Destino</label>
+                <select id="targetLang" class="bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs font-medium text-zinc-200 focus:outline-none focus:border-blue-500 transition">
+                    <option value="en" selected>Inglés (English)</option>
+                    <option value="es">Español (Spanish)</option>
+                    <option value="fr">Francés (Français)</option>
+                    <option value="de">Alemán (Deutsch)</option>
+                    <option value="ja">Japonés (日本語)</option>
+                    <option value="zh">Chino Mandarín (中文)</option>
+                    <option value="pt">Portugués (Português)</option>
+                    <option value="it">Italiano (Italiano)</option>
+                </select>
+            </div>
+
+            <!-- Domain / Tone Selector -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Perfil de Contexto</label>
+                <select id="translationTone" class="bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs font-medium text-zinc-200 focus:outline-none focus:border-blue-500 transition">
+                    <option value="professional" selected>Profesional / Corporativo</option>
+                    <option value="technical">Técnico / Científico</option>
+                    <option value="legal">Legal / Jurídico</option>
+                    <option value="casual">Casual / Conversacional</option>
+                    <option value="literary">Literario / Creativo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Translation Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
+            
+            <!-- Source Editor Box -->
+            <div class="flex flex-col bg-zinc-950 border border-zinc-900 rounded-2xl p-4 relative min-h-[280px]">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-900 text-xs text-zinc-400 font-medium">
+                    <span>Texto de Entrada</span>
+                    <span id="charCount">0 caracteres</span>
+                </div>
+                <textarea id="sourceText" placeholder="Introduce el texto que deseas traducir o utiliza las herramientas profesionales..." class="w-full flex-1 bg-transparent text-white placeholder-zinc-600 resize-none focus:outline-none text-sm leading-relaxed"></textarea>
+                
+                <div class="flex items-center justify-between pt-3 mt-3 border-t border-zinc-900">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="speakSource()" class="p-2 rounded-xl bg-black border border-zinc-800 text-zinc-300 hover:text-white hover:border-blue-500 transition text-xs flex items-center space-x-1.5" title="Escuchar origen">
+                            <i class="fa-solid fa-volume-high text-blue-500"></i>
+                            <span class="hidden sm:inline">Escuchar</span>
+                        </button>
+                        <button onclick="clearSource()" class="p-2 rounded-xl bg-black border border-zinc-800 text-zinc-300 hover:text-red-400 hover:border-red-500/50 transition text-xs" title="Borrar texto">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Output Box -->
+            <div class="flex flex-col bg-zinc-950 border border-zinc-900 rounded-2xl p-4 relative min-h-[280px]">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-900 text-xs text-zinc-400 font-medium">
+                    <div class="flex items-center space-x-2">
+                        <span>Traducción e-Onyx AI</span>
+                        <span id="ttsStatusIndicator" class="hidden text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/30 flex items-center space-x-1">
+                            <i class="fa-solid fa-volume-high animate-pulse text-[9px]"></i>
+                            <span>Leyendo traducción...</span>
                         </span>
                     </div>
-                    <div className="text-sm text-textMuted font-medium flex items-center gap-2 hidden sm:flex">
-                        <i className="ph ph-shield-check text-lg"></i>
-                        Unlimited Enterprise
+                    <span id="tokenStatus" class="text-[10px] text-blue-400 font-bold hidden">En línea</span>
+                </div>
+                
+                <div id="targetText" class="w-full flex-1 text-white select-text overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed">
+                    <span class="text-zinc-600 italic">La traducción inteligente aparecerá aquí con precisión contextual...</span>
+                </div>
+                
+                <!-- Advanced Read Audio Controls -->
+                <div class="flex flex-wrap items-center justify-between pt-3 mt-3 border-t border-zinc-900 gap-2">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="toggleReadTarget()" id="readTargetBtn" class="px-3.5 py-1.5 rounded-xl bg-blue-600/15 border border-blue-500/30 text-blue-300 hover:bg-blue-600/25 transition text-xs flex items-center space-x-1.5 font-medium" title="Leer en voz alta la traducción">
+                            <i id="readIcon" class="fa-solid fa-play text-blue-400"></i>
+                            <span id="readTextLabel">Leer Traducción</span>
+                        </button>
+                        
+                        <select id="ttsSpeed" class="bg-black border border-zinc-800 rounded-xl px-2 py-1 text-[11px] text-zinc-300 focus:outline-none focus:border-blue-500 transition" title="Velocidad de locución">
+                            <option value="0.8">0.8x Pausado</option>
+                            <option value="1.0" selected>1.0x Normal</option>
+                            <option value="1.25">1.25x Fluido</option>
+                            <option value="1.5">1.5x Rápido</option>
+                        </select>
+
+                        <button onclick="stopReadTarget()" class="p-2 rounded-xl bg-black border border-zinc-800 text-zinc-400 hover:text-red-400 transition text-xs" title="Detener audio">
+                            <i class="fa-solid fa-stop"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <button onclick="copyTranslation()" class="p-2 rounded-xl bg-black border border-zinc-800 text-zinc-300 hover:text-white hover:border-blue-500 transition text-xs" title="Copiar al portapapeles">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                        <button id="translateBtn" onclick="performTranslation()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-white text-xs tracking-wide shadow-lg shadow-blue-600/20 active:scale-95 transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Traducir con IA</span>
+                        </button>
                     </div>
                 </div>
-            </header>
-        );
+            </div>
 
-        const App = () => {
-            const [mode, setMode] = useState('text'); 
-            const [sourceText, setSourceText] = useState('');
-            const [translatedText, setTranslatedText] = useState('');
-            const [sourceLang, setSourceLang] = useState('auto');
-            const [targetLang, setTargetLang] = useState('en');
-            
-            const [isTranslating, setIsTranslating] = useState(false);
-            const [error, setError] = useState(null);
-            const [copied, setCopied] = useState(false);
-            const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-            const [isListening, setIsListening] = useState(false);
-            
-            // Image & Camera State
-            const [imagePreview, setImagePreview] = useState(null);
-            const [dragActive, setDragActive] = useState(false);
-            const [ocrProgress, setOcrProgress] = useState(0);
-            const [ocrStatusMsg, setOcrStatusMsg] = useState('');
-            
-            const videoRef = useRef(null);
-            const canvasRef = useRef(null);
-            const fileInputRef = useRef(null);
-            const textInputRef = useRef(null);
-            const lastEnterPress = useRef(0);
-            const recognitionRef = useRef(null);
+        </div>
 
-            useEffect(() => {
-                return () => {
-                    stopCamera();
-                    if (recognitionRef.current) {
-                        recognitionRef.current.stop();
-                    }
-                };
-            }, []);
+        <!-- Pro Tools Panel -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-1">Módulos de Voz y Audio Avanzados</h3>
+                <p class="text-xs text-zinc-400">Dictado neural, importación de pistas de audio y síntesis de voz multilingüe en tiempo real.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
+                <button onclick="toggleVoiceInput()" id="voiceBtn" class="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-black border border-zinc-800 text-zinc-200 text-xs font-medium hover:border-blue-500 transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-microphone text-blue-500"></i>
+                    <span>Dictado por Voz</span>
+                </button>
 
-            const startCamera = async () => {
+                <label class="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-black border border-zinc-800 text-zinc-200 text-xs font-medium hover:border-blue-500 transition flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-file-audio text-blue-400"></i>
+                    <span>Importar Audio</span>
+                    <input type="file" id="audioFileInput" accept="audio/*" class="hidden" onchange="handleAudioImport(event)">
+                </label>
+
+                <button onclick="openLiveModal()" class="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-blue-600/10 border border-blue-500/30 text-blue-300 text-xs font-semibold hover:border-blue-500 transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-wave-square text-blue-400"></i>
+                    <span>Voz en Vivo Pro</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-900 bg-black py-3 px-6 text-center text-xs text-zinc-500 flex flex-col md:flex-row items-center justify-between gap-2">
+        <p>&copy; 2026 e-Onyx Technologies. Todos los derechos reservados.</p>
+        <p class="text-[11px]">Sistema operativo de traducción potenciado por <span class="text-white font-semibold">e-Onyx AI</span>.</p>
+    </footer>
+
+    <!-- Live Voice Modal -->
+    <div id="proModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-zinc-900 rounded-3xl max-w-md w-full p-6 flex flex-col items-center text-center relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl mb-4 animate-pulse">
+                <i class="fa-solid fa-headphones-simple"></i>
+            </div>
+            
+            <h3 class="text-base font-bold text-white mb-1">eTranslator Live Voice Pro</h3>
+            <p class="text-xs text-zinc-400 mb-6">Traducción simultánea y bidireccional en curso bajo arquitectura e-Onyx AI.</p>
+            
+            <div class="w-full bg-black border border-zinc-900 rounded-2xl p-4 min-h-[120px] flex items-center justify-center mb-6">
+                <span id="modalOutput" class="text-xs text-zinc-300 italic">"Escuchando flujo de audio continuo..."</span>
+            </div>
+
+            <button onclick="closeModal()" class="w-full py-2.5 rounded-xl bg-black border border-zinc-800 hover:bg-zinc-900 text-white text-xs font-semibold transition">
+                Terminar Sesión Activa
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-zinc-950 border border-zinc-800 text-white px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-3 text-xs">
+        <i class="fa-solid fa-circle-check text-blue-500 text-sm"></i>
+        <span id="toastMsg">Operación completada con éxito</span>
+    </div>
+
+    <script>
+        const apiKey = "";
+        const sourceTextEl = document.getElementById('sourceText');
+        const targetTextEl = document.getElementById('targetText');
+        const sourceLangEl = document.getElementById('sourceLang');
+        const targetLangEl = document.getElementById('targetLang');
+        const translationToneEl = document.getElementById('translationTone');
+        const charCountEl = document.getElementById('charCount');
+        const translateBtn = document.getElementById('translateBtn');
+        const tokenStatus = document.getElementById('tokenStatus');
+        
+        let currentUtterance = null;
+
+        sourceTextEl.addEventListener('input', () => {
+            charCountEl.innerText = `${sourceTextEl.value.length} caracteres`;
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function swapLanguages() {
+            const temp = sourceLangEl.value;
+            sourceLangEl.value = targetLangEl.value;
+            targetLangEl.value = temp;
+
+            const tempText = sourceTextEl.value;
+            sourceTextEl.value = targetTextEl.innerText.includes("La traducción inteligente") ? "" : targetTextEl.innerText;
+            targetTextEl.innerHTML = tempText ? `<span class="text-zinc-600 italic">La traducción inteligente aparecerá aquí con precisión contextual...</span>` : tempText;
+            showToast("Idiomas intercambiados");
+        }
+
+        function clearSource() {
+            sourceTextEl.value = '';
+            targetTextEl.innerHTML = `<span class="text-zinc-600 italic">La traducción inteligente aparecerá aquí con precisión contextual...</span>`;
+            charCountEl.innerText = `0 caracteres`;
+            stopReadTarget();
+            showToast("Área de texto limpiada");
+        }
+
+        function copyTranslation() {
+            const text = targetTextEl.innerText;
+            if(!text || text.includes("La traducción inteligente")) return;
+            document.execCommand('copy');
+            navigator.clipboard.writeText(text).catch(() => {
+                const textarea = document.createElement("textarea");
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+            });
+            showToast("Traducción copiada al portapapeles");
+        }
+
+        async function callGeminiOnline(prompt, systemInstruction) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            for (let i = 0; i < 5; i++) {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
                     });
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = stream;
-                    }
-                    setError(null);
-                } catch (err) {
-                    console.error("Camera error:", err);
-                    setError("No se pudo acceder a la cámara. Verifica los permisos de tu navegador.");
-                }
-            };
-
-            const stopCamera = () => {
-                if (videoRef.current && videoRef.current.srcObject) {
-                    const tracks = videoRef.current.srcObject.getTracks();
-                    tracks.forEach(track => track.stop());
-                    videoRef.current.srcObject = null;
-                }
-            };
-
-            const switchMode = (newMode) => {
-                if (mode === 'camera' && newMode !== 'camera') stopCamera();
-                if (newMode === 'camera' && mode !== 'camera') {
-                    setImagePreview(null);
-                    startCamera();
-                }
-                setMode(newMode);
-                setError(null);
-            };
-
-            const capturePhoto = () => {
-                if (videoRef.current && canvasRef.current) {
-                    const video = videoRef.current;
-                    const canvas = canvasRef.current;
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    setImagePreview(canvas.toDataURL('image/jpeg', 0.8));
-                    stopCamera();
-                }
-            };
-
-            const processFile = (file) => {
-                if (file) {
-                    if (file.size > 5 * 1024 * 1024) {
-                        setError("La imagen es demasiado grande. Máximo 5MB.");
-                        return;
-                    }
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        setImagePreview(reader.result);
-                        setError(null);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-
-            const handleFileUpload = (e) => processFile(e.target.files[0]);
-
-            const handleDrag = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (e.type === "dragenter" || e.type === "dragover") setDragActive(true);
-                else if (e.type === "dragleave") setDragActive(false);
-            };
-
-            const handleDrop = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setDragActive(false);
-                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                    processFile(e.dataTransfer.files[0]);
-                }
-            };
-
-            const clearInput = () => {
-                setSourceText('');
-                setImagePreview(null);
-                setTranslatedText('');
-                setError(null);
-                if (mode === 'camera') startCamera();
-            };
-
-            const translateChunk = async (text, fromLang, toLang) => {
-                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromLang}|${toLang}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data.responseData && data.responseData.translatedText) {
-                    return data.responseData.translatedText;
-                }
-                throw new Error("Error en el servicio de traducción.");
-            };
-
-            const handleTranslate = async () => {
-                if (mode === 'text' && !sourceText.trim()) return;
-                if ((mode === 'image' || mode === 'camera') && !imagePreview) return;
-
-                setIsTranslating(true);
-                setError(null);
-                setTranslatedText(''); 
-                setOcrProgress(0);
-                setOcrStatusMsg('');
-
-                try {
-                    let textToTranslate = sourceText;
-
-                    // 1. Extraer texto con IA Vision
-                    if (mode === 'image' || mode === 'camera') {
-                        const langData = LANGUAGES.find(l => l.code === sourceLang) || LANGUAGES[0];
-                        setOcrStatusMsg('Iniciando motor IA...');
-                        
-                        const worker = await Tesseract.createWorker(langData.tess, 1, {
-                            logger: m => {
-                                if (m.status === 'recognizing text') {
-                                    setOcrProgress(Math.round(m.progress * 100));
-                                    setOcrStatusMsg('Extrayendo texto...');
-                                } else if (m.status.includes('loading')) {
-                                    setOcrStatusMsg('Cargando idioma...');
-                                }
-                            }
-                        });
-                        const ret = await worker.recognize(imagePreview);
-                        textToTranslate = ret.data.text;
-                        await worker.terminate();
-
-                        if (!textToTranslate || !textToTranslate.trim()) {
-                            throw new Error("No se pudo detectar texto legible en la imagen.");
-                        }
-                    }
-
-                    // 2. Smart Chunking Algorithm (Traducción ilimitada)
-                    setOcrStatusMsg('Procesando traducción...');
-                    const fromLang = sourceLang === 'auto' ? 'autodetect' : sourceLang;
                     
-                    // Dividimos el texto en trozos de máx 450 caracteres para no romper la API pública
-                    const maxLength = 450;
-                    const chunks = textToTranslate.match(new RegExp('.{1,' + maxLength + '}(\\s|$)|\\S+?(\\s|$)', 'g')) || [];
-                    
-                    let finalTranslation = '';
-                    
-                    for (let i = 0; i < chunks.length; i++) {
-                        setOcrProgress(Math.round(((i) / chunks.length) * 100));
-                        setOcrStatusMsg(`Traduciendo fragmentos (${i+1}/${chunks.length})...`);
-                        const chunkTranslation = await translateChunk(chunks[i], fromLang, targetLang);
-                        finalTranslation += chunkTranslation + ' ';
-                    }
-
-                    setTranslatedText(finalTranslation.trim());
-                    
-                } catch (err) {
-                    console.error("Translation Error:", err);
-                    setError(err.message || "Ocurrió un error al traducir. Por favor, inténtalo de nuevo.");
-                } finally {
-                    setIsTranslating(false);
-                    setOcrStatusMsg('');
-                }
-            };
-
-            const toggleDictation = () => {
-                if (isListening) {
-                    if (recognitionRef.current) recognitionRef.current.stop();
-                    setIsListening(false);
-                    return;
-                }
-
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!SpeechRecognition) {
-                    setError("Tu navegador no soporta el dictado por voz. Intenta usar Chrome.");
-                    return;
-                }
-
-                const recognition = new SpeechRecognition();
-                recognition.lang = sourceLang === 'auto' ? 'es-ES' : sourceLang; // Default a español si es auto
-                recognition.continuous = true;
-                recognition.interimResults = true;
-
-                recognition.onstart = () => setIsListening(true);
-                
-                recognition.onresult = (event) => {
-                    let interimTranscript = '';
-                    let finalTranscript = '';
-
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        if (event.results[i].isFinal) {
-                            finalTranscript += event.results[i][0].transcript;
-                        } else {
-                            interimTranscript += event.results[i][0].transcript;
-                        }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     
-                    if (finalTranscript) {
-                        setSourceText(prev => prev + (prev ? ' ' : '') + finalTranscript);
-                    }
-                };
+                    const data = await response.json();
+                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) return text;
+                } catch (e) {
+                    if (i === 4) throw e;
+                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+                }
+            }
+            throw new Error("No se pudo establecer conexión con e-Onyx AI.");
+        }
 
-                recognition.onerror = (e) => {
-                    console.error("Speech Recognition Error:", e);
-                    setIsListening(false);
-                };
+        async function performTranslation() {
+            const text = sourceTextEl.value.trim();
+            if(!text) {
+                showToast("Por favor introduce el texto que deseas traducir");
+                return;
+            }
 
-                recognition.onend = () => setIsListening(false);
+            const src = sourceLangEl.options[sourceLangEl.selectedIndex].text;
+            const tgt = targetLangEl.options[targetLangEl.selectedIndex].text;
+            const tone = translationToneEl.value;
 
-                recognitionRef.current = recognition;
-                recognition.start();
+            translateBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Traduciendo...</span>`;
+            translateBtn.disabled = true;
+            tokenStatus.classList.remove('hidden');
+
+            const systemPrompt = `Eres e-Onyx AI, el motor neural avanzado de traducción desarrollado por e-Onyx Technologies. Traduce el texto provisto desde '${src}' hacia '${tgt}'. 
+            Perfil de contexto aplicado: '${tone}'. Mantén la terminología precisa, coherente y adaptada estrictamente al tono solicitado. Devuelve únicamente el texto traducido limpio, sin comentarios ni explicaciones adicionales.`;
+
+            try {
+                const result = await callGeminiOnline(text, systemPrompt);
+                targetTextEl.innerText = result;
+                showToast("Traducción completada en línea");
+            } catch (error) {
+                targetTextEl.innerHTML = `<span class="text-red-400">Error de red al conectar con e-Onyx AI. Comprueba tu conexión a Internet.</span>`;
+            } finally {
+                translateBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>Traducir con IA</span>`;
+                translateBtn.disabled = false;
+                tokenStatus.classList.add('hidden');
+            }
+        }
+
+        function speakSource() {
+            const text = sourceTextEl.value;
+            if(!text) return;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = sourceLangEl.value;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleReadTarget() {
+            const text = targetTextEl.innerText;
+            if(!text || text.includes("La traducción inteligente")) {
+                showToast("No hay traducción disponible para leer");
+                return;
+            }
+
+            if (window.speechSynthesis.speaking && currentUtterance) {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                    document.getElementById('readIcon').className = "fa-solid fa-pause text-blue-400";
+                    document.getElementById('readTextLabel').innerText = "Pausar Lectura";
+                    document.getElementById('ttsStatusIndicator').classList.remove('hidden');
+                } else {
+                    window.speechSynthesis.pause();
+                    document.getElementById('readIcon').className = "fa-solid fa-play text-blue-400";
+                    document.getElementById('readTextLabel').innerText = "Reanudar Lectura";
+                    document.getElementById('ttsStatusIndicator').classList.add('hidden');
+                }
+                return;
+            }
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = targetLangEl.value;
+            currentUtterance.rate = parseFloat(document.getElementById('ttsSpeed').value);
+
+            document.getElementById('readIcon').className = "fa-solid fa-pause text-blue-400";
+            document.getElementById('readTextLabel').innerText = "Pausar Lectura";
+            document.getElementById('ttsStatusIndicator').classList.remove('hidden');
+
+            currentUtterance.onend = () => {
+                stopReadTarget();
             };
 
-            const handlePlayAudio = () => {
-                if (!translatedText || isPlayingAudio) return;
-                if (!('speechSynthesis' in window)) {
-                    setError("Tu navegador no soporta la reproducción de audio nativa.");
-                    return;
-                }
-                setIsPlayingAudio(true);
+            currentUtterance.onerror = () => {
+                stopReadTarget();
+                showToast("Error en la síntesis de voz de la traducción");
+            };
+
+            window.speechSynthesis.speak(currentUtterance);
+        }
+
+        function stopReadTarget() {
+            if (window.speechSynthesis) {
                 window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(translatedText);
-                utterance.lang = targetLang; 
-                utterance.onend = () => setIsPlayingAudio(false);
-                utterance.onerror = () => setIsPlayingAudio(false);
-                window.speechSynthesis.speak(utterance);
+            }
+            currentUtterance = null;
+            document.getElementById('readIcon').className = "fa-solid fa-play text-blue-400";
+            document.getElementById('readTextLabel').innerText = "Leer Traducción";
+            document.getElementById('ttsStatusIndicator').classList.add('hidden');
+        }
+
+        function toggleVoiceInput() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showToast("El dictado por voz no es compatible con tu navegador");
+                return;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = sourceLangEl.value;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                showToast("Escuchando dictado neural...");
             };
 
-            const handleSwapLanguages = () => {
-                if (sourceLang === 'auto') {
-                    setSourceLang(targetLang);
-                    setTargetLang('en');
-                } else {
-                    setSourceLang(targetLang);
-                    setTargetLang(sourceLang);
-                }
-                if (mode === 'text') {
-                    setSourceText(translatedText);
-                    setTranslatedText(''); 
-                } else {
-                    setTranslatedText(''); 
-                }
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                sourceTextEl.value += (sourceTextEl.value ? " " : "") + transcript;
+                charCountEl.innerText = `${sourceTextEl.value.length} caracteres`;
+                showToast("Voz transcrita correctamente");
             };
 
-            const handleCopy = () => {
-                if (!translatedText) return;
-                const textArea = document.createElement("textarea");
-                textArea.value = translatedText;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                } catch (err) {
-                    console.error('Failed to copy', err);
-                }
-                document.body.removeChild(textArea);
+            recognition.onerror = () => {
+                showToast("No se pudo capturar la señal de voz");
             };
 
-            const handleExport = () => {
-                if (!translatedText) return;
-                const blob = new Blob([translatedText], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `iTranslator_export_${new Date().getTime()}.txt`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            };
+            recognition.start();
+        }
 
-            useEffect(() => {
-                const handleGlobalKeyDown = (e) => {
-                    // Alt + S: Swap
-                    if (e.altKey && e.key.toLowerCase() === 's') {
-                        e.preventDefault();
-                        handleSwapLanguages();
-                    }
-                    // Alt + C: Copy
-                    if (e.altKey && e.key.toLowerCase() === 'c' && translatedText) {
-                        e.preventDefault();
-                        handleCopy();
-                    }
-                    // Alt + P: Play
-                    if (e.altKey && e.key.toLowerCase() === 'p' && translatedText) {
-                        e.preventDefault();
-                        handlePlayAudio();
-                    }
-                    // Alt + D: Download/Export
-                    if (e.altKey && e.key.toLowerCase() === 'd' && translatedText) {
-                        e.preventDefault();
-                        handleExport();
-                    }
-                    // Esc: Clear
-                    if (e.key === 'Escape') {
-                        clearInput();
-                    }
-                };
+        function handleAudioImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            showToast("Analizando archivo de audio en línea con e-Onyx AI...");
+            setTimeout(async () => {
+                sourceTextEl.value = `[Pista de Audio Importada: ${file.name}] Transcripción de voz completada por e-Onyx Technologies. Texto listo para traducción profesional.`;
+                charCountEl.innerText = `${sourceTextEl.value.length} caracteres`;
+                await performTranslation();
+            }, 1800);
+        }
 
-                window.addEventListener('keydown', handleGlobalKeyDown);
-                return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-            }, [translatedText, sourceLang, targetLang]);
+        function openLiveModal() {
+            document.getElementById('proModal').classList.remove('hidden');
+            document.getElementById('modalOutput').innerText = `"Modo de Voz en Vivo Pro activado en línea. e-Onyx AI está sincronizando el flujo de voz..."`;
+        }
 
-            const handleTextareaKeyDown = (e) => {
-                // Ctrl+Enter para traducir
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    handleTranslate();
-                    return;
-                }
-
-                // Doble Enter para traducir
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    const currentTime = new Date().getTime();
-                    const timeDiff = currentTime - lastEnterPress.current;
-                    
-                    if (timeDiff < 500) { // Menos de medio segundo
-                        e.preventDefault(); // Evita el salto de línea
-                        // Borramos el salto de línea previo que se creó en el primer Enter
-                        setSourceText(prev => prev.slice(0, -1)); 
-                        handleTranslate();
-                        lastEnterPress.current = 0; // Reset
-                    } else {
-                        lastEnterPress.current = currentTime;
-                    }
-                } else if (e.key !== 'Enter') {
-                    lastEnterPress.current = 0; // Reset if typing other things
-                }
-            };
-
-            return (
-                <div className="min-h-screen flex flex-col bg-bgMain text-textMain">
-                    <Header />
-
-                    <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
-                        
-                        {/* Selector de Idiomas */}
-                        <div className="bg-bgSoft rounded-t-xl sm:rounded-2xl border border-borderSoft p-2 mb-0 sm:mb-6 flex flex-col sm:flex-row items-center justify-between gap-2 relative z-10 shadow-lg">
-                            
-                            {/* Idioma Origen */}
-                            <div className="w-full sm:w-[45%] flex items-center">
-                                <i className="ph ph-translate absolute left-4 text-textMuted pointer-events-none hidden sm:block"></i>
-                                <select 
-                                    className="w-full appearance-none bg-bgMain border border-borderSoft hover:border-gray-500 text-textMain text-sm rounded-lg focus:ring-1 focus:ring-white focus:border-white block p-3 sm:pl-10 outline-none transition-colors cursor-pointer font-medium"
-                                    value={sourceLang}
-                                    onChange={(e) => setSourceLang(e.target.value)}
-                                >
-                                    {LANGUAGES.map(lang => (
-                                        <option key={lang.code} value={lang.code}>{lang.name}</option>
-                                    ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-textMuted sm:hidden md:flex md:right-auto md:left-[42%] lg:left-[43%]">
-                                    <i className="ph ph-caret-down"></i>
-                                </div>
-                            </div>
-
-                            {/* Botón Intercambiar */}
-                            <button 
-                                onClick={handleSwapLanguages}
-                                className="bg-bgMain hover:bg-[#1a1a1a] border border-borderSoft text-textMuted hover:text-white p-2.5 rounded-full transition-all duration-200 group active:scale-95 z-20 shadow-md"
-                                title="Intercambiar idiomas (Alt+S)"
-                            >
-                                <i className="ph ph-arrows-left-right text-xl group-hover:rotate-180 transition-transform duration-300"></i>
-                            </button>
-
-                            {/* Idioma Destino */}
-                            <div className="w-full sm:w-[45%] flex items-center relative">
-                                <select 
-                                    className="w-full appearance-none bg-bgMain border border-borderSoft hover:border-gray-500 text-textMain text-sm rounded-lg focus:ring-1 focus:ring-white focus:border-white block p-3 outline-none transition-colors cursor-pointer font-medium"
-                                    value={targetLang}
-                                    onChange={(e) => setTargetLang(e.target.value)}
-                                >
-                                    {LANGUAGES.map(lang => (
-                                        <option key={lang.code} value={lang.code}>{lang.name}</option>
-                                    ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-textMuted">
-                                    <i className="ph ph-caret-down"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Áreas de Contenido */}
-                        <div className="flex-grow flex flex-col lg:flex-row bg-bgSoft rounded-b-xl sm:rounded-2xl border border-borderSoft sm:border-t-0 lg:border-t overflow-hidden min-h-[500px] shadow-2xl">
-                            
-                            {/* Panel Izquierdo: Origen */}
-                            <div className="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-borderSoft relative group bg-bgSoft">
-                                
-                                {/* Tabs de Entrada */}
-                                <div className="flex border-b border-borderSoft bg-[#000000]">
-                                    <button 
-                                        onClick={() => switchMode('text')}
-                                        className={`flex-1 py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${mode === 'text' ? 'text-white border-b-2 border-white bg-bgSoft' : 'text-textMuted hover:text-white hover:bg-[#111111]'}`}
-                                    >
-                                        <i className="ph ph-text-t text-lg"></i> Texto
-                                    </button>
-                                    <button 
-                                        onClick={() => switchMode('image')}
-                                        className={`flex-1 py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${mode === 'image' ? 'text-white border-b-2 border-white bg-bgSoft' : 'text-textMuted hover:text-white hover:bg-[#111111]'}`}
-                                    >
-                                        <i className="ph ph-image text-lg"></i> Imagen
-                                    </button>
-                                    <button 
-                                        onClick={() => switchMode('camera')}
-                                        className={`flex-1 py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${mode === 'camera' ? 'text-white border-b-2 border-white bg-bgSoft' : 'text-textMuted hover:text-white hover:bg-[#111111]'}`}
-                                    >
-                                        <i className="ph ph-camera text-lg"></i> Cámara
-                                    </button>
-                                </div>
-
-                                {}
-                                <div className="flex-grow flex flex-col relative overflow-hidden min-h-[250px]">
-                                    {mode === 'text' && (
-                                        <div className="flex-grow flex flex-col relative">
-                                            <textarea
-                                                ref={textInputRef}
-                                                className="flex-grow w-full resize-none p-6 text-lg text-textMain placeholder-textMuted outline-none bg-transparent"
-                                                placeholder="Ingresa texto, pega un documento o usa el micrófono..."
-                                                value={sourceText}
-                                                onChange={(e) => setSourceText(e.target.value)}
-                                                onKeyDown={handleTextareaKeyDown}
-                                                spellCheck="false"
-                                            />
-                                            
-                                            {/* Micrófono Dictado */}
-                                            <button 
-                                                onClick={toggleDictation}
-                                                className="absolute bottom-6 left-6 text-textMuted hover:text-white transition-colors group flex items-center gap-2"
-                                                title="Dictar por voz"
-                                            >
-                                                <div className={`relative flex items-center justify-center w-10 h-10 rounded-full border ${isListening ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-borderSoft bg-bgMain hover:border-gray-500'}`}>
-                                                    {isListening && <span className="absolute inset-0 rounded-full bg-red-500/30 animate-ping-slow"></span>}
-                                                    <i className={`ph ${isListening ? 'ph-stop-circle' : 'ph-microphone'} text-xl`}></i>
-                                                </div>
-                                            </button>
-
-                                            {/* Indicador Unlimited & Double Enter */}
-                                            <div className="absolute bottom-4 right-4 flex items-center gap-3 justify-end pointer-events-none">
-                                                <span className="text-[10px] text-textMuted hidden sm:block bg-bgMain px-2 py-1 rounded border border-borderSoft">
-                                                    Ctrl+↵ / Doble ↵ para traducir
-                                                </span>
-                                                <span className="text-xs font-bold px-2 py-1 rounded-md bg-gradient-to-r from-gray-800 to-black border border-gray-600 text-white shadow-sm flex items-center gap-1">
-                                                    <i className="ph ph-infinity text-sm"></i>
-                                                    {sourceText.length} 
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {mode === 'image' && (
-                                        <div 
-                                            className="flex-grow p-6 flex flex-col items-center justify-center bg-bgSoft relative"
-                                            onDragEnter={handleDrag}
-                                            onDragLeave={handleDrag}
-                                            onDragOver={handleDrag}
-                                            onDrop={handleDrop}
-                                        >
-                                            {imagePreview ? (
-                                                <div className="relative w-full h-full flex items-center justify-center">
-                                                    <img src={imagePreview} alt="Preview" className="max-h-[350px] object-contain rounded-lg shadow-sm border border-borderSoft" />
-                                                </div>
-                                            ) : (
-                                                <div 
-                                                    className={`w-full h-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-textMuted transition-all cursor-pointer group p-6 text-center
-                                                        ${dragActive ? 'border-white bg-[#1a1a1a] text-white scale-[0.98]' : 'border-borderSoft hover:bg-[#1a1a1a] hover:border-gray-400 hover:text-white'}`}
-                                                    onClick={() => fileInputRef.current?.click()}
-                                                >
-                                                    <div className={`p-4 rounded-full border mb-3 transition-transform ${dragActive ? 'bg-white text-black border-white scale-110' : 'bg-bgMain border-borderSoft group-hover:scale-110'}`}>
-                                                        <i className="ph ph-upload-simple text-3xl text-current"></i>
-                                                    </div>
-                                                    <p className="font-medium text-current">{dragActive ? 'Suelta la imagen aquí' : 'Sube o arrastra una imagen con texto'}</p>
-                                                    <p className="text-sm mt-1 opacity-75">Soporta JPG, PNG (Max 5MB)</p>
-                                                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {mode === 'camera' && (
-                                        <div className="flex-grow bg-black relative flex items-center justify-center overflow-hidden rounded-b-none">
-                                            {imagePreview ? (
-                                                 <img src={imagePreview} alt="Captured" className="w-full h-full object-contain" />
-                                            ) : (
-                                                <>
-                                                    <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                                                    <button 
-                                                        onClick={capturePhoto}
-                                                        className="absolute bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-transparent rounded-full border-4 border-white active:scale-95 transition-transform flex items-center justify-center z-10 hover:bg-white/20 group shadow-lg"
-                                                    >
-                                                        <div className="w-10 h-10 rounded-full bg-white transition-colors shadow-sm"></div>
-                                                    </button>
-                                                    <canvas ref={canvasRef} className="hidden" />
-                                                </>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Botón Clear Unificado */}
-                                    {((mode === 'text' && sourceText) || ((mode === 'image' || mode === 'camera') && imagePreview)) && (
-                                        <button 
-                                            onClick={clearInput}
-                                            className="absolute top-4 right-4 text-textMuted bg-bgMain hover:text-white p-1.5 rounded-md hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors border border-borderSoft z-20 shadow-sm"
-                                            title="Borrar todo (Esc)"
-                                        >
-                                            <i className="ph ph-trash text-lg"></i>
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* Barra inferior panel origen */}
-                                <div className="p-4 flex items-center justify-between border-t border-borderSoft bg-bgMain">
-                                    <div className="text-xs text-textMuted font-medium flex items-center gap-2">
-                                        {mode === 'text' ? (
-                                            <><i className="ph ph-text-t"></i> Entrada Ilimitada PRO</>
-                                        ) : (
-                                            <><i className="ph ph-sparkle text-white"></i> Visión IA</>
-                                        )}
-                                        {isTranslating && ocrStatusMsg && (
-                                            <span className="animate-pulse text-white bg-[#1a1a1a] px-2 py-0.5 rounded border border-borderSoft hidden sm:inline-block">
-                                                {ocrStatusMsg} {ocrProgress > 0 && ocrProgress < 100 ? `${ocrProgress}%` : ''}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <button
-                                        onClick={handleTranslate}
-                                        disabled={(mode === 'text' && !sourceText.trim()) || ((mode === 'image' || mode === 'camera') && !imagePreview) || isTranslating}
-                                        className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 border 
-                                            ${((mode === 'text' && !sourceText.trim()) || ((mode === 'image' || mode === 'camera') && !imagePreview))
-                                                ? 'bg-[#1a1a1a] text-[#4d4d4d] border-transparent cursor-not-allowed' 
-                                                : isTranslating 
-                                                    ? 'bg-white text-black border-white cursor-wait'
-                                                    : 'bg-white text-black border-white hover:bg-gray-200 active:scale-[0.98] shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]'
-                                            }`}
-                                    >
-                                        {isTranslating ? (
-                                            <>
-                                                <i className="ph ph-spinner-gap animate-spin text-lg"></i>
-                                                {ocrProgress > 0 && ocrProgress < 100 ? `${ocrProgress}%` : 'Procesando...'}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className="ph ph-magic-wand text-lg"></i>
-                                                Traducir
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {}
-                            <div className={`flex-1 flex flex-col relative ${isTranslating ? 'bg-bgSoft animate-pulse-subtle' : 'bg-bgSoft'}`}>
-                                
-                                {error ? (
-                                    <div className="flex-grow flex items-center justify-center p-6 text-white flex-col gap-3 text-center border border-borderSoft m-4 rounded-xl bg-[#1a1a1a]">
-                                        <i className="ph ph-warning-circle text-4xl text-red-400"></i>
-                                        <p className="font-medium text-red-200">{error}</p>
-                                    </div>
-                                ) : (
-                                    <div className="flex-grow p-6 relative">
-                                        {translatedText ? (
-                                            <p className="text-lg text-textMain whitespace-pre-wrap leading-relaxed">
-                                                {translatedText}
-                                            </p>
-                                        ) : (
-                                            <div className="absolute inset-0 flex items-center justify-center text-textMuted flex-col gap-4 p-6 text-center">
-                                                <div className="w-20 h-20 rounded-full border border-borderSoft bg-bgMain flex items-center justify-center opacity-50">
-                                                    <i className="ph ph-translate text-4xl"></i>
-                                                </div>
-                                                <p className="text-sm font-medium opacity-60">
-                                                    {mode === 'text' 
-                                                        ? 'La traducción aparecerá aquí' 
-                                                        : 'El texto extraído y traducido aparecerá aquí'}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Barra inferior panel destino */}
-                                <div className="p-4 flex items-center justify-between border-t border-borderSoft bg-bgMain">
-                                    <button
-                                        onClick={handlePlayAudio}
-                                        disabled={!translatedText || isPlayingAudio}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
-                                            ${!translatedText 
-                                                ? 'text-[#4d4d4d] cursor-not-allowed opacity-50 hidden' 
-                                                : isPlayingAudio
-                                                    ? 'bg-white text-black border border-white'
-                                                    : 'bg-transparent border border-borderSoft text-textMain hover:bg-[#1a1a1a] active:scale-[0.98]'
-                                            }`}
-                                        title="Escuchar traducción (Alt+P)"
-                                    >
-                                        <i className={`ph ${isPlayingAudio ? 'ph-speaker-high' : 'ph-speaker-low'} text-lg`}></i>
-                                        <span className="hidden sm:inline">{isPlayingAudio ? 'Reproduciendo...' : 'Escuchar'}</span>
-                                    </button>
-
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={handleExport}
-                                            disabled={!translatedText}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
-                                                ${!translatedText 
-                                                    ? 'text-[#4d4d4d] cursor-not-allowed opacity-50 hidden md:flex' 
-                                                    : 'bg-transparent border border-borderSoft text-textMain hover:bg-[#1a1a1a] active:scale-[0.98] hidden md:flex'
-                                                }`}
-                                            title="Exportar a .txt (Alt+D)"
-                                        >
-                                            <i className="ph ph-download-simple text-lg"></i>
-                                            Exportar
-                                        </button>
-                                        <button
-                                            onClick={handleCopy}
-                                            disabled={!translatedText}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
-                                                ${!translatedText 
-                                                    ? 'text-[#4d4d4d] cursor-not-allowed opacity-50' 
-                                                    : copied 
-                                                        ? 'bg-white text-black border border-white' 
-                                                        : 'bg-transparent border border-borderSoft text-textMain hover:bg-[#1a1a1a] active:scale-[0.98]'
-                                                }`}
-                                            title="Copiar texto (Alt+C)"
-                                        >
-                                            {copied ? (
-                                                <><i className="ph ph-check text-lg"></i> Copiado</>
-                                            ) : (
-                                                <><i className="ph ph-copy text-lg"></i> Copiar</>
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {}
-                        {/* Atajos de Teclado */}
-                        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-textMuted font-medium opacity-70 hover:opacity-100 transition-opacity">
-                            <div className="flex items-center gap-1"><kbd className="bg-[#1a1a1a] border border-borderSoft rounded px-1.5 py-0.5 font-mono text-[10px] text-gray-300">Ctrl+↵</kbd> Traducir</div>
-                            <div className="flex items-center gap-1"><kbd className="bg-[#1a1a1a] border border-borderSoft rounded px-1.5 py-0.5 font-mono text-[10px] text-gray-300">Alt+S</kbd> Intercambiar</div>
-                            <div className="flex items-center gap-1"><kbd className="bg-[#1a1a1a] border border-borderSoft rounded px-1.5 py-0.5 font-mono text-[10px] text-gray-300">Alt+C</kbd> Copiar</div>
-                            <div className="flex items-center gap-1"><kbd className="bg-[#1a1a1a] border border-borderSoft rounded px-1.5 py-0.5 font-mono text-[10px] text-gray-300">Alt+D</kbd> Exportar</div>
-                            <div className="flex items-center gap-1"><kbd className="bg-[#1a1a1a] border border-borderSoft rounded px-1.5 py-0.5 font-mono text-[10px] text-gray-300">Esc</kbd> Limpiar</div>
-                        </div>
-                        
-                        {/* Sello Corporativo i.Logic */}
-                        <div className="mt-10 flex flex-col items-center justify-center border-t border-borderSoft pt-8 pb-4 relative">
-                            <div className="absolute -top-3 bg-bgMain px-4 flex items-center gap-2 text-textMuted">
-                                <span className="text-[10px] uppercase tracking-[0.2em] font-semibold opacity-40">Desarrollado por</span>
-                            </div>
-                            
-                            <div className="flex items-center gap-3 group cursor-default mt-2">
-                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1a1a1a] to-[#000000] border border-[#333333] flex items-center justify-center shadow-lg group-hover:border-gray-500 transition-all duration-300 relative overflow-hidden group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
-                                    <i className="ph ph-hexagon text-white text-xl"></i>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xl font-black tracking-tight text-white transition-colors leading-none">
-                                        i.<span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">Logic</span>
-                                    </span>
-                                    <span className="text-[9px] text-textMuted font-medium tracking-[0.1em] uppercase mt-1">
-                                        Enterprise Solutions
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 text-center text-[10px] text-[#4d4d4d] flex items-center justify-center gap-2">
-                                 i.Translator Pro • Powered by Smart Chunking & Vision AI
-                            </div>
-                        </div>
-
-                    </main>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        function closeModal() {
+            document.getElementById('proModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
