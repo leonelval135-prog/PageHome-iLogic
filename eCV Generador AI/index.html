@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eCV Generador AI | e-Onyx Technologies</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#2563eb', 
+                            blueLight: '#eff6ff', 
+                            blueHover: '#1d4ed8', 
+                            black: '#0a0f1c', 
+                            blackHover: '#1e293b' 
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Estilos base */
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        
+        /* Animaciones */
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-reveal { animation: fadeInSlideUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+
+        @keyframes animatedGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .text-gradient-animated {
+            background: linear-gradient(to right, #0a0f1c, #2563eb, #0ea5e9, #0a0f1c);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animatedGradient 5s ease infinite;
+        }
+        
+        @keyframes slideUpToast {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-enter { animation: slideUpToast 0.3s ease-out forwards; }
+        
+        /* Estilos de Impresión */
+        @media print {
+            body * { visibility: hidden; overflow: visible !important; height: auto !important; }
+            #cv-preview-container, #cv-preview-container * { visibility: visible; }
+            #cv-preview-container { 
+                position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0;
+                box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
+            .no-print { display: none !important; }
+            .border-brand-black { border-color: #0a0f1c !important; }
+            .text-brand-black { color: #0a0f1c !important; }
+            .text-brand-blue { color: #2563eb !important; }
+            .bg-gray-50 { background-color: #f8fafc !important; }
+        }
+
+        /* Inputs del editor */
+        .input-group { position: relative; margin-bottom: 0.5rem; }
+        .input-pro {
+            width: 100%; padding: 0.6rem 0.75rem; font-size: 0.875rem; border: 1px solid #cbd5e1;
+            border-radius: 0.5rem; background-color: #ffffff; transition: all 0.2s ease-in-out;
+            outline: none; color: #1e293b;
+        }
+        .input-pro:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        .input-pro::placeholder { color: #94a3b8; }
+        
+        select.input-pro {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 0.75rem center;
+            background-size: 1rem; padding-right: 2.5rem;
+        }
+
+        /* Section Cards */
+        .editor-section-card {
+            background: white; border: 1px solid #f1f5f9; border-radius: 0.75rem;
+            padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:h-screen md:overflow-hidden bg-gray-50 text-slate-700">
+
+    <!-- COMPONENTE TOAST -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[70] hidden items-center gap-2 px-4 py-3 rounded-lg shadow-xl text-sm font-medium text-white transition-all duration-300 no-print">
+        <i id="toast-icon" class="ph text-lg"></i>
+        <span id="toast-message">Mensaje</span>
+        <button onclick="hideToast()" class="ml-3 opacity-80 hover:opacity-100 transition-opacity">
+            <i class="ph ph-x"></i>
+        </button>
+    </div>
+
+    <!-- MODAL API KEY (Opcional, ahora la key está quemada en el código) -->
+    <div id="api-modal" class="fixed inset-0 z-[60] bg-black/50 hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-reveal">
+            <div class="bg-gray-50 border-b border-gray-100 p-4 flex justify-between items-center">
+                <h3 class="font-bold text-brand-black flex items-center gap-2">
+                    <i class="ph-fill ph-key text-brand-blue text-xl"></i> Configuración IA
+                </h3>
+                <button onclick="closeApiModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-gray-500">
+                    Para usar las funciones de Inteligencia Artificial necesitas una clave de API de Gemini. 
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-brand-blue hover:underline font-semibold">Consíguela gratis aquí.</a>
+                </p>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Tu API Key de Gemini</label>
+                    <input type="password" id="input-api-key" class="input-pro" placeholder="AIzaSy..." />
+                </div>
+            </div>
+            <div class="bg-gray-50 border-t border-gray-100 p-4 flex justify-end gap-2">
+                <button onclick="closeApiModal()" class="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 text-sm font-bold bg-brand-black text-white hover:bg-brand-blue rounded-lg transition-colors">Guardar Clave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 0: LANDING PAGE -->
+    <div id="landing-screen" class="fixed inset-0 z-50 bg-white overflow-y-auto no-print">
+        <!-- Navbar -->
+        <nav class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center animate-reveal">
+            <div class="flex items-center gap-3">
+                <img src="https://i.ibb.co/9k8yYcwL/file-00000000888881f5b1213ac971862b7a.png" alt="e-Onyx Logo" class="h-10 md:h-12 w-auto object-contain rounded-xl shadow-sm border border-gray-100" onerror="this.style.display='none'">
+                <div>
+                    <span class="text-xl font-bold text-brand-black tracking-tight block leading-none">eCV Generador AI</span>
+                    <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">by e-Onyx</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Botón de configuración (Aún disponible por si alguien quiere cambiar la key local) -->
+                <button onclick="openApiModal()" class="text-gray-400 hover:text-brand-blue transition-colors p-2" title="Configurar API Key">
+                    <i class="ph-bold ph-key text-xl"></i>
+                </button>
+                <button onclick="goToAreaSelection()" class="text-sm font-semibold text-brand-black hover:text-brand-blue transition-colors flex items-center gap-1">
+                    Comenzar <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <main class="max-w-7xl mx-auto px-6 pt-12 pb-24 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/80 border border-blue-100 text-brand-blue text-xs font-bold uppercase tracking-wider mb-8 animate-reveal delay-100">
+                <i class="ph-fill ph-sparkle"></i> Impulsado por Inteligencia Artificial
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-brand-black mb-6 animate-reveal delay-200 leading-[1.1]">
+                El currículum que <br/>
+                <span class="text-gradient-animated">conseguirá la entrevista.</span>
+            </h1>
+            
+            <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 animate-reveal delay-300">
+                Deja de pelear con el formato y las palabras. eCV Generador AI utiliza algoritmos avanzados para redactar, estructurar y optimizar tu perfil profesional según tu industria.
+            </p>
+            
+            <button onclick="goToAreaSelection()" class="bg-brand-black text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-brand-blue hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 animate-reveal delay-400 flex items-center justify-center gap-2 mx-auto">
+                Crear mi CV ahora
+                <i class="ph-bold ph-arrow-right"></i>
+            </button>
+
+            <div class="mt-8 animate-reveal delay-400">
+                <a href="https://e-onyx.com" target="_blank" class="text-sm text-gray-400 hover:text-brand-blue transition-colors inline-flex items-center gap-1">
+                    Un servicio oficial de <span class="font-bold">e-Onyx Technologies</span> <i class="ph-bold ph-arrow-square-out"></i>
+                </a>
+            </div>
+
+            <!-- Features -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 text-left border-t border-gray-100 pt-16 animate-reveal delay-400">
+                <div class="space-y-4 p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-blue-50 text-brand-blue rounded-xl flex items-center justify-center text-2xl">
+                        <i class="ph-fill ph-brain"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-black">Redacción Inteligente</h3>
+                    <p class="text-gray-500 text-sm">Nuestra IA redactará un perfil profesional impactante basado en tu puesto, adaptando el tono a tu sector.</p>
+                </div>
+                <div class="space-y-4 p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-blue-50 text-brand-blue rounded-xl flex items-center justify-center text-2xl">
+                        <i class="ph-fill ph-briefcase"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-black">Experiencia de Impacto</h3>
+                    <p class="text-gray-500 text-sm">Transformamos tus tareas cotidianas en viñetas corporativas orientadas a logros y resultados tangibles.</p>
+                </div>
+                <div class="space-y-4 p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-blue-50 text-brand-blue rounded-xl flex items-center justify-center text-2xl">
+                        <i class="ph-fill ph-export"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-black">Exportación Universal</h3>
+                    <p class="text-gray-500 text-sm">Descarga tu CV en PDF con un diseño impecable, o en texto plano optimizado para sistemas (ATS).</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- PANTALLA 1: SELECCIÓN DE ÁREA -->
+    <div id="area-selection-screen" class="fixed inset-0 z-40 bg-gray-50 overflow-y-auto no-print hidden">
+        <!-- BOTÓN VOLVER ATRÁS -->
+        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-50">
+            <button onclick="goBackToLanding()" class="flex items-center gap-2 text-gray-500 hover:text-brand-black transition-colors font-semibold bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
+                <i class="ph-bold ph-arrow-left"></i> Volver al inicio
+            </button>
+        </div>
+        
+        <div class="min-h-full flex flex-col items-center justify-center p-6 py-20">
+            <div class="max-w-3xl w-full text-center space-y-8 animate-reveal">
+                <h2 class="text-3xl md:text-4xl font-black text-brand-black tracking-tight">Selecciona tu industria</h2>
+                <p class="text-gray-500 text-lg max-w-xl mx-auto">Personalizaremos los campos del formulario y el comportamiento de la IA basándonos en tu área profesional.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8 text-left">
+                    <button onclick="selectArea('tecnologia')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-desktop text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Tecnología & IT</h3>
+                        <p class="text-xs text-gray-500 mt-1">Software, Datos, Sistemas</p>
+                    </button>
+                    <button onclick="selectArea('salud')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-heartbeat text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Salud & Medicina</h3>
+                        <p class="text-xs text-gray-500 mt-1">Médicos, Enfermería</p>
+                    </button>
+                    <button onclick="selectArea('diseno')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-bezier-curve text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Diseño & Arte</h3>
+                        <p class="text-xs text-gray-500 mt-1">UX/UI, Gráfico, Creativos</p>
+                    </button>
+                    <button onclick="selectArea('negocios')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-chart-line-up text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Negocios</h3>
+                        <p class="text-xs text-gray-500 mt-1">Ventas, Marketing, RRHH</p>
+                    </button>
+                    <button onclick="selectArea('educacion')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-books text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Educación</h3>
+                        <p class="text-xs text-gray-500 mt-1">Docencia, Academia</p>
+                    </button>
+                    <button onclick="selectArea('general')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-briefcase text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">General / Otro</h3>
+                        <p class="text-xs text-gray-500 mt-1">Ingeniería, Legal, etc.</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2: EDITOR PRINCIPAL -->
+    <div id="main-editor-screen" class="hidden flex-1 flex flex-col w-full h-full min-h-screen md:min-h-0">
+        <!-- HEADER NAVBAR (Sticky en móvil) -->
+        <header class="bg-brand-black text-white p-3 md:p-4 flex justify-between items-center z-30 sticky top-0 md:relative shrink-0 border-b border-gray-800">
+            <div class="flex items-center gap-3">
+                <!-- BOTÓN VOLVER ATRÁS (Editor) -->
+                <button onclick="goBackFromEditor()" class="text-gray-400 hover:text-white transition-colors mr-1" title="Volver atrás">
+                    <i class="ph-bold ph-arrow-left text-xl"></i>
+                </button>
+                
+                <div class="bg-white p-1 rounded-lg shadow-sm">
+                    <img src="https://i.ibb.co/9k8yYcwL/file-00000000888881f5b1213ac971862b7a.png" alt="e-Onyx Logo" class="h-6 w-auto object-contain rounded-md" onerror="this.style.display='none'">
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-sm font-bold tracking-wide uppercase flex items-center gap-2">
+                        eCV Generador AI
+                    </h1>
+                    <a href="https://e-onyx.com" target="_blank" class="text-[10px] text-gray-400 font-medium hover:text-brand-blueLight transition-colors">
+                        by e-Onyx
+                    </a>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 md:gap-4">
+                <span id="header-area-label" class="hidden lg:inline-block text-xs font-semibold bg-gray-800 text-gray-300 px-3 py-1 rounded-full border border-gray-700">
+                    Sector: General
+                </span>
+                
+                <!-- MENÚ DE EXPORTACIÓN -->
+                <div class="relative" id="export-menu-container">
+                    <button onclick="toggleExportMenu()" class="flex items-center gap-2 bg-white text-brand-black px-3 md:px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors text-sm shadow-sm">
+                        <i class="ph-bold ph-download-simple"></i>
+                        <span class="hidden sm:inline">Exportar CV</span>
+                        <span class="sm:hidden">Exportar</span>
+                        <i class="ph-bold ph-caret-down transition-transform" id="export-caret"></i>
+                    </button>
+
+                    <div id="export-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 hidden overflow-hidden">
+                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            Opciones de formato
+                        </div>
+                        <button onclick="exportToPDF()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-brand-blueLight hover:text-brand-blue flex items-center gap-3 transition-colors">
+                            <i class="ph ph-printer text-lg"></i> 
+                            <div>
+                                <div class="font-bold">Documento PDF</div>
+                                <div class="text-[11px] text-gray-500">Diseño listo para imprimir</div>
+                            </div>
+                        </button>
+                        <button onclick="exportToTXT()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-brand-blueLight hover:text-brand-blue flex items-center gap-3 transition-colors">
+                            <i class="ph ph-file-text text-lg"></i>
+                            <div>
+                                <div class="font-bold">Texto Plano (.txt)</div>
+                                <div class="text-[11px] text-gray-500">Optimizado para ATS</div>
+                            </div>
+                        </button>
+                        <button onclick="exportToJSON()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-brand-blueLight hover:text-brand-blue flex items-center gap-3 transition-colors">
+                            <i class="ph ph-file-code text-lg"></i>
+                            <div>
+                                <div class="font-bold">Archivo de Datos (.json)</div>
+                                <div class="text-[11px] text-gray-500">Respaldo de información</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="flex-1 flex flex-col md:flex-row w-full relative z-10 min-h-0 bg-white">
+            
+            <!-- LADO IZQUIERDO: EDITOR -->
+            <section class="w-full md:w-1/2 lg:w-[45%] md:overflow-y-auto custom-scrollbar border-b md:border-b-0 md:border-r border-gray-200 no-print p-4 md:p-8 bg-white">
+                <div class="max-w-2xl mx-auto space-y-8 pb-10">
+                    
+                    <!-- SECCIÓN: INFORMACIÓN PERSONAL -->
+                    <div class="editor-section-card space-y-5">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-user-circle text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Info Personal</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2 input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Nombre Completo</label>
+                                <input type="text" id="input-fullName" oninput="updateData('personal', 'fullName', this.value)" class="input-pro" placeholder="Ej. Juan Pérez" />
+                            </div>
+                            <div class="md:col-span-2 input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Puesto / Profesión</label>
+                                <input type="text" id="input-jobTitle" oninput="updateData('personal', 'jobTitle', this.value)" class="input-pro" placeholder="Ej. Ingeniero de Software Senior" />
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Email</label>
+                                <input type="email" id="input-email" oninput="updateData('personal', 'email', this.value)" class="input-pro" placeholder="correo@ejemplo.com" />
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Teléfono</label>
+                                <input type="text" id="input-phone" oninput="updateData('personal', 'phone', this.value)" class="input-pro" placeholder="+34 600 000 000" />
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Ubicación</label>
+                                <input type="text" id="input-location" oninput="updateData('personal', 'location', this.value)" class="input-pro" placeholder="Madrid, España" />
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">LinkedIn / Web</label>
+                                <input type="text" id="input-website" oninput="updateData('personal', 'website', this.value)" class="input-pro" placeholder="linkedin.com/in/usuario" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: CAMPOS DINÁMICOS POR INDUSTRIA -->
+                    <div id="dynamic-fields-container" class="editor-section-card space-y-5 hidden">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-sliders-horizontal text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Info de Sector (<span id="dynamic-sector-name"></span>)</h2>
+                        </div>
+                        <div id="dynamic-fields-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: RESUMEN (CON IA) -->
+                    <div class="editor-section-card space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-3 gap-3">
+                            <div class="flex items-center gap-2">
+                                <i class="ph-fill ph-text-align-left text-xl text-brand-blue"></i>
+                                <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Perfil Profesional</h2>
+                            </div>
+                            <button id="btn-generate-summary" onclick="generateSummary()" class="flex items-center justify-center gap-1.5 text-xs bg-brand-black text-white px-3 py-2 rounded-lg hover:bg-brand-blue transition-colors font-bold disabled:opacity-50 shadow-sm w-full sm:w-auto">
+                                <i id="icon-summary-ai" class="ph-bold ph-sparkle"></i>
+                                <span id="text-summary-ai">Redactar con IA</span>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-gray-500 font-medium">Un buen resumen destaca tu propuesta de valor en 3-4 líneas. La IA usará tu puesto y sector para redactarlo.</p>
+                        <textarea id="input-summary" oninput="updateData('summary', null, this.value)" rows="5" class="input-pro resize-none" placeholder="Escribe un breve resumen de tu trayectoria..."></textarea>
+                    </div>
+
+                    <!-- SECCIÓN: HABILIDADES -->
+                    <div class="editor-section-card space-y-4">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-star text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Habilidades Clave</h2>
+                        </div>
+                        <div class="input-group">
+                            <label class="block text-[11px] text-gray-500 font-medium mb-2">Separa las habilidades con comas.</label>
+                            <input type="text" id="input-skills" oninput="updateData('skills', null, this.value)" class="input-pro" placeholder="Cargando sugerencias..." />
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: EXPERIENCIA -->
+                    <div class="editor-section-card space-y-4">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-briefcase text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Experiencia</h2>
+                        </div>
+                        
+                        <div id="experience-list" class="space-y-4">
+                            <!-- Dinámico -->
+                        </div>
+                        
+                        <button onclick="addExperience()" class="w-full py-3 border border-dashed border-gray-300 rounded-xl text-sm font-bold text-gray-500 hover:border-brand-blue hover:text-brand-blue hover:bg-blue-50 transition-all flex items-center justify-center gap-2 mt-4">
+                            <i class="ph-bold ph-plus"></i> Añadir Experiencia
+                        </button>
+                    </div>
+
+                    <!-- SECCIÓN: EDUCACIÓN -->
+                    <div class="editor-section-card space-y-4">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-graduation-cap text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Educación</h2>
+                        </div>
+                        
+                        <div id="education-list" class="space-y-4">
+                            <!-- Dinámico -->
+                        </div>
+                        
+                        <button onclick="addEducation()" class="w-full py-3 border border-dashed border-gray-300 rounded-xl text-sm font-bold text-gray-500 hover:border-brand-blue hover:text-brand-blue hover:bg-blue-50 transition-all flex items-center justify-center gap-2 mt-4">
+                            <i class="ph-bold ph-plus"></i> Añadir Educación
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- LADO DERECHO: VISTA PREVIA DEL CV -->
+            <section class="w-full md:w-1/2 lg:w-[55%] md:overflow-y-auto bg-gray-100 custom-scrollbar p-4 md:p-8 flex justify-center items-start">
+                
+                <!-- DOCUMENTO TIPO A4 -->
+                <div id="cv-preview-container" class="bg-white w-full max-w-[210mm] shadow-2xl relative break-words" style="min-height: 297mm; padding: 40px md:padding: 50px;">
+                    <!-- Inyectado por JS -->
+                </div>
+                
+            </section>
+        </main>
+    </div>
+
+    <!-- SCRIPT PRINCIPAL -->
+    <script>
+        // --- CONFIGURACIÓN DE ÁREAS Y CAMPOS DINÁMICOS ---
+        const areaConfig = {
+            tecnologia: { 
+                name: "Tecnología & IT", 
+                skillsPlaceholder: "Ej: React, Python, AWS, Metodologías Ágiles...",
+                dynamicFields: [
+                    { id: 'portfolio', label: 'GitHub / Portfolio', placeholder: 'github.com/usuario' },
+                    { id: 'stack', label: 'Stack Principal (Herramientas)', placeholder: 'Ej. MERN, LAMP, AWS...' }
+                ]
+            },
+            salud: { 
+                name: "Salud & Medicina", 
+                skillsPlaceholder: "Ej: Atención al paciente, RCP, Triage, Historias clínicas...",
+                dynamicFields: [
+                    { id: 'cedula', label: 'Número de Colegiado / Cédula', placeholder: 'Ej. 12345678' },
+                    { id: 'especialidad', label: 'Especialidad Médica', placeholder: 'Ej. Pediatría, Cirugía General...' }
+                ]
+            },
+            diseno: { 
+                name: "Diseño & Arte", 
+                skillsPlaceholder: "Ej: Figma, Adobe Suite, UX/UI, Prototipado...",
+                dynamicFields: [
+                    { id: 'behance', label: 'Behance / Dribbble / Portfolio', placeholder: 'behance.net/usuario' },
+                    { id: 'estilo', label: 'Estilo / Enfoque', placeholder: 'Ej. Minimalista, User-Centered...' }
+                ]
+            },
+            negocios: { 
+                name: "Ventas & Negocios", 
+                skillsPlaceholder: "Ej: CRM, Negociación B2B, Análisis de mercado, HubSpot...",
+                dynamicFields: [
+                    { id: 'kpi', label: 'Métrica/KPI Destacado', placeholder: 'Ej. +30% crecimiento anual' }
+                ]
+            },
+            educacion: { 
+                name: "Educación", 
+                skillsPlaceholder: "Ej: Pedagogía, Moodle, Planificación, Evaluación continua...",
+                dynamicFields: [
+                    { id: 'nivelImpartido', label: 'Nivel Educativo que imparte', placeholder: 'Ej. Primaria, Universitaria...' }
+                ]
+            },
+            general: { 
+                name: "General / Otro", 
+                skillsPlaceholder: "Ej: Trabajo en equipo, Resolución de problemas, Gestión de tiempo...",
+                dynamicFields: []
+            }
+        };
+
+        const educationLevels = [
+            "Bachillerato / Preparatoria",
+            "Técnico / Formación Profesional",
+            "Licenciatura / Grado Universitario",
+            "Maestría / Posgrado",
+            "Doctorado",
+            "Diplomado / Certificación",
+            "Otro"
+        ];
+
+        // --- ESTADO DEL CV ---
+        let currentArea = 'general';
+        let cvData = {
+            personal: { fullName: '', jobTitle: '', email: '', phone: '', location: '', website: '' },
+            areaSpecific: {}, 
+            summary: '',
+            experience: [],
+            education: [],
+            skills: ''
+        };
+
+        // --- INICIALIZACIÓN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if(savedKey) {
+                document.getElementById('input-api-key').value = savedKey;
+            }
+
+            document.addEventListener('mousedown', (e) => {
+                const container = document.getElementById('export-menu-container');
+                const dropdown = document.getElementById('export-dropdown');
+                if (container && dropdown && !container.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                    document.getElementById('export-caret').classList.remove('rotate-180');
+                }
+            });
+        });
+
+        // --- MANEJO DE API KEY MODAL ---
+        function openApiModal() {
+            const modal = document.getElementById('api-modal');
+            modal.classList.remove('hidden');
+        }
+        
+        function closeApiModal() {
+            const modal = document.getElementById('api-modal');
+            modal.classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('input-api-key').value.trim();
+            if(key) {
+                localStorage.setItem('gemini_api_key', key);
+                showToast("API Key guardada correctamente.", 'success');
+                closeApiModal();
+            } else {
+                localStorage.removeItem('gemini_api_key');
+                showToast("API Key eliminada.", 'success');
+                closeApiModal();
+            }
+        }
+
+        // --- FLUJO DE PANTALLAS Y BOTONES DE VOLVER ATRÁS ---
+        function goToAreaSelection() {
+            const landing = document.getElementById('landing-screen');
+            const selection = document.getElementById('area-selection-screen');
+            
+            landing.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => {
+                landing.classList.add('hidden');
+                selection.classList.remove('hidden');
+                selection.classList.add('animate-reveal');
+            }, 300);
+        }
+        
+        function goBackToLanding() {
+            const landing = document.getElementById('landing-screen');
+            const selection = document.getElementById('area-selection-screen');
+            
+            selection.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            selection.classList.remove('animate-reveal');
+            
+            setTimeout(() => {
+                selection.classList.add('hidden');
+                selection.classList.remove('opacity-0');
+                landing.classList.remove('hidden');
+                landing.classList.remove('opacity-0');
+            }, 300);
+        }
+
+        function selectArea(areaKey) {
+            currentArea = areaKey;
+            
+            document.getElementById('header-area-label').textContent = `Sector: ${areaConfig[areaKey].name}`;
+            document.getElementById('input-skills').placeholder = areaConfig[areaKey].skillsPlaceholder;
+            
+            renderDynamicFields();
+
+            if(cvData.experience.length === 0) addExperience(false);
+            if(cvData.education.length === 0) addEducation(false);
+
+            const screen1 = document.getElementById('area-selection-screen');
+            const screen2 = document.getElementById('main-editor-screen');
+            
+            screen1.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => {
+                screen1.classList.add('hidden');
+                screen2.classList.remove('hidden');
+                screen2.classList.add('animate-reveal');
+                renderPreview();
+                window.scrollTo(0,0); 
+            }, 300);
+        }
+        
+        function goBackFromEditor() {
+            const screen1 = document.getElementById('area-selection-screen');
+            const screen2 = document.getElementById('main-editor-screen');
+            
+            screen2.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            screen2.classList.remove('animate-reveal');
+            
+            setTimeout(() => {
+                screen2.classList.add('hidden');
+                screen2.classList.remove('opacity-0');
+                screen1.classList.remove('hidden');
+                screen1.classList.remove('opacity-0');
+                screen1.classList.add('animate-reveal');
+            }, 300);
+        }
+
+        function renderDynamicFields() {
+            const container = document.getElementById('dynamic-fields-container');
+            const grid = document.getElementById('dynamic-fields-grid');
+            const fields = areaConfig[currentArea].dynamicFields;
+
+            cvData.areaSpecific = {};
+
+            if (fields && fields.length > 0) {
+                document.getElementById('dynamic-sector-name').textContent = areaConfig[currentArea].name;
+                grid.innerHTML = '';
+                fields.forEach(field => {
+                    cvData.areaSpecific[field.id] = '';
+                    grid.innerHTML += `
+                        <div class="input-group">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">${field.label}</label>
+                            <input type="text" oninput="updateAreaSpecificData('${field.id}', this.value)" class="input-pro" placeholder="${field.placeholder}" />
+                        </div>
+                    `;
+                });
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        // --- MANEJADORES DE ESTADO ---
+        function updateData(section, field, value) {
+            if (section === 'personal') cvData.personal[field] = value;
+            else if (section === 'summary' || section === 'skills') cvData[section] = value;
+            renderPreview();
+        }
+
+        function updateAreaSpecificData(key, value) {
+            cvData.areaSpecific[key] = value;
+            renderPreview();
+        }
+
+        function updateArrayData(section, id, field, value) {
+            const index = cvData[section].findIndex(item => item.id === id);
+            if (index !== -1) {
+                cvData[section][index][field] = value;
+                renderPreview();
+            }
+        }
+
+        // --- EXPERIENCIA ---
+        function addExperience(reRender = true) {
+            cvData.experience.push({ id: crypto.randomUUID(), company: '', role: '', startDate: '', endDate: '', description: '' });
+            if(reRender) { renderExperienceEditor(); renderPreview(); } else { renderExperienceEditor(); }
+        }
+
+        function removeExperience(id) {
+            cvData.experience = cvData.experience.filter(exp => exp.id !== id);
+            renderExperienceEditor(); renderPreview();
+        }
+
+        function renderExperienceEditor() {
+            const container = document.getElementById('experience-list');
+            container.innerHTML = '';
+            
+            cvData.experience.forEach(exp => {
+                const div = document.createElement('div');
+                div.className = 'p-4 border border-gray-200 rounded-xl bg-gray-50/50 relative group';
+                div.innerHTML = `
+                    <button onclick="removeExperience('${exp.id}')" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors" title="Eliminar">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 pr-6">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Puesto</label>
+                            <input type="text" value="${exp.role}" oninput="updateArrayData('experience', '${exp.id}', 'role', this.value)" class="input-pro !py-1.5" placeholder="Ej. Especialista" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Empresa</label>
+                            <input type="text" value="${exp.company}" oninput="updateArrayData('experience', '${exp.id}', 'company', this.value)" class="input-pro !py-1.5" placeholder="Ej. Empresa Corp" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Inicio</label>
+                            <input type="text" value="${exp.startDate}" oninput="updateArrayData('experience', '${exp.id}', 'startDate', this.value)" class="input-pro !py-1.5" placeholder="Ej. 2020" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Fin</label>
+                            <input type="text" value="${exp.endDate}" oninput="updateArrayData('experience', '${exp.id}', 'endDate', this.value)" class="input-pro !py-1.5" placeholder="Ej. Presente" />
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-1.5 gap-2">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase">Logros y Tareas</label>
+                            <button id="btn-exp-${exp.id}" onclick="improveExperience('${exp.id}')" class="flex items-center justify-center gap-1 text-[10px] bg-brand-black text-white px-2 py-1 rounded hover:bg-brand-blue transition-colors font-bold w-full sm:w-auto">
+                                <i id="icon-exp-${exp.id}" class="ph-bold ph-magic-wand"></i>
+                                <span id="text-exp-${exp.id}">Mejorar texto</span>
+                            </button>
+                        </div>
+                        <textarea id="desc-exp-${exp.id}" oninput="updateArrayData('experience', '${exp.id}', 'description', this.value)" rows="3" class="input-pro resize-none text-sm" placeholder="Describe brevemente tus responsabilidades y logros principales...">${exp.description}</textarea>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // --- EDUCACIÓN ---
+        function addEducation(reRender = true) {
+            cvData.education.push({ id: crypto.randomUUID(), level: '', school: '', degree: '', year: '' });
+            if(reRender) { renderEducationEditor(); renderPreview(); } else { renderEducationEditor(); }
+        }
+
+        function removeEducation(id) {
+            cvData.education = cvData.education.filter(edu => edu.id !== id);
+            renderEducationEditor(); renderPreview();
+        }
+
+        function renderEducationEditor() {
+            const container = document.getElementById('education-list');
+            container.innerHTML = '';
+            
+            cvData.education.forEach(edu => {
+                const optionsHTML = educationLevels.map(lvl => 
+                    `<option value="${lvl}" ${edu.level === lvl ? 'selected' : ''}>${lvl}</option>`
+                ).join('');
+
+                const div = document.createElement('div');
+                div.className = 'p-4 border border-gray-200 rounded-xl bg-gray-50/50 relative group';
+                div.innerHTML = `
+                    <button onclick="removeEducation('${edu.id}')" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors" title="Eliminar">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-6">
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Nivel de Estudios (Grado Máximo)</label>
+                            <select onchange="updateArrayData('education', '${edu.id}', 'level', this.value)" class="input-pro !py-1.5 font-medium text-gray-700">
+                                <option value="" disabled ${!edu.level ? 'selected' : ''}>Selecciona un nivel...</option>
+                                ${optionsHTML}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Institución Educativa</label>
+                            <input type="text" value="${edu.school}" oninput="updateArrayData('education', '${edu.id}', 'school', this.value)" class="input-pro !py-1.5" placeholder="Ej. Universidad Autónoma" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Carrera / Especialidad</label>
+                            <input type="text" value="${edu.degree}" oninput="updateArrayData('education', '${edu.id}', 'degree', this.value)" class="input-pro !py-1.5" placeholder="Ej. Ing. en Sistemas" />
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Año o Período</label>
+                            <input type="text" value="${edu.year}" oninput="updateArrayData('education', '${edu.id}', 'year', this.value)" class="input-pro !py-1.5" placeholder="Ej. 2018 - 2022" />
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // --- RENDERIZADO DE LA VISTA PREVIA ---
+        function renderPreview() {
+            const container = document.getElementById('cv-preview-container');
+            const { personal, summary, experience, education, skills, areaSpecific } = cvData;
+
+            const displayName = personal.fullName || 'Nombre Completo';
+            const displayTitle = personal.jobTitle || 'Profesión';
+
+            let contactHTML = '';
+            if (personal.email) contactHTML += `<div class="flex items-center gap-1.5"><i class="ph-bold ph-envelope-simple text-brand-blue"></i><span class="text-xs font-medium text-gray-600">${escapeHTML(personal.email)}</span></div>`;
+            if (personal.phone) contactHTML += `<div class="flex items-center gap-1.5"><i class="ph-bold ph-phone text-brand-blue"></i><span class="text-xs font-medium text-gray-600">${escapeHTML(personal.phone)}</span></div>`;
+            if (personal.location) contactHTML += `<div class="flex items-center gap-1.5"><i class="ph-bold ph-map-pin text-brand-blue"></i><span class="text-xs font-medium text-gray-600">${escapeHTML(personal.location)}</span></div>`;
+            if (personal.website) contactHTML += `<div class="flex items-center gap-1.5"><i class="ph-bold ph-globe text-brand-blue"></i><span class="text-xs font-medium text-gray-600">${escapeHTML(personal.website)}</span></div>`;
+
+            let dynamicHTML = '';
+            const activeDynamicFields = Object.entries(areaSpecific).filter(([k, v]) => v.trim() !== '');
+            if (activeDynamicFields.length > 0) {
+                activeDynamicFields.forEach(([key, value]) => {
+                    const fieldConfig = areaConfig[currentArea].dynamicFields.find(f => f.id === key);
+                    if(fieldConfig) {
+                        dynamicHTML += `<div class="flex items-center gap-1.5"><i class="ph-bold ph-check-circle text-brand-blue"></i><span class="text-xs font-semibold text-brand-black">${fieldConfig.label}:</span> <span class="text-xs text-gray-600">${escapeHTML(value)}</span></div>`;
+                    }
+                });
+            }
+
+            const validExp = experience.filter(exp => exp.role || exp.company || exp.description);
+            const validEdu = education.filter(edu => edu.degree || edu.school || edu.level);
+
+            let experienceHTML = '';
+            if (validExp.length > 0) {
+                experienceHTML = `
+                    <section class="mt-8">
+                        <h3 class="text-sm font-bold text-brand-black uppercase tracking-widest border-b-2 border-brand-black pb-1 mb-5">Experiencia Profesional</h3>
+                        <div class="space-y-6">
+                            ${validExp.map(exp => `
+                                <div>
+                                    <div class="flex justify-between items-baseline mb-0.5">
+                                        <h4 class="text-base font-bold text-brand-black">${escapeHTML(exp.role) || 'Puesto no especificado'}</h4>
+                                        <span class="text-xs font-bold text-brand-blue tracking-wide text-right ml-2">
+                                            ${escapeHTML(exp.startDate)} ${exp.startDate && exp.endDate ? '—' : ''} ${escapeHTML(exp.endDate)}
+                                        </span>
+                                    </div>
+                                    <div class="text-sm font-semibold text-gray-500 mb-2">${escapeHTML(exp.company) || 'Empresa'}</div>
+                                    ${exp.description ? `<div class="text-[13px] text-gray-700 leading-relaxed whitespace-pre-wrap">${escapeHTML(exp.description)}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                `;
+            }
+
+            let educationHTML = '';
+            if (validEdu.length > 0) {
+                educationHTML = `
+                    <section class="mt-8">
+                        <h3 class="text-sm font-bold text-brand-black uppercase tracking-widest border-b-2 border-brand-black pb-1 mb-5">Formación Académica</h3>
+                        <div class="space-y-5">
+                            ${validEdu.map(edu => `
+                                <div>
+                                    ${edu.level ? `<div class="text-[10px] font-bold text-brand-blue uppercase tracking-wider mb-0.5">${escapeHTML(edu.level)}</div>` : ''}
+                                    <h4 class="text-[13px] font-bold text-brand-black leading-tight">${escapeHTML(edu.degree) || 'Especialidad / Carrera'}</h4>
+                                    <div class="flex justify-between items-baseline mt-1">
+                                        <div class="text-xs font-medium text-gray-500">${escapeHTML(edu.school) || 'Institución'}</div>
+                                        <div class="text-xs font-bold text-brand-black text-right ml-2">${escapeHTML(edu.year)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                `;
+            }
+
+            let skillsHTML = '';
+            if (skills.trim()) {
+                const skillsList = skills.split(',').map(s => s.trim()).filter(s => s !== '');
+                skillsHTML = `
+                    <section class="mt-8">
+                        <h3 class="text-sm font-bold text-brand-black uppercase tracking-widest border-b-2 border-brand-black pb-1 mb-5">Habilidades</h3>
+                        <div class="flex flex-wrap gap-2">
+                            ${skillsList.map(skill => `<span class="bg-gray-100 text-brand-black text-[11px] font-bold px-2.5 py-1.5 rounded-md border border-gray-200">${escapeHTML(skill)}</span>`).join('')}
+                        </div>
+                    </section>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="mb-8">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-brand-black uppercase tracking-tight mb-2">
+                        ${escapeHTML(displayName)}
+                    </h1>
+                    <h2 class="text-lg font-bold text-brand-blue uppercase tracking-widest mb-4">
+                        ${escapeHTML(displayTitle)}
+                    </h2>
+                    
+                    ${contactHTML || dynamicHTML ? `
+                        <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-gray-100">
+                            <div class="flex flex-wrap gap-x-5 gap-y-2">${contactHTML}</div>
+                            ${dynamicHTML ? `<div class="flex flex-wrap gap-x-5 gap-y-2 mt-1">${dynamicHTML}</div>` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+
+                ${summary ? `
+                    <section class="mt-8">
+                        <h3 class="text-sm font-bold text-brand-black uppercase tracking-widest border-b-2 border-brand-black pb-1 mb-3">Perfil Profesional</h3>
+                        <p class="text-[13px] text-gray-700 leading-relaxed whitespace-pre-wrap">${escapeHTML(summary)}</p>
+                    </section>
+                ` : ''}
+
+                <div class="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-8 md:gap-12">
+                    <div>${experienceHTML}</div>
+                    <div>
+                        ${skillsHTML}
+                        ${educationHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function escapeHTML(str) {
+            if(!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag])
+            );
+        }
+
+        // --- SISTEMA TOAST ---
+        let toastTimeout;
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast-container');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-message');
+            
+            text.textContent = message;
+            
+            if (type === 'success') {
+                toast.className = 'fixed bottom-4 right-4 z-[70] flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white transition-all duration-300 no-print bg-emerald-600 toast-enter';
+                icon.className = 'ph-bold ph-check-circle text-lg';
+            } else {
+                toast.className = 'fixed bottom-4 right-4 z-[70] flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white transition-all duration-300 no-print bg-red-600 toast-enter';
+                icon.className = 'ph-bold ph-warning-circle text-lg';
+            }
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(hideToast, 4000);
+        }
+        function hideToast() {
+            document.getElementById('toast-container').classList.add('hidden');
+        }
+
+        // --- EXPORTACIÓN ---
+        function toggleExportMenu() {
+            document.getElementById('export-dropdown').classList.toggle('hidden');
+            document.getElementById('export-caret').classList.toggle('rotate-180');
+        }
+
+        function exportToPDF() { window.print(); toggleExportMenu(); }
+        
+        function exportToJSON() {
+            downloadFile(JSON.stringify(cvData, null, 2), 'eCV_profesional.json', 'application/json');
+        }
+
+        function exportToTXT() {
+            let txt = `CURRÍCULUM VITAE: ${cvData.personal.fullName || 'Sin nombre'}\n`;
+            txt += `Puesto: ${cvData.personal.jobTitle || 'No especificado'}\n`;
+            txt += `Sector: ${areaConfig[currentArea].name}\n`;
+            txt += `=================================================\n\n`;
+            
+            txt += `--- CONTACTO ---\n`;
+            if(cvData.personal.email) txt += `Email: ${cvData.personal.email}\n`;
+            if(cvData.personal.phone) txt += `Teléfono: ${cvData.personal.phone}\n`;
+            if(cvData.personal.location) txt += `Ubicación: ${cvData.personal.location}\n`;
+            if(cvData.personal.website) txt += `Web/LinkedIn: ${cvData.personal.website}\n`;
+            
+            const activeDynamicFields = Object.entries(cvData.areaSpecific).filter(([k, v]) => v.trim() !== '');
+            if (activeDynamicFields.length > 0) {
+                activeDynamicFields.forEach(([key, value]) => {
+                    const fieldConfig = areaConfig[currentArea].dynamicFields.find(f => f.id === key);
+                    if(fieldConfig) txt += `${fieldConfig.label}: ${value}\n`;
+                });
+            }
+            txt += `\n`;
+
+            if (cvData.summary) {
+                txt += `--- PERFIL PROFESIONAL ---\n`;
+                txt += `${cvData.summary}\n\n`;
+            }
+
+            const validExp = cvData.experience.filter(exp => exp.role || exp.company);
+            if (validExp.length > 0) {
+                txt += `--- EXPERIENCIA PROFESIONAL ---\n`;
+                validExp.forEach(exp => {
+                    txt += `• Puesto: ${exp.role || 'No especificado'}\n`;
+                    txt += `  Empresa: ${exp.company || 'No especificado'}\n`;
+                    txt += `  Periodo: ${exp.startDate || ''} - ${exp.endDate || ''}\n`;
+                    if (exp.description) txt += `  Descripción:\n    ${exp.description.replace(/\n/g, '\n    ')}\n`;
+                    txt += `\n`;
+                });
+            }
+
+            const validEdu = cvData.education.filter(edu => edu.degree || edu.school);
+            if (validEdu.length > 0) {
+                txt += `--- FORMACIÓN ACADÉMICA ---\n`;
+                validEdu.forEach(edu => {
+                    if (edu.level) txt += `• Nivel: ${edu.level}\n`;
+                    txt += `  Grado/Título: ${edu.degree || 'No especificado'}\n`;
+                    txt += `  Institución: ${edu.school || 'No especificado'}\n`;
+                    if (edu.year) txt += `  Periodo: ${edu.year}\n`;
+                    txt += `\n`;
+                });
+            }
+
+            if (cvData.skills) {
+                txt += `--- HABILIDADES ---\n`;
+                txt += `${cvData.skills}\n`;
+            }
+
+            downloadFile(txt, 'eCV_profesional.txt', 'text/plain');
+        }
+
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a'); link.href = url; link.download = filename;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            URL.revokeObjectURL(url); toggleExportMenu();
+        }
+
+        // --- INTEGRACIÓN GEMINI API CON MANEJO DE KEY LOCAL ---
+        async function callGeminiAI(prompt, systemInstruction) {
+            // Se usa la constante de entorno si existe, sino busca en el LocalStorage
+            const envKey = "AQ.Ab8RN6Io1dlUECfkfaeGGXHyZwJOh1oznmKCtDRTqRmRxB7SAQ"; 
+            const localKey = localStorage.getItem('gemini_api_key') || "";
+            const apiKey = envKey || localKey;
+
+            if (!apiKey) {
+                openApiModal();
+                throw new Error("Por favor, configura tu API Key de Gemini para usar la IA.");
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+            const options = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) };
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        if (response.status === 400 || response.status === 403) {
+                            openApiModal();
+                            throw new Error("La API Key proporcionada no es válida o ha caducado.");
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                } catch (error) {
+                    if (error.message.includes("API Key")) throw error; 
+                    if (i === 4) throw new Error("No se pudo conectar con la IA tras varios intentos.");
+                    await new Promise(res => setTimeout(res, [1000, 2000, 4000, 8000, 16000][i]));
+                }
+            }
+        }
+
+        async function generateSummary() {
+            if (!cvData.personal.jobTitle) { showToast("Ingresa tu Puesto (Paso 1) antes de redactar.", 'error'); return; }
+            
+            const btn = document.getElementById('btn-generate-summary');
+            const icon = document.getElementById('icon-summary-ai');
+            const text = document.getElementById('text-summary-ai');
+            
+            btn.disabled = true; icon.className = 'ph-bold ph-spinner animate-spin'; text.textContent = 'Generando...';
+
+            try {
+                const areaContext = areaConfig[currentArea].name;
+                const dynamicContextStr = Object.entries(cvData.areaSpecific)
+                    .filter(([k, v]) => v.trim() !== '')
+                    .map(([k, v]) => `${areaConfig[currentArea].dynamicFields.find(f=>f.id===k)?.label}: ${v}`).join(', ');
+                
+                const prompt = `Puesto: ${cvData.personal.jobTitle}. Sector: ${areaContext}. Habilidades: ${cvData.skills}. Extras: ${dynamicContextStr}.`;
+                const systemInstruction = `Eres un experto Headhunter. Redacta un perfil profesional (resumen) muy serio, impactante y conciso (máximo 4 líneas). Adapta fuertemente el tono al sector indicado. NO uses saludos ni comillas. Responde ÚNICAMENTE con el perfil en español.`;
+                
+                const generatedText = await callGeminiAI(prompt, systemInstruction);
+                cvData.summary = generatedText.trim();
+                document.getElementById('input-summary').value = cvData.summary;
+                renderPreview();
+                showToast("Perfil redactado exitosamente.", 'success');
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                btn.disabled = false; icon.className = 'ph-bold ph-sparkle'; text.textContent = 'Redactar con IA';
+            }
+        }
+
+        async function improveExperience(id) {
+            const exp = cvData.experience.find(e => e.id === id);
+            if (!exp.description || !exp.role) { showToast("Llena el Puesto y una descripción básica antes.", 'error'); return; }
+
+            const btn = document.getElementById(`btn-exp-${id}`);
+            const icon = document.getElementById(`icon-exp-${id}`);
+            const text = document.getElementById(`text-exp-${id}`);
+            
+            btn.disabled = true; icon.className = 'ph-bold ph-spinner animate-spin'; text.textContent = 'Procesando...';
+
+            try {
+                const prompt = `Sector: ${areaConfig[currentArea].name}. Puesto: ${exp.role} en ${exp.company}.\nDescripción original:\n${exp.description}`;
+                const systemInstruction = `Eres un experto en currículums. Transforma la descripción en viñetas corporativas y orientadas a logros. Usa verbos de acción fuertes en pasado. Formato: usa "• " al inicio. Responde ÚNICAMENTE con las viñetas en español.`;
+
+                const generatedText = await callGeminiAI(prompt, systemInstruction);
+                exp.description = generatedText.trim();
+                document.getElementById(`desc-exp-${id}`).value = exp.description;
+                renderPreview();
+                showToast("Texto mejorado.", 'success');
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                btn.disabled = false; icon.className = 'ph-bold ph-magic-wand'; text.textContent = 'Mejorar texto';
+            }
+        }
+    </script>
+</body>
+</html>
