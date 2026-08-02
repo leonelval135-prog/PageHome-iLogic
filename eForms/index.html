@@ -1153,7 +1153,15 @@
                 html2pdf().set(opt).from(printWrapper).outputPdf('blob').then(function(pdfBlob) {
                     
                     const formData = new FormData(form);
+                    // Adjuntamos el PDF generado
                     formData.append('Documento_Resumen_PDF', pdfBlob, 'Briefing_Proyecto_e-Onyx.pdf');
+
+                    // Asegurarnos de que si hay un logo, se envíe correctamente.
+                    // FormSubmit soporta múltiples adjuntos si los nombres de los campos son diferentes.
+                    const fileInput = document.getElementById('file-upload');
+                    if (fileInput.files.length > 0) {
+                         formData.append('Logotipo_Adjunto', fileInput.files[0], fileInput.files[0].name);
+                    }
 
                     fetch("https://formsubmit.co/ajax/contact-support@e-onyx.com", {
                         method: "POST", body: formData, headers: { 'Accept': 'application/json' }
