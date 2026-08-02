@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formularios de e-Onyx</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- html2pdf.js para generación de PDF adjunto -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Fraunces', 'serif'],
+                    },
+                    colors: {
+                        brand: { 50:'#f9fafb',100:'#f3f4f6',200:'#e5e7eb',500:'#000000',600:'#000000',900:'#000000' },
+                        gold: { 50:'#fbf8ef', 100:'#f3ecd2', 300:'#e2cd8a', 500:'#b8933c', 600:'#96762a', 700:'#755a1f' }
+                    },
+                    boxShadow: {
+                        'gold-glow': '0 0 0 3px rgba(184,147,60,0.18)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { color-scheme: light; }
+        html.dark { color-scheme: dark; }
+
+        body { transition: background-color .4s ease, color .4s ease; }
+
+        /* ---------- Progreso ---------- */
+        .progress-fill { transition: width .5s cubic-bezier(.65,0,.35,1); }
+        .step-dot {
+            transition: all .35s cubic-bezier(.65,0,.35,1);
+        }
+        .step-dot.done { background-color: #000; border-color:#000; color:#fff; }
+        .step-dot.active { background-color:#000; border-color:#000; color:#fff; box-shadow:0 0 0 5px rgba(0,0,0,0.1); transform: scale(1.08); }
+        html.dark .step-dot.done, html.dark .step-dot.active { background-color:#fff; border-color:#fff; color:#000; }
+        html.dark .step-dot.active { box-shadow:0 0 0 5px rgba(255,255,255,0.12); }
+
+        /* ---------- Transiciones de paso ---------- */
+        .form-step { display: none; }
+        .form-step.active { display: block; animation: stepIn .45s cubic-bezier(.22,1,.36,1) both; }
+        @keyframes stepIn {
+            from { opacity: 0; transform: translateY(14px) scale(.99); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .form-step.leaving { animation: stepOut .25s ease forwards; }
+        @keyframes stepOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        .dynamic-section, .sub-dynamic-section { display: none; opacity: 0; }
+        .dynamic-section.active, .sub-dynamic-section.active {
+            display: block; opacity: 1; animation: fadeInDown .45s cubic-bezier(.22,1,.36,1) both;
+        }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ---------- Reveal al hacer scroll ---------- */
+        .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1); }
+        .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+        /* ---------- Tarjetas de proyecto ---------- */
+        .project-card {
+            transition: transform .25s cubic-bezier(.22,1,.36,1), border-color .25s ease, box-shadow .25s ease, background-color .25s ease;
+            border: 2px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+        .project-card::after {
+            content:''; position:absolute; inset:0; background: radial-gradient(120px 80px at var(--mx,50%) var(--my,50%), rgba(0,0,0,0.06), transparent 70%);
+            opacity:0; transition: opacity .3s ease;
+        }
+        .project-card:hover::after { opacity: 1; }
+        .project-card:hover { border-color: #000000; transform: translateY(-4px); box-shadow: 0 12px 24px -12px rgba(0,0,0,.18); }
+        .project-card:active { transform: translateY(-1px) scale(.98); }
+        .project-card.selected {
+            border-color: #000000; background-color: #fafafa; box-shadow: 0 10px 28px -10px rgba(0,0,0,0.22);
+        }
+        .project-card.selected .icon-container { color: #ffffff; background-color: #000000; transform: scale(1.06); }
+        .project-card.selected .check-badge { opacity: 1; transform: scale(1); }
+        .check-badge { opacity:0; transform: scale(.5); transition: all .25s cubic-bezier(.22,1,.36,1); }
+        .icon-container { transition: all .3s cubic-bezier(.22,1,.36,1); }
+
+        html.dark .project-card { border-color:#27272a; }
+        html.dark .project-card.selected { background-color:#18181b; border-color:#fff; }
+        html.dark .project-card.selected .icon-container { background-color:#fff; color:#000; }
+
+        /* ---------- Inputs ---------- */
+        .form-input, .form-textarea, .form-select {
+            width: 100%; padding: 0.75rem 1rem; border-radius: 0.5rem;
+            border: 1px solid #d1d5db !important; background-color: #ffffff !important; color: #111827;
+            font-size: 0.875rem; outline: none;
+            transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            border-color: #000000 !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+        }
+        .form-input.field-invalid, .form-textarea.field-invalid, .form-select.field-invalid {
+            border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+            animation: shake .35s ease;
+        }
+        @keyframes shake { 20%,60%{transform:translateX(-4px);} 40%,80%{transform:translateX(4px);} }
+
+        html.dark .form-input, html.dark .form-textarea, html.dark .form-select {
+            background-color:#18181b !important; border-color:#3f3f46 !important; color:#f4f4f5;
+        }
+        html.dark .form-input:focus, html.dark .form-textarea:focus, html.dark .form-select:focus {
+            border-color:#fff !important; box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+        }
+
+        .form-label { display: block; font-size: 0.875rem; font-weight: 600; color: #111827; margin-bottom: 0.375rem; }
+        html.dark .form-label { color:#e4e4e7; }
+
+        .field-help { font-size: .75rem; color:#9ca3af; margin-top:.25rem; }
+        .char-counter { font-size: .7rem; color:#9ca3af; text-align:right; margin-top:.25rem; }
+
+        .checkbox-label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: #374151; cursor: pointer; transition: color .2s; }
+        .checkbox-label:hover { color:#000; }
+        html.dark .checkbox-label { color:#d4d4d8; }
+        html.dark .checkbox-label:hover { color:#fff; }
+        .checkbox-input { margin-top: 0.2rem; width: 1rem; height: 1rem; accent-color: #000000; cursor: pointer; border: 1px solid #d1d5db !important; }
+        html.dark .checkbox-input { accent-color:#fff; }
+
+        /* ---------- Acordeón ---------- */
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height .45s cubic-bezier(.22,1,.36,1), padding .4s ease; }
+        .accordion-content.expanded { max-height: 5000px; padding-bottom: 1.5rem; }
+        .accordion-icon { transition: transform .3s cubic-bezier(.22,1,.36,1); }
+        .accordion-btn[aria-expanded="true"] .accordion-icon { transform: rotate(180deg); }
+        .accordion-btn { transition: background-color .2s ease; }
+
+        /* ---------- Carga de archivos ---------- */
+        .file-upload-area { border: 2px dashed #d1d5db; transition: all .3s ease; }
+        .file-upload-area:hover, .file-upload-area.dragover { border-color: #000000; background-color: #f9fafb; transform: scale(1.005); }
+        html.dark .file-upload-area { border-color:#3f3f46; }
+        html.dark .file-upload-area:hover, html.dark .file-upload-area.dragover { border-color:#fff; background-color:#18181b; }
+
+        /* ---------- Toast ---------- */
+        .toast-notification { transform: translateX(120%); transition: transform .4s cubic-bezier(.2,0,0,1), opacity .4s ease; opacity: 0; }
+        .toast-notification.show { transform: translateX(0); opacity: 1; }
+
+        /* ---------- Botones ---------- */
+        .btn-primary { position: relative; overflow: hidden; transition: transform .15s ease, box-shadow .25s ease, background-color .2s ease; }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:active { transform: translateY(0) scale(.98); }
+        .ripple { position:absolute; border-radius:50%; background: rgba(255,255,255,.5); transform: scale(0); animation: ripple .6s linear; pointer-events:none; }
+        @keyframes ripple { to { transform: scale(4); opacity:0; } }
+
+        /* ---------- Slider de presupuesto ---------- */
+        input[type="range"].budget-range { -webkit-appearance:none; width:100%; height:6px; border-radius:999px; background:#e5e7eb; outline:none; }
+        html.dark input[type="range"].budget-range { background:#3f3f46; }
+        input[type="range"].budget-range::-webkit-slider-thumb {
+            -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:#000; cursor:pointer;
+            border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.3); transition: transform .15s ease;
+        }
+        input[type="range"].budget-range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        html.dark input[type="range"].budget-range::-webkit-slider-thumb { background:#fff; border-color:#18181b; }
+
+        /* ---------- Toggle tema ---------- */
+        .theme-toggle { transition: transform .3s cubic-bezier(.22,1,.36,1); }
+        .theme-toggle:active { transform: scale(.85) rotate(20deg); }
+
+        /* ---------- Scrollbar sutil ---------- */
+        ::-webkit-scrollbar { width: 10px; height:10px; }
+        ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:999px; }
+        html.dark ::-webkit-scrollbar-thumb { background:#3f3f46; }
+
+        /* ---------- Botón volver arriba ---------- */
+        #backToTop { opacity:0; pointer-events:none; transform: translateY(10px); transition: all .3s ease; }
+        #backToTop.show { opacity:1; pointer-events:auto; transform: translateY(0); }
+
+        /* ---------- Confetti canvas ---------- */
+        #confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:70; }
+
+        /* ---------- Skeleton pulso al cargar ---------- */
+        .fade-in-page { animation: pageIn .6s ease both; }
+        @keyframes pageIn { from{opacity:0;} to{opacity:1;} }
+
+        .summary-card { transition: box-shadow .25s ease, transform .2s ease; }
+        .summary-card:hover { box-shadow: 0 10px 24px -14px rgba(0,0,0,.25); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased min-h-screen fade-in-page">
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Notificaciones -->
+    <div id="toast-container" class="fixed top-20 right-4 z-[60] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Botón volver arriba -->
+    <button id="backToTop" type="button" aria-label="Volver arriba" class="fixed bottom-6 right-6 z-40 bg-black dark:bg-white text-white dark:text-black w-12 h-12 rounded-full shadow-xl flex items-center justify-center hover:-translate-y-1 transition-transform">
+        <i data-lucide="arrow-up" class="w-5 h-5"></i>
+    </button>
+
+    <header class="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-zinc-800 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="font-extrabold text-2xl tracking-tighter text-black dark:text-white">e-Onyx</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-sm font-semibold text-gray-500 dark:text-zinc-400 hidden sm:block uppercase tracking-widest">Formularios</div>
+                <button id="themeToggle" type="button" aria-label="Cambiar tema" class="theme-toggle w-9 h-9 rounded-full border border-gray-200 dark:border-zinc-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-zinc-800">
+                    <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Barra de progreso global -->
+        <div class="h-1 bg-gray-100 dark:bg-zinc-800 w-full">
+            <div id="globalProgressBar" class="h-1 bg-gold-500 progress-fill" style="width:0%"></div>
+        </div>
+    </header>
+
+    <main class="py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+
+        <div class="text-center mb-10 reveal in-view">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-black dark:text-white mb-4 tracking-tight">Cuéntanos sobre tu visión</h1>
+            <p class="text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto text-lg">Para ofrecerte la mejor solución digital, necesitamos conocer los detalles. Este formulario de <b class="text-black dark:text-white">e-Onyx</b> se adaptará según lo que necesites crear con nosotros.</p>
+        </div>
+
+        <!-- Indicador de pasos -->
+        <div class="mb-10 select-none">
+            <div class="flex items-center justify-between max-w-2xl mx-auto">
+                <template id="stepTemplate"></template>
+                <div class="step-item flex flex-col items-center gap-2 flex-1" data-step-item="1">
+                    <div class="step-dot active w-10 h-10 rounded-full border-2 border-gray-300 dark:border-zinc-700 flex items-center justify-center font-bold text-sm">1</div>
+                    <span class="text-xs font-semibold text-gray-500 dark:text-zinc-400 text-center">Cliente</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-200 dark:bg-zinc-800 -mt-6"><div class="line-fill h-0.5 bg-black dark:bg-white progress-fill" style="width:0%" data-line="1"></div></div>
+                <div class="step-item flex flex-col items-center gap-2 flex-1" data-step-item="2">
+                    <div class="step-dot w-10 h-10 rounded-full border-2 border-gray-300 dark:border-zinc-700 flex items-center justify-center font-bold text-sm">2</div>
+                    <span class="text-xs font-semibold text-gray-500 dark:text-zinc-400 text-center">Proyecto</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-200 dark:bg-zinc-800 -mt-6"><div class="line-fill h-0.5 bg-black dark:bg-white progress-fill" style="width:0%" data-line="2"></div></div>
+                <div class="step-item flex flex-col items-center gap-2 flex-1" data-step-item="3">
+                    <div class="step-dot w-10 h-10 rounded-full border-2 border-gray-300 dark:border-zinc-700 flex items-center justify-center font-bold text-sm">3</div>
+                    <span class="text-xs font-semibold text-gray-500 dark:text-zinc-400 text-center">Presupuesto</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-200 dark:bg-zinc-800 -mt-6"><div class="line-fill h-0.5 bg-black dark:bg-white progress-fill" style="width:0%" data-line="3"></div></div>
+                <div class="step-item flex flex-col items-center gap-2 flex-1" data-step-item="4">
+                    <div class="step-dot w-10 h-10 rounded-full border-2 border-gray-300 dark:border-zinc-700 flex items-center justify-center font-bold text-sm">4</div>
+                    <span class="text-xs font-semibold text-gray-500 dark:text-zinc-400 text-center">Revisión</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="massiveForm" class="space-y-8" enctype="multipart/form-data" novalidate>
+
+            <input type="hidden" name="_subject" value="Nuevo Briefing de Proyecto - e-Onyx">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_captcha" value="false">
+
+            <!-- ============ PASO 1: DATOS DEL CLIENTE ============ -->
+            <section class="form-step active" data-step="1">
+                <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden reveal in-view">
+                    <div class="bg-black dark:bg-white px-6 py-4 flex items-center gap-3">
+                        <i data-lucide="user" class="w-5 h-5 text-white dark:text-black"></i>
+                        <h2 class="text-lg font-bold text-white dark:text-black tracking-wide">1. Datos del Cliente / Empresa</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="form-label">Nombre completo del cliente *</label><input type="text" name="Nombre_Cliente" required class="form-input" placeholder="Ej. Juan Pérez"></div>
+                        <div><label class="form-label">Empresa / Negocio *</label><input type="text" name="Empresa" required class="form-input" placeholder="Ej. Empresa Corp"></div>
+                        
+                        <div>
+                            <label class="form-label">Tipo de negocio *</label>
+                            <select name="Tipo_De_Negocio" required class="form-select">
+                                <option value="">Selecciona una opción</option>
+                                <option value="Barbería / Salón de Belleza">Barbería / Salón de Belleza</option>
+                                <option value="Página de venta de productos (Ecommerce)">Página de venta de productos (Ecommerce)</option>
+                                <option value="Servicios Profesionales">Servicios Profesionales (Abogados, Médicos, etc.)</option>
+                                <option value="Restaurante / Alimentos">Restaurante / Alimentos</option>
+                                <option value="Tecnología / Software">Tecnología / Software</option>
+                                <option value="Bienes Raíces / Inmobiliaria">Bienes Raíces / Inmobiliaria</option>
+                                <option value="Educación / Cursos">Educación / Cursos</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        
+                        <div><label class="form-label">Nombre comercial (si es diferente)</label><input type="text" name="Nombre_Comercial" class="form-input"></div>
+                        <div><label class="form-label">Puesto o rol dentro de la empresa</label><input type="text" name="Puesto" class="form-input" placeholder="Ej. Director General"></div>
+                        <div><label class="form-label">Número de teléfono</label><input type="tel" name="Telefono" class="form-input" placeholder="+52 ..."></div>
+                        <div><label class="form-label">WhatsApp *</label><input type="tel" name="WhatsApp" required class="form-input" placeholder="+52 ..."></div>
+                        <div><label class="form-label">Correo electrónico *</label><input type="email" name="Email_Cliente" required class="form-input" placeholder="correo@empresa.com"></div>
+                        <div class="md:col-span-2"><label class="form-label">Ciudad / País *</label><input type="text" name="Ubicacion" required class="form-input" placeholder="Ej. CDMX, México"></div>
+                        <div class="md:col-span-2"><label class="form-label">Página web actual (si existe)</label><input type="url" name="Web_Actual" class="form-input" placeholder="https://www.tuweb.com"></div>
+
+                        <div class="md:col-span-2">
+                            <label class="form-label mb-2">Redes sociales actuales (URLs):</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <input type="text" name="RS_Facebook" class="form-input text-sm" placeholder="Facebook">
+                                <input type="text" name="RS_Instagram" class="form-input text-sm" placeholder="Instagram">
+                                <input type="text" name="RS_TikTok" class="form-input text-sm" placeholder="TikTok">
+                                <input type="text" name="RS_LinkedIn" class="form-input text-sm" placeholder="LinkedIn">
+                                <input type="text" name="RS_YouTube" class="form-input text-sm" placeholder="YouTube">
+                                <input type="text" name="RS_Otra" class="form-input text-sm" placeholder="Otra">
+                            </div>
+                        </div>
+                        <div><label class="form-label">¿Cómo nos conociste?</label>
+                            <select name="Como_Conocio" class="form-select">
+                                <option value="">Selecciona una opción</option>
+                                <option value="Recomendación">Recomendación</option>
+                                <option value="Redes Sociales">Redes Sociales</option>
+                                <option value="Google">Búsqueda en Google</option>
+                                <option value="Cliente anterior">Ya soy cliente</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div><label class="form-label">Idioma preferido de contacto</label>
+                            <select name="Idioma_Contacto" class="form-select">
+                                <option value="Español">Español</option>
+                                <option value="Inglés">Inglés</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ PASO 2: PROYECTO ============ -->
+            <section class="form-step" data-step="2">
+                <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-md border-2 border-black dark:border-white overflow-hidden relative reveal in-view">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gold-500"></div>
+                    <div class="bg-gray-50 dark:bg-zinc-800 px-6 py-5 border-b border-gray-200 dark:border-zinc-700 flex items-center gap-3">
+                        <div class="bg-black dark:bg-white p-2 rounded-md text-white dark:text-black"><i data-lucide="target" class="w-5 h-5"></i></div>
+                        <h2 class="text-lg font-bold text-black dark:text-white tracking-wide">2. ¿Qué deseas crear? *</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Página Web" tabindex="0" role="button" aria-pressed="false">
+                                <span class="check-badge absolute top-2 right-2 bg-black dark:bg-white text-white dark:text-black rounded-full w-5 h-5 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span>
+                                <div class="icon-container w-14 h-14 mx-auto bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 text-gray-800 dark:text-zinc-200"><i data-lucide="globe" class="w-7 h-7"></i></div>
+                                <h3 class="font-bold text-gray-900 dark:text-zinc-100">Página Web</h3>
+                            </div>
+                            <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="App Móvil" tabindex="0" role="button" aria-pressed="false">
+                                <span class="check-badge absolute top-2 right-2 bg-black dark:bg-white text-white dark:text-black rounded-full w-5 h-5 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span>
+                                <div class="icon-container w-14 h-14 mx-auto bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 text-gray-800 dark:text-zinc-200"><i data-lucide="smartphone" class="w-7 h-7"></i></div>
+                                <h3 class="font-bold text-gray-900 dark:text-zinc-100">App Móvil</h3>
+                            </div>
+                            <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Invitación Digital" tabindex="0" role="button" aria-pressed="false">
+                                <span class="check-badge absolute top-2 right-2 bg-black dark:bg-white text-white dark:text-black rounded-full w-5 h-5 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span>
+                                <div class="icon-container w-14 h-14 mx-auto bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 text-gray-800 dark:text-zinc-200"><i data-lucide="mail-open" class="w-7 h-7"></i></div>
+                                <h3 class="font-bold text-gray-900 dark:text-zinc-100">Invitación Digital</h3>
+                            </div>
+                            <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Sistema a Medida" tabindex="0" role="button" aria-pressed="false">
+                                <span class="check-badge absolute top-2 right-2 bg-black dark:bg-white text-white dark:text-black rounded-full w-5 h-5 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span>
+                                <div class="icon-container w-14 h-14 mx-auto bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 text-gray-800 dark:text-zinc-200"><i data-lucide="server" class="w-7 h-7"></i></div>
+                                <h3 class="font-bold text-gray-900 dark:text-zinc-100">Sistema / Otro</h3>
+                            </div>
+                        </div>
+                        <input type="hidden" name="Tipo_De_Proyecto_Seleccionado" id="selectedType" required>
+                        <p id="typeError" class="hidden text-red-600 text-sm font-semibold -mt-2 mb-4"><i data-lucide="alert-triangle" class="w-4 h-4 inline -mt-1"></i> Selecciona un tipo de proyecto para continuar.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-gray-200 dark:border-zinc-700">
+                            <div>
+                                <label class="form-label">¿Cuál es el objetivo principal del proyecto?</label>
+                                <select name="Objetivo_Principal" class="form-select font-medium text-gray-700 dark:text-zinc-200">
+                                    <option value="Conseguir clientes / Leads">Conseguir clientes / Leads</option>
+                                    <option value="Vender productos (Ecommerce)">Vender productos (Ecommerce)</option>
+                                    <option value="Automatizar procesos internos">Automatizar procesos internos</option>
+                                    <option value="Mejorar imagen profesional">Mejorar imagen profesional</option>
+                                    <option value="Informar sobre servicios">Informar sobre servicios</option>
+                                    <option value="Crear comunidad">Crear comunidad</option>
+                                    <option value="Para un evento social (Invitación)">Para un evento social (Invitación)</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">¿Qué resultado espera obtener a corto plazo?</label>
+                                <input type="text" name="Resultado_Esperado" class="form-input" placeholder="Ej. Aumentar ventas un 20%">
+                            </div>
+                            <div>
+                                <label class="form-label">Público objetivo principal</label>
+                                <input type="text" name="Publico_Objetivo" class="form-input" placeholder="Ej. Mujeres 25-40 años, CDMX">
+                            </div>
+                            <div>
+                                <label class="form-label">Principales competidores (opcional)</label>
+                                <input type="text" name="Competidores" class="form-input" placeholder="Ej. marca1.com, marca2.com">
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="form-label text-black dark:text-white font-bold">Funciones personalizadas o requerimientos específicos <span class="font-normal text-gray-500">(Opcional)</span></label>
+                                <textarea name="Funciones_Personalizadas" class="form-textarea" rows="3" placeholder="Ej. Necesito que los clientes puedan personalizar su producto antes de comprar, integración con un software de facturación externo, un calculador de precios dinámico..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE DINÁMICO A: NEGOCIOS -->
+                <div id="block-business" class="dynamic-section space-y-6 mt-6">
+                    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                        <button type="button" class="accordion-btn w-full px-6 py-5 bg-white dark:bg-zinc-900 flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800" aria-expanded="true">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-black dark:bg-white p-2 rounded-md text-white dark:text-black"><i data-lucide="briefcase" class="w-4 h-4"></i></div>
+                                <h2 class="text-lg font-bold text-black dark:text-white text-left">Información del Negocio</h2>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 accordion-icon"></i>
+                        </button>
+                        <div class="accordion-content expanded">
+                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2"><h3 class="font-bold text-black dark:text-white border-b border-gray-200 dark:border-zinc-700 pb-2 mb-2 uppercase text-xs tracking-widest">Historia y Naturaleza</h3></div>
+                                <div><label class="form-label">¿Qué significa el nombre de la empresa?</label><input type="text" name="Significado_Nombre_Empresa" class="form-input"></div>
+                                <div><label class="form-label">¿Cuándo inició el negocio?</label><input type="text" name="Fecha_Inicio_Negocio" class="form-input"></div>
+                                <div class="md:col-span-2"><label class="form-label">Historia de la empresa / ¿Cómo nació la idea?</label><textarea name="Historia_Empresa" class="form-textarea" rows="2" maxlength="600" data-counter></textarea><div class="char-counter">0 / 600</div></div>
+                                <div><label class="form-label">¿A qué se dedica exactamente?</label><textarea name="A_Que_Se_Dedica" class="form-textarea" rows="2"></textarea></div>
+                                <div><label class="form-label">Industria o Categoría</label><input type="text" name="Industria_Categoria" class="form-input" placeholder="Ej. Salud, Tecnología, Alimentos"></div>
+
+                                <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black dark:text-white border-b border-gray-200 dark:border-zinc-700 pb-2 mb-2 uppercase text-xs tracking-widest">Productos y Mercado</h3></div>
+                                <div><label class="form-label">¿Qué productos/servicios ofrece? (General)</label><textarea name="Productos_Ofrecidos" class="form-textarea" rows="2"></textarea></div>
+                                <div><label class="form-label">Producto/Servicio principal o estrella</label><input type="text" name="Producto_Estrella" class="form-input"></div>
+                                <div><label class="form-label">¿Qué problema resuelve su negocio?</label><textarea name="Problema_Que_Resuelve" class="form-textarea" rows="2"></textarea></div>
+                                <div><label class="form-label">¿Qué hace diferente a su empresa de las demás?</label><textarea name="Diferenciador_De_Competencia" class="form-textarea" rows="2"></textarea></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Identidad Visual -->
+                    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                        <button type="button" class="accordion-btn w-full px-6 py-5 bg-white dark:bg-zinc-900 flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800" aria-expanded="true">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-black dark:bg-white p-2 rounded-md text-white dark:text-black"><i data-lucide="palette" class="w-4 h-4"></i></div>
+                                <h2 class="text-lg font-bold text-black dark:text-white text-left">Identidad de Marca y Diseño Visual</h2>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 accordion-icon"></i>
+                        </button>
+                        <div class="accordion-content expanded">
+                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="form-label text-base font-bold text-black dark:text-white">Sube tu Logotipo (y/o Manual de Marca)</label>
+                                    <div class="mt-2 flex justify-center px-6 pt-8 pb-8 file-upload-area rounded-lg bg-white dark:bg-zinc-900 relative">
+                                        <div class="space-y-2 text-center">
+                                            <i data-lucide="upload-cloud" class="mx-auto h-12 w-12 text-black dark:text-white"></i>
+                                            <div class="flex text-sm text-gray-600 dark:text-zinc-400 justify-center">
+                                                <label for="file-upload" class="relative cursor-pointer bg-white dark:bg-zinc-900 rounded-md font-bold text-black dark:text-white hover:text-gray-700 dark:hover:text-zinc-300 focus-within:outline-none focus-within:underline">
+                                                    <span>Selecciona un archivo</span>
+                                                    <input id="file-upload" name="Archivo_Logotipo" type="file" class="sr-only" accept=".png, .jpg, .jpeg, .svg, .pdf, .ai">
+                                                </label>
+                                                <p class="pl-1">o arrástralo y suéltalo aquí</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500 dark:text-zinc-500 font-medium">Formatos aceptados: PNG, JPG, SVG, AI, PDF (Máx. 20MB)</p>
+                                            <p id="file-name-display" class="text-sm font-bold text-black dark:text-white mt-2 hidden flex items-center justify-center gap-2"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black dark:text-white border-b border-gray-200 dark:border-zinc-700 pb-2 mb-2 uppercase text-xs tracking-widest">Concepto de Marca</h3></div>
+                                <div><label class="form-label">Eslogan de la empresa</label><input type="text" name="Eslogan" class="form-input"></div>
+                                <div><label class="form-label">Valores principales</label><input type="text" name="Valores_Principales" class="form-input"></div>
+                                <div class="md:col-span-2"><label class="form-label">Misión y Visión</label><textarea name="Mision_Vision" class="form-textarea" rows="2"></textarea></div>
+
+                                <div><label class="form-label">Tres palabras que DESCRIBEN su negocio</label><input type="text" name="Palabras_Describen" class="form-input" placeholder="Ej. Minimalista, Profesional, Seguro"></div>
+                                <div><label class="form-label">Tres palabras que NO quiere que lo representen</label><input type="text" name="Palabras_No_Describen" class="form-input" placeholder="Ej. Barato, Colorido, Infantil"></div>
+
+                                <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black dark:text-white border-b border-gray-200 dark:border-zinc-700 pb-2 mb-2 uppercase text-xs tracking-widest">Estética Visual</h3></div>
+                                <div>
+                                    <label class="form-label">Colores oficiales (Además del logo)</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" name="Colores_Oficiales" id="colorText" class="form-input" placeholder="Ej. Blanco, Negro y toques de Gris">
+                                        <input type="color" id="colorPicker" class="w-11 h-11 rounded-md border border-gray-300 dark:border-zinc-700 cursor-pointer bg-transparent" title="Elige un color de referencia">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label">Estilo visual deseado</label>
+                                    <div class="grid grid-cols-2 gap-3 mt-2">
+                                        <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Minimalista" class="checkbox-input"> Minimalista</label>
+                                        <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Elegante" class="checkbox-input"> Elegante / Lujo</label>
+                                        <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Moderno" class="checkbox-input"> Moderno</label>
+                                        <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Corporativo" class="checkbox-input"> Corporativo</label>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-2"><label class="form-label">Ejemplos de diseños web/apps que le gustan (URLs)</label><textarea name="Ejemplos_Diseño" class="form-textarea" rows="2" placeholder="Nos ayuda mucho ver referencias visuales..."></textarea></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE: PÁGINA WEB -->
+                <div id="block-web" class="dynamic-section space-y-6 mt-6">
+                    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                        <div class="bg-black dark:bg-white px-6 py-4 flex items-center gap-3">
+                            <i data-lucide="layout" class="w-5 h-5 text-white dark:text-black"></i>
+                            <h2 class="text-lg font-bold text-white dark:text-black">Estructura de la Página Web</h2>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="form-label">Tipo de página</label>
+                                <select id="webTypeSelector" name="WEB_Tipo_Pagina" class="form-select">
+                                    <option value="Informativa">Informativa / Corporativa</option>
+                                    <option value="Landing Page">Landing Page (Página única)</option>
+                                    <option value="ecommerce">Tienda Online (Ecommerce)</option>
+                                    <option value="Portafolio">Portafolio</option>
+                                    <option value="Blog">Blog</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Secciones necesarias</label>
+                                <div class="grid grid-cols-2 gap-3 mt-2 h-32 overflow-y-auto border border-gray-200 dark:border-zinc-700 p-3 rounded-md bg-gray-50 dark:bg-zinc-800">
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Inicio" class="checkbox-input"> Inicio</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Nosotros" class="checkbox-input"> Nosotros</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Servicios" class="checkbox-input"> Servicios</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Productos" class="checkbox-input"> Productos</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Galeria" class="checkbox-input"> Galería</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Clientes" class="checkbox-input"> Clientes</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Contacto" class="checkbox-input"> Contacto</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Blog" class="checkbox-input"> Blog</label>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="form-label">Funciones Especiales Requeridas</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3">
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Formulario" class="checkbox-input"> Formulario avanzado</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="WhatsApp" class="checkbox-input"> Botón WhatsApp</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Reservas" class="checkbox-input"> Sistema de Reservas</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Multi-idioma" class="checkbox-input"> Múltiples Idiomas</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Chatbot" class="checkbox-input"> Chatbot / IA</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="SEO" class="checkbox-input"> SEO avanzado</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Analytics" class="checkbox-input"> Analítica / Reportes</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Newsletter" class="checkbox-input"> Newsletter</label>
+                                </div>
+                            </div>
+
+                            <!-- Sub-bloque Ecommerce -->
+                            <div id="sub-ecommerce" class="sub-dynamic-section md:col-span-2 bg-gray-50 dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 mt-2">
+                                <h3 class="font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Detalles de Tienda Online</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div><label class="form-label">Cantidad aprox. de productos</label><input type="number" min="0" name="ECOMMERCE_Cantidad_Productos" class="form-input"></div>
+                                    <div><label class="form-label">Número de Categorías</label><input type="number" min="0" name="ECOMMERCE_Categorias" class="form-input"></div>
+                                    <div>
+                                        <label class="form-label">Pasarelas de pago</label>
+                                        <select name="ECOMMERCE_Metodo_Pago" class="form-select"><option value="Stripe/PayPal/Tarjeta">Stripe / PayPal / Tarjeta</option><option value="Solo Transferencia">Solo Transferencia</option><option value="Mercado Pago">Mercado Pago</option></select>
+                                    </div>
+                                    <div><label class="form-label">¿Manejo de inventario?</label>
+                                        <select name="ECOMMERCE_Inventario" class="form-select"><option value="Sí">Sí</option><option value="No">No</option></select>
+                                    </div>
+                                    <div><label class="form-label">Envíos</label>
+                                        <select name="ECOMMERCE_Envios" class="form-select"><option value="Nacional">Nacional</option><option value="Internacional">Internacional</option><option value="Recoger en tienda">Solo recoger en tienda</option></select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tecnología y Dominio -->
+                            <div class="md:col-span-2 mt-4 border-t border-gray-200 dark:border-zinc-700 pt-6">
+                                <h3 class="font-bold text-black dark:text-white mb-4 uppercase text-xs tracking-widest">Dominio y Hosting</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="form-label">¿Ya tiene Dominio?</label>
+                                        <select name="DOMINIO_Posee" class="form-select"><option value="No, comprar">No, necesito comprarlo</option><option value="Sí, lo tengo">Sí, ya lo tengo</option></select>
+                                    </div>
+                                    <div><label class="form-label">Nombre del dominio deseado</label><input type="text" name="DOMINIO_Nombre" class="form-input" placeholder="www.miempresa.com"></div>
+                                    <div>
+                                        <label class="form-label">Correos empresariales</label>
+                                        <select name="DOMINIO_Correos" class="form-select"><option value="Sí">Sí necesito</option><option value="No">No por el momento</option></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE: APP MÓVIL -->
+                <div id="block-app" class="dynamic-section space-y-6 mt-6">
+                    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                        <div class="bg-black dark:bg-white px-6 py-4 flex items-center gap-3">
+                            <i data-lucide="smartphone" class="w-5 h-5 text-white dark:text-black"></i>
+                            <h2 class="text-lg font-bold text-white dark:text-black">Desarrollo de Aplicación Móvil</h2>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="form-label">Nombre propuesto de la app</label><input type="text" name="APP_Nombre" class="form-input"></div>
+                            <div><label class="form-label">Función principal de la app</label><input type="text" name="APP_Funcion_Principal" class="form-input"></div>
+                            <div>
+                                <label class="form-label">Plataformas requeridas</label>
+                                <div class="flex gap-4 mt-3">
+                                    <label class="checkbox-label"><input type="checkbox" name="APP_Plataformas" value="Android" class="checkbox-input"> Android</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="APP_Plataformas" value="iOS" class="checkbox-input"> iOS (Apple)</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Métodos de Inicio de Sesión</label>
+                                <div class="flex flex-wrap gap-4 mt-3">
+                                    <label class="checkbox-label"><input type="checkbox" name="APP_Login" value="Email" class="checkbox-input"> Email</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="APP_Login" value="Google/Apple" class="checkbox-input"> Google / Apple ID</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="APP_Login" value="Telefono" class="checkbox-input"> Teléfono / SMS</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Notificaciones push</label>
+                                <select name="APP_Notificaciones" class="form-select"><option value="Sí">Sí</option><option value="No">No</option></select>
+                            </div>
+                            <div>
+                                <label class="form-label">¿Requiere versión offline?</label>
+                                <select name="APP_Offline" class="form-select"><option value="No">No</option><option value="Sí">Sí</option></select>
+                            </div>
+                            <div class="md:col-span-2"><label class="form-label">Lista de funciones principales</label><textarea name="APP_Funciones_Detalle" class="form-textarea" rows="3" placeholder="Ej. Mapa interactivo, chat en tiempo real, notificaciones push..."></textarea></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE: INVITACIONES DIGITALES -->
+                <div id="block-invitation" class="dynamic-section space-y-6 mt-6">
+                    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                        <div class="bg-black dark:bg-white px-6 py-4 flex items-center gap-3">
+                            <i data-lucide="mail" class="w-5 h-5 text-white dark:text-black"></i>
+                            <h2 class="text-lg font-bold text-white dark:text-black">Invitación Digital Premium</h2>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="form-label">Tipo de Evento</label>
+                                <select name="INVITACION_Tipo" class="form-select">
+                                    <option value="Boda">Boda</option><option value="XV Años">XV Años</option><option value="Evento Corporativo">Evento Corporativo / Gala</option><option value="Cumpleaños">Cumpleaños</option><option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div><label class="form-label">Nombre del Evento / Festejados</label><input type="text" name="INVITACION_Nombres" class="form-input"></div>
+                            <div><label class="form-label">Fecha del evento</label><input type="date" name="INVITACION_Fecha" class="form-input"></div>
+                            <div><label class="form-label">Hora y Lugar</label><input type="text" name="INVITACION_Hora_Lugar" class="form-input"></div>
+                            <div><label class="form-label">Número estimado de invitados</label><input type="number" min="0" name="INVITACION_Invitados" class="form-input"></div>
+                            <div><label class="form-label">Paleta de color del evento</label><input type="text" name="INVITACION_Paleta" class="form-input" placeholder="Ej. Verde sage y dorado"></div>
+
+                            <div class="md:col-span-2 border-t border-gray-200 dark:border-zinc-700 pt-6 mt-2">
+                                <label class="form-label mb-4">Elementos interactivos a incluir:</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="RSVP" class="checkbox-input"> Confirmación asistencia (RSVP)</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Mesa Regalos" class="checkbox-input"> Mesa de Regalos / Cuenta</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Dress Code" class="checkbox-input"> Código de vestimenta</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Galeria" class="checkbox-input"> Galería Fotográfica</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Mapa" class="checkbox-input"> Enlace a Google Maps</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Cuenta Regresiva" class="checkbox-input"> Cuenta regresiva animada</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Musica" class="checkbox-input"> Música de fondo</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Hospedaje" class="checkbox-input"> Sugerencias de hospedaje</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE: SISTEMA A MEDIDA -->
+                <div id="block-system" class="dynamic-section space-y-6 mt-6">
+                    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                        <div class="bg-black dark:bg-white px-6 py-4 flex items-center gap-3">
+                            <i data-lucide="server" class="w-5 h-5 text-white dark:text-black"></i>
+                            <h2 class="text-lg font-bold text-white dark:text-black">Sistema a Medida / Otro Desarrollo</h2>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="md:col-span-2"><label class="form-label">Describe el sistema que necesitas</label><textarea name="SISTEMA_Descripcion" class="form-textarea" rows="3" placeholder="Ej. Sistema de gestión de citas para clínica dental..."></textarea></div>
+                            <div><label class="form-label">Número aproximado de usuarios</label><input type="number" min="0" name="SISTEMA_Usuarios" class="form-input"></div>
+                            <div>
+                                <label class="form-label">Tipo de acceso</label>
+                                <select name="SISTEMA_Acceso" class="form-select"><option value="Web">Solo Web</option><option value="Web y App">Web y App</option><option value="Interno">Solo interno / red privada</option></select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="form-label">Módulos requeridos</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
+                                    <label class="checkbox-label"><input type="checkbox" name="SISTEMA_Modulos" value="Usuarios y Roles" class="checkbox-input"> Usuarios y Roles</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="SISTEMA_Modulos" value="Reportes" class="checkbox-input"> Reportes / Dashboards</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="SISTEMA_Modulos" value="Pagos" class="checkbox-input"> Pagos</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="SISTEMA_Modulos" value="Inventario" class="checkbox-input"> Inventario</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="SISTEMA_Modulos" value="Integraciones" class="checkbox-input"> Integraciones con terceros</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="SISTEMA_Modulos" value="Notificaciones" class="checkbox-input"> Notificaciones automáticas</label>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2"><label class="form-label">Sistemas actuales con los que debe integrarse (si aplica)</label><input type="text" name="SISTEMA_Integraciones_Detalle" class="form-input" placeholder="Ej. Excel, CRM actual, ERP..."></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ PASO 3: PRESUPUESTO Y TIEMPOS ============ -->
+            <section class="form-step" data-step="3">
+                <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden reveal in-view">
+                    <div class="bg-gray-50 dark:bg-zinc-800 px-6 py-5 border-b border-gray-200 dark:border-zinc-700 flex items-center gap-3">
+                        <i data-lucide="clock" class="w-5 h-5 text-black dark:text-white"></i>
+                        <h2 class="text-lg font-bold text-black dark:text-white">3. Tiempos, Presupuesto y Autorización</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="form-label">Presupuesto aproximado: <span id="budgetValue" class="text-black dark:text-white font-extrabold">Por definir</span></label>
+                            <input type="range" min="0" max="4" step="1" value="0" id="budgetRange" class="budget-range">
+                            <div class="flex justify-between text-xs text-gray-400 dark:text-zinc-500 mt-2 font-medium">
+                                <span>Por definir</span><span>$500-1.5k</span><span>$1.5k-3k</span><span>$3k-6k</span><span>+$6k</span>
+                            </div>
+                            <input type="hidden" name="Presupuesto" id="Presupuesto" value="No definido">
+                        </div>
+                        <div><label class="form-label">Fecha ideal de entrega / Deadline</label><input type="date" name="Fecha_Entrega" class="form-input"></div>
+                        <div>
+                            <label class="form-label">Urgencia del proyecto</label>
+                            <select name="Urgencia" class="form-select">
+                                <option value="Flexible">Flexible, sin prisa</option>
+                                <option value="Normal">Normal (1-2 meses)</option>
+                                <option value="Urgente">Urgente (menos de 1 mes)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">¿Requiere mantenimiento posterior?</label>
+                            <select name="Mantenimiento" class="form-select">
+                                <option value="No definido">Aún no lo sé</option>
+                                <option value="Sí">Sí, plan mensual</option>
+                                <option value="No">No, solo entrega final</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Método de pago preferido</label>
+                            <select name="Metodo_Pago_Preferido" class="form-select">
+                                <option value="Transferencia">Transferencia bancaria</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                                <option value="PayPal">PayPal</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2"><label class="form-label">Comentarios adicionales para el equipo de e-Onyx</label><textarea name="Comentarios_Adicionales" class="form-textarea" rows="3" maxlength="500" data-counter placeholder="Cualquier detalle extra que quieras compartir..."></textarea><div class="char-counter">0 / 500</div></div>
+
+                        <div class="md:col-span-2 border-t border-gray-200 dark:border-zinc-700 pt-6">
+                            <div class="space-y-4 bg-gray-50 dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700">
+                                <label class="checkbox-label font-medium"><input type="checkbox" name="Confirmacion_Datos" class="checkbox-input" required> Confirmo que la información proporcionada es correcta para generar la cotización técnica.</label>
+                                <label class="checkbox-label font-medium"><input type="checkbox" name="Autorizacion_Uso" class="checkbox-input" checked> Autorizo a e-Onyx a utilizar esta información con fines exclusivos de análisis de proyecto.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ PASO 4: REVISIÓN ============ -->
+            <section class="form-step" data-step="4">
+                <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden reveal in-view">
+                    <div class="bg-black dark:bg-white px-6 py-4 flex items-center gap-3">
+                        <i data-lucide="clipboard-check" class="w-5 h-5 text-white dark:text-black"></i>
+                        <h2 class="text-lg font-bold text-white dark:text-black">4. Revisa tu Briefing</h2>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-sm text-gray-500 dark:text-zinc-400 mb-6">Verifica que todo esté correcto antes de enviar. Puedes volver a cualquier paso para editar.</p>
+                        <div id="reviewContent" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                        <button type="button" id="copySummaryBtn" class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-black dark:text-white border border-gray-300 dark:border-zinc-700 rounded-md px-4 py-2 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
+                            <i data-lucide="copy" class="w-4 h-4"></i> Copiar resumen
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navegación entre pasos -->
+            <div class="flex items-center justify-between pt-4 pb-10 sticky bottom-0 z-40 bg-gray-50/90 dark:bg-zinc-950/90 backdrop-blur-sm border-t border-gray-200/50 dark:border-zinc-800/50 mt-4 px-4 sm:px-0">
+                <button type="button" id="prevBtn" class="btn-primary bg-white dark:bg-zinc-900 text-black dark:text-white border border-gray-300 dark:border-zinc-700 font-bold py-3 px-6 rounded-lg flex items-center gap-2 invisible">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i> <span>Anterior</span>
+                </button>
+                <span id="stepCounter" class="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-widest hidden sm:block">Paso 1 de 4</span>
+                <button type="button" id="nextBtn" class="btn-primary bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-zinc-200 text-white dark:text-black font-bold py-3 px-8 rounded-lg shadow-xl flex items-center gap-2">
+                    <span>Siguiente</span> <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+                <button type="submit" id="submitBtn" class="btn-primary hidden bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-zinc-200 text-white dark:text-black font-bold py-4 px-10 rounded-lg shadow-xl flex items-center gap-3">
+                    <span class="text-lg">Enviar Formulario</span>
+                    <i data-lucide="send" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+        </form>
+
+        <!-- Mensaje de Éxito -->
+        <div id="successMessage" class="hidden mt-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white rounded-xl p-10 text-center shadow-2xl">
+            <div class="w-20 h-20 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="check" class="w-10 h-10"></i></div>
+            <h2 class="text-3xl font-extrabold text-black dark:text-white mb-4 tracking-tight">¡Briefing Recibido Exitosamente!</h2>
+            <p class="text-lg text-gray-600 dark:text-zinc-400 mb-8 max-w-lg mx-auto">Hemos capturado la visión de tu proyecto. El equipo técnico de <b>e-Onyx</b> revisará tus requerimientos y nos pondremos en contacto contigo en un plazo de 24 a 48 horas.</p>
+            <button onclick="window.location.reload()" class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-zinc-200 text-white dark:text-black font-bold py-3 px-8 rounded-md transition-colors">Nuevo Proyecto</button>
+        </div>
+
+    </main>
+
+    <footer class="bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 py-10 mt-12">
+        <div class="max-w-5xl mx-auto px-4 text-center text-sm font-medium text-gray-500 dark:text-zinc-400">
+            <p class="text-black dark:text-white font-bold text-lg mb-2 tracking-tighter">Formularios de e-Onyx</p>
+            <p>&copy; 2026 e-Onyx. Desarrollo y Diseño de Alto Nivel.</p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        /* ======================= TEMA CLARO / OSCURO ======================= */
+        const themeToggle = document.getElementById('themeToggle');
+        const applyTheme = (t) => document.documentElement.classList.toggle('dark', t === 'dark');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(prefersDark ? 'dark' : 'light');
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            applyTheme(isDark ? 'light' : 'dark');
+        });
+
+        /* ======================= NOTIFICACIONES TOAST ======================= */
+        function showNotification(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-900' : 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-900';
+            const textColor = type === 'error' ? 'text-red-800 dark:text-red-200' : 'text-green-800 dark:text-green-200';
+            const iconColor = type === 'error' ? 'text-red-500' : 'text-green-500';
+            const iconName = type === 'error' ? 'alert-circle' : 'check-circle';
+
+            toast.className = `toast-notification flex items-center p-4 mb-4 border rounded-lg shadow-lg pointer-events-auto w-80 max-w-full ${bgColor} z-50 relative`;
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" class="w-5 h-5 mr-3 ${iconColor}"></i>
+                <div class="text-sm font-medium ${textColor}">${message}</div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 focus:ring-2 focus:outline-none focus:ring-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors ${textColor}" aria-label="Close" onclick="this.parentElement.remove()">
+                    <span class="sr-only">Close</span>
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>`;
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Si es un error crítico (como el de activación), le damos más tiempo antes de desaparecer
+            const timeout = type === 'error' ? 8000 : 4000;
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, timeout);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /* ======================= ACORDEONES ======================= */
+            document.querySelectorAll('.accordion-btn').forEach(acc => {
+                acc.addEventListener('click', function () {
+                    const content = this.nextElementSibling;
+                    const expanded = content.classList.toggle('expanded');
+                    this.setAttribute('aria-expanded', expanded);
+                });
+            });
+            document.querySelectorAll('.accordion-content').forEach(content => content.classList.add('expanded'));
+
+            /* ======================= CONTADOR DE CARACTERES ======================= */
+            document.querySelectorAll('[data-counter]').forEach(area => {
+                const counter = area.nextElementSibling;
+                const max = area.getAttribute('maxlength');
+                const update = () => counter.textContent = `${area.value.length} / ${max}`;
+                area.addEventListener('input', update);
+                update();
+            });
+
+            /* ======================= SELECTOR DE COLOR ======================= */
+            const colorPicker = document.getElementById('colorPicker');
+            const colorText = document.getElementById('colorText');
+            if (colorPicker) {
+                colorPicker.addEventListener('input', () => {
+                    const hex = colorPicker.value.toUpperCase();
+                    colorText.value = colorText.value ? `${colorText.value}, ${hex}` : hex;
+                });
+            }
+
+            /* ======================= SLIDER DE PRESUPUESTO ======================= */
+            const budgetLabels = ['Por definir', '$500 - $1,500 USD', '$1,500 - $3,000 USD', '$3,000 - $6,000 USD', '+$6,000 USD'];
+            const budgetRange = document.getElementById('budgetRange');
+            const budgetValue = document.getElementById('budgetValue');
+            const budgetHidden = document.getElementById('Presupuesto');
+            budgetRange.addEventListener('input', () => {
+                const label = budgetLabels[budgetRange.value];
+                budgetValue.textContent = label;
+                budgetHidden.value = label;
+            });
+
+            /* ======================= SUBIDA DE ARCHIVO ======================= */
+            const fileUploadArea = document.querySelector('.file-upload-area');
+            const fileInput = document.getElementById('file-upload');
+            const fileNameDisplay = document.getElementById('file-name-display');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileUploadArea.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => fileUploadArea.addEventListener(eventName, () => fileUploadArea.classList.add('dragover', 'border-black'), false));
+            ['dragleave', 'drop'].forEach(eventName => fileUploadArea.addEventListener(eventName, () => fileUploadArea.classList.remove('dragover', 'border-black'), false));
+            fileUploadArea.addEventListener('drop', e => handleFiles(e.dataTransfer.files), false);
+            fileInput.addEventListener('change', function () { handleFiles(this.files); });
+
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    const sizeMB = (files[0].size / (1024 * 1024)).toFixed(1);
+                    fileNameDisplay.innerHTML = `<i data-lucide="file-check-2" class="w-4 h-4 inline text-green-600"></i> ${files[0].name} (${sizeMB} MB)`;
+                    fileNameDisplay.classList.remove('hidden');
+                    fileNameDisplay.classList.add('block');
+                    lucide.createIcons({ root: fileNameDisplay });
+                }
+            }
+
+            /* ======================= SELECCIÓN DE PROYECTO ======================= */
+            const projectCards = document.querySelectorAll('.project-card');
+            const hiddenTypeInput = document.getElementById('selectedType');
+            const typeError = document.getElementById('typeError');
+            const blocks = {
+                business: document.getElementById('block-business'),
+                web: document.getElementById('block-web'),
+                app: document.getElementById('block-app'),
+                invitation: document.getElementById('block-invitation'),
+                system: document.getElementById('block-system'),
+            };
+            const webTypeSelector = document.getElementById('webTypeSelector');
+            const subEcommerce = document.getElementById('sub-ecommerce');
+
+            webTypeSelector.addEventListener('change', (e) => {
+                subEcommerce.classList.toggle('active', e.target.value === 'ecommerce');
+            });
+
+            projectCards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+                    card.style.setProperty('--my', `${e.clientY - rect.top}px`);
+                });
+                const selectCard = () => {
+                    const type = card.getAttribute('data-type');
+                    projectCards.forEach(c => { c.classList.remove('selected'); c.setAttribute('aria-pressed', 'false'); });
+                    card.classList.add('selected');
+                    card.setAttribute('aria-pressed', 'true');
+                    hiddenTypeInput.value = type;
+                    typeError.classList.add('hidden');
+
+                    Object.values(blocks).forEach(block => block && block.classList.remove('active'));
+                    setTimeout(() => {
+                        if (type === 'Invitación Digital') blocks.invitation.classList.add('active');
+                        else if (type === 'Sistema a Medida') blocks.system.classList.add('active');
+                        else {
+                            blocks.business.classList.add('active');
+                            if (type === 'Página Web') blocks.web.classList.add('active');
+                            if (type === 'App Móvil') blocks.app.classList.add('active');
+                        }
+                        updateProgress();
+                    }, 100);
+                };
+                card.addEventListener('click', selectCard);
+                card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectCard(); } });
+            });
+
+            /* ======================= ASISTENTE POR PASOS ======================= */
+            const steps = Array.from(document.querySelectorAll('.form-step'));
+            const stepItems = document.querySelectorAll('[data-step-item]');
+            const lines = document.querySelectorAll('[data-line]');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const stepCounter = document.getElementById('stepCounter');
+            let currentStep = 1;
+            const totalSteps = steps.length;
+
+            function fieldsForStep(n) {
+                return Array.from(steps[n - 1].querySelectorAll('input[required], select[required], textarea[required]'));
+            }
+
+            function validateStep(n) {
+                let valid = true;
+                fieldsForStep(n).forEach(field => {
+                    const visible = field.offsetParent !== null || field.type === 'hidden';
+                    if (!visible) return;
+                    if (field.type === 'checkbox' && !field.checked) { valid = false; field.closest('label')?.classList.add('field-invalid'); }
+                    else if (field.type !== 'checkbox' && !field.value.trim()) { valid = false; field.classList.add('field-invalid'); field.addEventListener('input', () => field.classList.remove('field-invalid'), { once: true }); }
+                });
+                if (n === 2 && !hiddenTypeInput.value) { valid = false; typeError.classList.remove('hidden'); }
+                if (!valid) showNotification('Completa los campos obligatorios antes de continuar.', 'error');
+                return valid;
+            }
+
+            function goToStep(n, skipValidation) {
+                if (n > currentStep && !skipValidation && !validateStep(currentStep)) return;
+                const outgoing = steps[currentStep - 1];
+                outgoing.classList.remove('active');
+                currentStep = n;
+                steps[currentStep - 1].classList.add('active');
+
+                stepItems.forEach((item, i) => {
+                    const dot = item.querySelector('.step-dot');
+                    dot.classList.remove('active', 'done');
+                    if (i + 1 < currentStep) dot.classList.add('done');
+                    else if (i + 1 === currentStep) dot.classList.add('active');
+                });
+                lines.forEach(line => {
+                    const idx = parseInt(line.getAttribute('data-line'));
+                    line.style.width = idx < currentStep ? '100%' : '0%';
+                });
+
+                prevBtn.classList.toggle('invisible', currentStep === 1);
+                nextBtn.classList.toggle('hidden', currentStep === totalSteps);
+                submitBtn.classList.toggle('hidden', currentStep !== totalSteps);
+                stepCounter.textContent = `Paso ${currentStep} de ${totalSteps}`;
+
+                if (currentStep === totalSteps) buildReview();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                updateProgress();
+            }
+
+            nextBtn.addEventListener('click', () => goToStep(Math.min(currentStep + 1, totalSteps)));
+            prevBtn.addEventListener('click', () => goToStep(Math.max(currentStep - 1, 1), true));
+            stepItems.forEach(item => {
+                item.querySelector('.step-dot').style.cursor = 'pointer';
+                item.addEventListener('click', () => {
+                    const target = parseInt(item.getAttribute('data-step-item'));
+                    if (target < currentStep) goToStep(target, true);
+                });
+            });
+
+            /* ======================= BARRA DE PROGRESO GLOBAL ======================= */
+            const globalProgressBar = document.getElementById('globalProgressBar');
+            const form = document.getElementById('massiveForm');
+            function updateProgress() {
+                const fields = Array.from(form.querySelectorAll('input:not([type=hidden]), select, textarea')).filter(f => f.offsetParent !== null);
+                let filled = 0;
+                fields.forEach(f => {
+                    if (f.type === 'checkbox') { if (f.checked) filled++; }
+                    else if (f.value && f.value.trim()) filled++;
+                });
+                const pct = fields.length ? Math.round((filled / fields.length) * 100) : 0;
+                globalProgressBar.style.width = pct + '%';
+            }
+            form.addEventListener('input', updateProgress);
+            form.addEventListener('change', updateProgress);
+
+            /* ======================= REVISIÓN FINAL ======================= */
+            const reviewContent = document.getElementById('reviewContent');
+            function buildReview() {
+                const groups = [
+                    { title: 'Cliente', fields: ['Nombre_Cliente', 'Empresa', 'Tipo_De_Negocio', 'WhatsApp', 'Email_Cliente', 'Ubicacion'] },
+                    { title: 'Proyecto', fields: ['Tipo_De_Proyecto_Seleccionado', 'Objetivo_Principal', 'Publico_Objetivo', 'Funciones_Personalizadas'] },
+                    { title: 'Presupuesto y Tiempos', fields: ['Presupuesto', 'Fecha_Entrega', 'Urgencia'] },
+                ];
+                reviewContent.innerHTML = '';
+                groups.forEach(g => {
+                    const card = document.createElement('div');
+                    card.className = 'summary-card bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-4';
+                    let rows = '';
+                    g.fields.forEach(name => {
+                        const el = form.elements[name];
+                        const val = el ? (el.value || '—') : '—';
+                        rows += `<div class="flex justify-between gap-3 py-1 text-sm"><span class="text-gray-500 dark:text-zinc-400">${name.replace(/_/g, ' ')}</span><span class="font-semibold text-black dark:text-white text-right break-words max-w-[60%]">${val}</span></div>`;
+                    });
+                    card.innerHTML = `<h4 class="font-bold text-black dark:text-white mb-2 uppercase text-xs tracking-widest">${g.title}</h4>${rows}`;
+                    reviewContent.appendChild(card);
+                });
+            }
+
+            document.getElementById('copySummaryBtn').addEventListener('click', () => {
+                let text = 'Resumen del Briefing e-Onyx\n';
+                reviewContent.querySelectorAll('.summary-card').forEach(card => {
+                    text += '\n' + card.querySelector('h4').textContent + '\n';
+                    card.querySelectorAll('.flex').forEach(row => {
+                        const spans = row.querySelectorAll('span');
+                        text += `- ${spans[0].textContent}: ${spans[1].textContent}\n`;
+                    });
+                });
+                navigator.clipboard.writeText(text).then(() => showNotification('Resumen copiado al portapapeles.', 'success'))
+                    .catch(() => showNotification('No se pudo copiar el resumen.', 'error'));
+            });
+
+            /* ======================= REVEAL AL SCROLL ======================= */
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+            /* ======================= BOTÓN VOLVER ARRIBA ======================= */
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 400));
+            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+            /* ======================= EFECTO RIPPLE EN BOTONES ======================= */
+            document.querySelectorAll('.btn-primary').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    const rect = this.getBoundingClientRect();
+                    const ripple = document.createElement('span');
+                    const size = Math.max(rect.width, rect.height);
+                    ripple.className = 'ripple';
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                    ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+
+            /* ======================= CONFETI DE ÉXITO ======================= */
+            function launchConfetti() {
+                const canvas = document.getElementById('confetti-canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+                const colors = ['#000000', '#b8933c', '#9ca3af', '#e5e7eb'];
+                const pieces = Array.from({ length: 120 }, () => ({
+                    x: Math.random() * canvas.width, y: -20 - Math.random() * canvas.height,
+                    r: 4 + Math.random() * 5, c: colors[Math.floor(Math.random() * colors.length)],
+                    vy: 2 + Math.random() * 3, vx: -1.5 + Math.random() * 3, rot: Math.random() * 360, vr: -6 + Math.random() * 12
+                }));
+                let frame = 0;
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    pieces.forEach(p => {
+                        p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+                        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+                        ctx.fillStyle = p.c; ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.6); ctx.restore();
+                    });
+                    frame++;
+                    if (frame < 140) requestAnimationFrame(draw); else ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+                draw();
+            }
+
+            /* ======================= ENVÍO DEL FORMULARIO Y GENERACIÓN DE PDF ======================= */
+            const successMessage = document.getElementById('successMessage');
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!validateStep(3) || !hiddenTypeInput.value) {
+                    showNotification('Revisa los campos obligatorios antes de enviar.', 'error');
+                    return;
+                }
+
+                const originalBtnContent = submitBtn.innerHTML;
+                submitBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white dark:text-black inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generando PDF y Enviando...`;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+
+                // 1. Crear un contenedor temporal limpio para generar el PDF
+                const printWrapper = document.createElement('div');
+                printWrapper.style.padding = '30px';
+                printWrapper.style.backgroundColor = '#ffffff';
+                printWrapper.style.color = '#000000';
+                printWrapper.style.fontFamily = 'Inter, sans-serif';
+                printWrapper.innerHTML = `<h1 style="font-size:24px; font-weight:bold; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">Briefing de Proyecto - e-Onyx</h1>`;
+                
+                const reviewClone = document.getElementById('reviewContent').cloneNode(true);
+                reviewClone.style.display = 'grid';
+                reviewClone.style.gridTemplateColumns = '1fr';
+                reviewClone.style.gap = '20px';
+                
+                const cards = reviewClone.querySelectorAll('.summary-card');
+                cards.forEach(card => {
+                    card.style.backgroundColor = '#f9fafb';
+                    card.style.border = '1px solid #e5e7eb';
+                    card.style.padding = '15px';
+                    card.style.borderRadius = '8px';
+                    const texts = card.querySelectorAll('span, h4');
+                    texts.forEach(t => t.style.color = '#000000');
+                });
+                printWrapper.appendChild(reviewClone);
+
+                const opt = {
+                    margin:       0.5,
+                    filename:     'Briefing_e-Onyx.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                // 2. Generar el PDF y luego hacer el Fetch POST
+                html2pdf().set(opt).from(printWrapper).outputPdf('blob').then(function(pdfBlob) {
+                    
+                    const formData = new FormData(form);
+                    formData.append('Documento_Resumen_PDF', pdfBlob, 'Briefing_Proyecto_e-Onyx.pdf');
+
+                    fetch("https://formsubmit.co/ajax/contact-support@e-onyx.com", {
+                        method: "POST", body: formData, headers: { 'Accept': 'application/json' }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            // AQUÍ ESTÁ LA MAGIA: Verificamos si FormSubmit nos está pidiendo activar el correo
+                            if (data.success === "false" || data.success === false) {
+                                console.error("Error de FormSubmit:", data);
+                                
+                                // Mostramos un mensaje claro al usuario indicando el problema de activación
+                                showNotification(
+                                    "⚠️ ¡ATENCIÓN! Revisa la bandeja de entrada o la carpeta de SPAM de contact-support@e-onyx.com y haz clic en 'Activate FormSubmit' para permitir los correos.",
+                                    "error"
+                                );
+                                
+                                // Restauramos el botón
+                                submitBtn.innerHTML = originalBtnContent;
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                                lucide.createIcons();
+                                return;
+                            }
+
+                            // Si todo salió bien (correo ya activado)
+                            document.querySelectorAll('main > form, main > div.mb-10, .text-center.mb-10').forEach(el => el.classList.add('hidden'));
+                            form.classList.add('hidden');
+                            successMessage.classList.remove('hidden');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            launchConfetti();
+                        })
+                        .catch(error => {
+                            console.error("Error crítico de red:", error);
+                            showNotification("Hubo un error de conexión al enviar tu formulario. Por favor, intenta más tarde.", "error");
+                            submitBtn.innerHTML = originalBtnContent;
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                            lucide.createIcons();
+                        });
+                });
+            });
+
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
