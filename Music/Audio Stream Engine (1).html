@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Bridge Engine - Mod Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        spotify: {
+                            green: '#1DB954',
+                            dark: '#121212',
+                            card: '#181818',
+                            hover: '#282828',
+                            subtext: '#b3b3b3'
+                        },
+                        youtube: {
+                            red: '#FF0000',
+                            dark: '#0f0f0f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 12s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-black text-white font-sans h-screen flex flex-col overflow-hidden select-none">
+
+    <header class="bg-spotify-dark px-6 py-4 flex items-center justify-between border-b border-neutral-800">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-spotify-green to-emerald-400 flex items-center justify-center text-black font-bold text-xl shadow-lg">
+                <i class="fa-solid fa-compact-disc animate-spin-slow"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Audio Bridge Engine</h1>
+                <p class="text-xs text-spotify-subtext">Spotify Metadata + YouTube Audio Scraper</p>
+            </div>
+        </div>
+
+        <div class="relative w-full max-w-md mx-4">
+            <form id="searchForm" class="relative flex items-center">
+                <input type="text" id="searchInput" placeholder="Buscar canción o artista (ej. La Baraja - Cardenales)..." 
+                    class="w-full bg-neutral-800 text-sm text-white pl-10 pr-24 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-spotify-green border border-transparent transition-all">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-neutral-400 text-sm"></i>
+                <button type="submit" class="absolute right-1.5 px-4 py-1.5 bg-spotify-green text-black rounded-full text-xs font-bold hover:bg-emerald-400 transition-colors">
+                    Buscar
+                </button>
+            </form>
+        </div>
+
+        <div class="hidden md:flex items-center space-x-3 text-xs bg-neutral-900 px-3.5 py-2 rounded-full border border-neutral-800">
+            <span id="statusIndicator" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            <span class="text-neutral-300 font-medium" id="engineStatus">Iniciando Motor...</span>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <aside class="w-80 bg-spotify-dark border-r border-neutral-800 p-5 flex flex-col justify-between hidden lg:flex">
+            <div class="space-y-6">
+                <div>
+                    <h2 class="text-xs font-bold text-spotify-subtext uppercase tracking-wider mb-3">¿Cómo funciona la extracción?</h2>
+                    <div class="space-y-3 text-xs text-neutral-300 bg-neutral-900 p-4 rounded-xl border border-neutral-800/80">
+                        <div class="flex items-start space-x-2">
+                            <span class="text-spotify-green font-bold">1.</span>
+                            <p><strong>Metadatos:</strong> Recupera portada HD e info del catálogo de música.</p>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <span class="text-spotify-green font-bold">2.</span>
+                            <p><strong>YouTube Engine:</strong> Busca el identificador directo en YouTube en segundo plano.</p>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <span class="text-spotify-green font-bold">3.</span>
+                            <p><strong>Audio Completo:</strong> Transmite la pista completa sin límites de tiempo en formato <strong>OPUS/AAC</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-xs font-bold text-spotify-subtext uppercase tracking-wider mb-3">Inspector del Stream</h2>
+                    <div class="bg-neutral-900 p-4 rounded-xl border border-neutral-800 space-y-3 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-neutral-400">Origen de Audio:</span>
+                            <span id="inspectSource" class="font-mono text-youtube-red font-semibold">YouTube Music</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-neutral-400">Bitrate estimado:</span>
+                            <span id="inspectBitrate" class="font-mono text-spotify-green font-semibold">160 kbps</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-neutral-400">Códec:</span>
+                            <span id="inspectCodec" class="font-mono text-neutral-200">audio/webm (Opus)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-neutral-400">Duración Pista:</span>
+                            <span id="inspectDuration" class="font-mono text-neutral-200">Completa</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-[11px] text-neutral-500 text-center leading-relaxed">
+                Ejecución lista para VS Code & Servidores Locales.<br>Compatible con cualquier navegador.
+            </div>
+        </aside>
+
+        <main class="flex-1 bg-gradient-to-b from-neutral-900 via-neutral-950 to-black overflow-y-auto p-6 flex flex-col justify-between">
+            
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold" id="sectionTitle">Canciones Sugeridas</h2>
+                    <span id="resultCount" class="text-xs text-spotify-subtext">3 resultados</span>
+                </div>
+
+                <div id="resultsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <!-- Dinámico por JS -->
+                </div>
+            </div>
+
+            <div id="nowPlayingCard" class="mt-8 bg-neutral-900/80 border border-neutral-800 rounded-2xl p-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 backdrop-blur-md shadow-2xl">
+                <img id="currentCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60" 
+                     alt="Portada" class="w-32 h-32 md:w-40 md:h-40 rounded-lg shadow-2xl object-cover border border-neutral-800">
+                
+                <div class="flex-1 text-center md:text-left space-y-2">
+                    <div class="inline-flex items-center space-x-2 bg-youtube-red/10 border border-youtube-red/30 px-3 py-1 rounded-full text-xs text-youtube-red font-semibold">
+                        <i class="fa-brands fa-youtube"></i>
+                        <span id="streamTag">YouTube • OPUS 160 kbps</span>
+                    </div>
+                    <h3 id="currentTitle" class="text-2xl md:text-3xl font-bold text-white tracking-wide">La Baraja</h3>
+                    <p id="currentArtist" class="text-spotify-subtext text-base font-medium">Los Cardenales De Nuevo León</p>
+                    <p id="currentAlbum" class="text-neutral-500 text-xs">Espejo De Cantina (1996)</p>
+                </div>
+
+                <div class="flex items-end space-x-1.5 h-12 px-4 py-2 bg-black/60 rounded-xl border border-neutral-800" id="audioVisualizer">
+                    <div class="w-1.5 bg-spotify-green rounded-full h-3 animate-pulse"></div>
+                    <div class="w-1.5 bg-spotify-green rounded-full h-8 animate-pulse"></div>
+                    <div class="w-1.5 bg-spotify-green rounded-full h-5 animate-pulse"></div>
+                    <div class="w-1.5 bg-spotify-green rounded-full h-10 animate-pulse"></div>
+                    <div class="w-1.5 bg-spotify-green rounded-full h-4 animate-pulse"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="bg-neutral-950 border-t border-neutral-800 px-4 py-3 flex items-center justify-between z-10">
+        
+        <div class="flex items-center space-x-3 w-1/4">
+            <img id="barCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60" 
+                 class="w-12 h-12 rounded shadow object-cover border border-neutral-800">
+            <div class="truncate">
+                <h4 id="barTitle" class="text-sm font-semibold text-white truncate">La Baraja</h4>
+                <p id="barArtist" class="text-xs text-spotify-subtext truncate">Los Cardenales De Nuevo León</p>
+            </div>
+            <button class="text-neutral-400 hover:text-spotify-green transition-colors pl-2 hidden sm:block">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+        </div>
+
+        <div class="flex flex-col items-center w-2/4 max-w-xl">
+            <div class="flex items-center space-x-6 mb-1">
+                <button id="btnShuffle" class="text-neutral-400 hover:text-white transition-colors text-xs">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+                <button id="btnPrev" class="text-neutral-300 hover:text-white transition-colors">
+                    <i class="fa-solid fa-backward-step text-lg"></i>
+                </button>
+                <button id="btnPlay" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg cursor-pointer">
+                    <i class="fa-solid fa-play text-base translate-x-0.5"></i>
+                </button>
+                <button id="btnNext" class="text-neutral-300 hover:text-white transition-colors">
+                    <i class="fa-solid fa-forward-step text-lg"></i>
+                </button>
+                <button id="btnRepeat" class="text-neutral-400 hover:text-white transition-colors text-xs">
+                    <i class="fa-solid fa-repeat"></i>
+                </button>
+            </div>
+
+            <div class="w-full flex items-center space-x-2 text-xs text-spotify-subtext font-mono">
+                <span id="currentTime">0:00</span>
+                <div class="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden relative cursor-pointer group" id="progressContainer">
+                    <div id="progressBar" class="h-full bg-spotify-green rounded-full w-0 group-hover:bg-emerald-400 transition-all"></div>
+                </div>
+                <span id="totalTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-4 w-1/4">
+            <span class="text-[10px] text-youtube-red bg-youtube-red/10 px-2 py-1 rounded border border-youtube-red/30 font-semibold hidden md:inline-block">
+                <i class="fa-brands fa-youtube"></i> OPUS
+            </span>
+            <div class="flex items-center space-x-2 w-24 sm:w-28">
+                <i class="fa-solid fa-volume-high text-xs text-neutral-400"></i>
+                <input type="range" id="volumeSlider" min="0" max="100" value="80" 
+                       class="w-full h-1 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-spotify-green">
+            </div>
+        </div>
+    </footer>
+
+    <div id="playerHost" class="fixed -bottom-96 left-0 opacity-0 pointer-events-none">
+        <div id="ytEngine"></div>
+    </div>
+
+    <!-- YouTube Iframe API Script -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        // Lista inicial de canciones predeterminadas
+        const initialTracks = [
+            {
+                id: '1',
+                title: 'La Baraja',
+                artist: 'Los Cardenales De Nuevo León',
+                album: 'Espejo De Cantina',
+                cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60',
+                query: 'Los Cardenales De Nuevo Leon La Baraja audio oficial'
+            },
+            {
+                id: '2',
+                title: 'Comprende',
+                artist: 'Los Cardenales De Nuevo León',
+                album: 'Con Chispas de Diamante',
+                cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=60',
+                query: 'Los Cardenales De Nuevo Leon Comprende audio'
+            },
+            {
+                id: '3',
+                title: 'Tragos de Amargo Licor',
+                artist: 'Ramón Ayala',
+                album: 'Corridos Famosos',
+                cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=60',
+                query: 'Ramon Ayala Tragos de amargo licor audio oficial'
+            }
+        ];
+
+        // Estado del Reproductor
+        let currentPlaylist = [...initialTracks];
+        let currentIndex = 0;
+        let isPlaying = false;
+        let ytPlayer = null;
+        let isYtReady = false;
+        let progressInterval = null;
+
+        // Referencias del DOM
+        const btnPlay = document.getElementById('btnPlay');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const currentTimeEl = document.getElementById('currentTime');
+        const totalTimeEl = document.getElementById('totalTime');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('searchInput');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const engineStatus = document.getElementById('engineStatus');
+        const statusIndicator = document.getElementById('statusIndicator');
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytEngine', {
+                height: '100',
+                width: '100',
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'playsinline': 1,
+                    'origin': window.location.origin || '*'
+                },
+                events: {
+                    'onReady': () => {
+                        isYtReady = true;
+                        setEngineStatus('Motor YouTube Listo', 'green');
+                        loadTrack(currentPlaylist[0], false);
+                    },
+                    'onStateChange': onPlayerStateChange,
+                    'onError': (err) => {
+                        console.warn("YouTube Player error:", err);
+                        setEngineStatus('Cargando fuente alternativa...', 'amber');
+                    }
+                }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                isPlaying = true;
+                btnPlay.innerHTML = '<i class="fa-solid fa-pause text-base"></i>';
+                setEngineStatus('Transmitiendo Canción Completa', 'green');
+                startProgressTimer();
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                isPlaying = false;
+                btnPlay.innerHTML = '<i class="fa-solid fa-play text-base translate-x-0.5"></i>';
+                setEngineStatus('Pausado', 'amber');
+                stopProgressTimer();
+            } else if (event.data === YT.PlayerState.ENDED) {
+                isPlaying = false;
+                stopProgressTimer();
+                document.getElementById('btnNext').click();
+            } else if (event.data === YT.PlayerState.BUFFERING) {
+                setEngineStatus('Cargando Buffer de Audio...', 'amber');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderResults(currentPlaylist);
+            setupAudioEvents();
+        });
+
+        // Actualiza el indicador visual de estado del motor
+        function setEngineStatus(text, color) {
+            engineStatus.textContent = text;
+            if (color === 'green') {
+                statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-spotify-green animate-pulse';
+            } else if (color === 'amber') {
+                statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+            } else {
+                statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+            }
+        }
+
+        function loadTrack(track, autoPlay = true) {
+            // Actualizar metadatos en la interfaz de usuario
+            document.getElementById('currentCover').src = track.cover;
+            document.getElementById('currentTitle').textContent = track.title;
+            document.getElementById('currentArtist').textContent = track.artist;
+            document.getElementById('currentAlbum').textContent = track.album || 'Sencillo';
+
+            document.getElementById('barCover').src = track.cover;
+            document.getElementById('barTitle').textContent = track.title;
+            document.getElementById('barArtist').textContent = track.artist;
+
+            progressBar.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+            totalTimeEl.textContent = '0:00';
+
+            const searchQuery = track.query || `${track.artist} ${track.title} audio oficial`;
+
+            if (isYtReady && ytPlayer) {
+                setEngineStatus('Localizando canción en YouTube...', 'amber');
+                
+                // Carga la lista de reproducción basada en búsqueda directa
+                if (autoPlay) {
+                    ytPlayer.loadPlaylist({
+                        listType: 'search',
+                        list: searchQuery,
+                        index: 0
+                    });
+                } else {
+                    ytPlayer.cuePlaylist({
+                        listType: 'search',
+                        list: searchQuery,
+                        index: 0
+                    });
+                }
+            }
+        }
+
+        // Conmutador Reproducir/Pausar
+        function togglePlay() {
+            if (!isYtReady || !ytPlayer) {
+                setEngineStatus('Esperando motor...', 'amber');
+                return;
+            }
+
+            if (isPlaying) {
+                ytPlayer.pauseVideo();
+            } else {
+                ytPlayer.playVideo();
+            }
+        }
+
+        function startProgressTimer() {
+            stopProgressTimer();
+            progressInterval = setInterval(() => {
+                if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getDuration) {
+                    const current = ytPlayer.getCurrentTime() || 0;
+                    const duration = ytPlayer.getDuration() || 0;
+
+                    if (duration > 0) {
+                        const percent = (current / duration) * 100;
+                        progressBar.style.width = `${percent}%`;
+                        currentTimeEl.textContent = formatTime(current);
+                        totalTimeEl.textContent = formatTime(duration);
+                        document.getElementById('inspectDuration').textContent = formatTime(duration);
+                    }
+                }
+            }, 500);
+        }
+
+        function stopProgressTimer() {
+            if (progressInterval) clearInterval(progressInterval);
+        }
+
+        function renderResults(tracks) {
+            resultsGrid.innerHTML = '';
+            tracks.forEach((track, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-spotify-card p-3.5 rounded-xl hover:bg-spotify-hover transition-all cursor-pointer group flex flex-col justify-between border border-transparent hover:border-neutral-800';
+                card.onclick = () => {
+                    currentIndex = index;
+                    loadTrack(track, true);
+                };
+
+                card.innerHTML = `
+                    <div class="relative mb-3">
+                        <img src="${track.cover}" class="w-full aspect-square object-cover rounded-md shadow-lg">
+                        <button class="w-10 h-10 rounded-full bg-spotify-green text-black flex items-center justify-center absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all shadow-xl">
+                            <i class="fa-solid fa-play translate-x-0.5"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-white truncate">${track.title}</h4>
+                        <p class="text-xs text-spotify-subtext truncate mt-1">${track.artist}</p>
+                    </div>
+                    <div class="mt-2 text-[10px] text-spotify-green font-mono flex items-center space-x-1">
+                        <i class="fa-brands fa-youtube"></i>
+                        <span>Canción Completa</span>
+                    </div>
+                `;
+                resultsGrid.appendChild(card);
+            });
+            document.getElementById('resultCount').textContent = `${tracks.length} canciones encontradas`;
+        }
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            setEngineStatus('Obteniendo metadatos...', 'amber');
+            document.getElementById('sectionTitle').textContent = `Resultados para: "${query}"`;
+
+            try {
+                // Consulta directa de metadatos vía iTunes API (compatible con CORS local sin bloqueos)
+                const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=10`);
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    const fetchedTracks = data.results.map((item) => ({
+                        id: item.trackId.toString(),
+                        title: item.trackName,
+                        artist: item.artistName,
+                        album: item.collectionName || 'Sencillo',
+                        cover: item.artworkUrl100.replace('100x100bb', '600x600bb'),
+                        query: `${item.artistName} ${item.trackName} audio oficial`
+                    }));
+
+                    currentPlaylist = fetchedTracks;
+                    renderResults(currentPlaylist);
+                    currentIndex = 0;
+                    loadTrack(currentPlaylist[0], true);
+                } else {
+                    document.getElementById('sectionTitle').textContent = 'Sin resultados';
+                    setEngineStatus('No se encontraron canciones', 'red');
+                }
+            } catch (err) {
+                console.error("Error al buscar metadatos:", err);
+                setEngineStatus('Error de conexión a la API', 'red');
+            }
+        });
+
+        function setupAudioEvents() {
+            btnPlay.onclick = togglePlay;
+
+            progressContainer.onclick = (e) => {
+                if (!ytPlayer || !ytPlayer.getDuration) return;
+                const rect = progressContainer.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                const targetTime = pos * ytPlayer.getDuration();
+                ytPlayer.seekTo(targetTime, true);
+            };
+
+            volumeSlider.oninput = (e) => {
+                const vol = parseInt(e.target.value);
+                if (ytPlayer && ytPlayer.setVolume) {
+                    ytPlayer.setVolume(vol);
+                }
+            };
+
+            document.getElementById('btnNext').onclick = () => {
+                currentIndex = (currentIndex + 1) % currentPlaylist.length;
+                loadTrack(currentPlaylist[currentIndex], true);
+            };
+
+            document.getElementById('btnPrev').onclick = () => {
+                currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+                loadTrack(currentPlaylist[currentIndex], true);
+            };
+        }
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+    </script>
+</body>
+</html>
