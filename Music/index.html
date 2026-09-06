@@ -202,44 +202,8 @@
         <div class="flex flex-col items-center w-2/4 max-w-xl">
             <div class="flex items-center space-x-6 mb-1">
                 <button id="btnShuffle" class="text-neutral-400 hover:text-white transition-colors text-xs">
-                    <i class="fa-solid fa-shuffle"></i>
-                </button>
-                <button id="btnPrev" class="text-neutral-300 hover:text-white transition-colors">
-                    <i class="fa-solid fa-backward-step text-lg"></i>
-                </button>
-                <button id="btnPlay" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg cursor-pointer">
-                    <i class="fa-solid fa-play text-base translate-x-0.5"></i>
-                </button>
-                <button id="btnNext" class="text-neutral-300 hover:text-white transition-colors">
-                    <i class="fa-solid fa-forward-step text-lg"></i>
-                </button>
-                <button id="btnRepeat" class="text-neutral-400 hover:text-white transition-colors text-xs">
-                    <i class="fa-solid fa-repeat"></i>
-                </button>
-            </div>
-
-            <div class="w-full flex items-center space-x-2 text-xs text-spotify-subtext font-mono">
-                <span id="currentTime">0:00</span>
-                <div class="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden relative cursor-pointer group" id="progressContainer">
-                    <div id="progressBar" class="h-full bg-spotify-green rounded-full w-0 group-hover:bg-emerald-400 transition-all"></div>
-                </div>
-                <span id="totalTime">0:00</span>
-            </div>
-        </div>
-
-        <div class="flex items-center justify-end space-x-4 w-1/4">
-            <span class="text-[10px] text-spotify-green bg-spotify-green/10 px-2 py-1 rounded border border-spotify-green/30 font-semibold hidden md:inline-block">
-                <i class="fa-solid fa-bolt"></i> FAST AUDIO
-            </span>
-            <div class="flex items-center space-x-2 w-24 sm:w-28">
-                <i class="fa-solid fa-volume-high text-xs text-neutral-400"></i>
-                <input type="range" id="volumeSlider" min="0" max="100" value="80" 
-                       class="w-full h-1 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-spotify-green">
-            </div>
-        </div>
-    </footer>
-
-    <!-- Contenedor iframe de YouTube -->
+    <!-- Contenedor iframe de YouTube y Audio Nativo -->
+    <audio id="nativeAudio" preload="auto"></audio>
     <div id="playerHost" class="fixed -bottom-96 left-0 opacity-0 pointer-events-none">
         <div id="ytEngine"></div>
     </div>
@@ -253,6 +217,7 @@
                 album: 'Espejo De Cantina',
                 cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60',
                 youtubeId: 'tnZ38lJnX4A',
+                previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3d/8c/29/3d8c29fa-3f39-6548-81fa-22345d3e0db8/mzaf_16238323671848135898.plus.aac.p.m4a',
                 query: 'Los Cardenales De Nuevo Leon La Baraja'
             },
             {
@@ -262,6 +227,7 @@
                 album: 'Con Chispas de Diamante',
                 cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=60',
                 youtubeId: 'xS3X08eXg9A',
+                previewUrl: '',
                 query: 'Los Cardenales De Nuevo Leon Comprende'
             },
             {
@@ -271,51 +237,34 @@
                 album: 'Corridos Famosos',
                 cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=60',
                 youtubeId: 'peMNZvjCWTs',
+                previewUrl: '',
                 query: 'Ramon Ayala Tragos de amargo licor'
             }
         ];
 
-        // Resolución multinivel con scraping via CORS proxy + APIs espejo de Invidious y Piped
+        // Resolutores de API JSON rápidas (evitan bloqueos de scraping CORS)
         const SEARCH_RESOLVERS = [
-            // Método 1: Búsqueda directa en YouTube vía corsproxy.io (Más rápido y confiable)
-            async (q) => {
-                const targetUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
-                const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
-                if (!res.ok) throw new Error('Proxy 1 falló');
-                const html = await res.text();
-                const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
-                return match ? match[1] : null;
-            },
-            // Método 2: Búsqueda directa vía allorigins proxy
-            async (q) => {
-                const targetUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
-                const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
-                if (!res.ok) throw new Error('Proxy 2 falló');
-                const html = await res.text();
-                const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
-                return match ? match[1] : null;
-            },
-            // Método 3: API Invidious Tux Pizza
-            async (q) => {
-                const res = await fetch(`https://inv.tux.pizza/api/v1/search?q=${encodeURIComponent(q)}&type=video`);
-                if (!res.ok) throw new Error('Invidious 1 falló');
+            async (q, signal) => {
+                const res = await fetch(`https://api.piped.yt/search?q=${encodeURIComponent(q)}&filter=music_songs`, { signal });
+                if (!res.ok) throw new Error('Piped 1 failed');
                 const data = await res.json();
-                return data?.[0]?.videoId || null;
+                const id = data?.items?.[0]?.url?.match(/v=([a-zA-Z0-9_-]{11})/)?.[1];
+                if (id) return id;
+                throw new Error('No ID');
             },
-            // Método 4: API Invidious NerdVPN
-            async (q) => {
-                const res = await fetch(`https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(q)}&type=video`);
-                if (!res.ok) throw new Error('Invidious 2 falló');
+            async (q, signal) => {
+                const res = await fetch(`https://inv.tux.pizza/api/v1/search?q=${encodeURIComponent(q)}&type=video`, { signal });
+                if (!res.ok) throw new Error('Invidious 1 failed');
                 const data = await res.json();
-                return data?.[0]?.videoId || null;
+                if (data?.[0]?.videoId) return data[0].videoId;
+                throw new Error('No ID');
             },
-            // Método 5: API Piped
-            async (q) => {
-                const res = await fetch(`https://api.piped.yt/search?q=${encodeURIComponent(q)}&filter=music_songs`);
-                if (!res.ok) throw new Error('Piped falló');
+            async (q, signal) => {
+                const res = await fetch(`https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(q)}&type=video`, { signal });
+                if (!res.ok) throw new Error('Invidious 2 failed');
                 const data = await res.json();
-                const first = data?.items?.[0]?.url;
-                return first ? (first.match(/v=([a-zA-Z0-9_-]{11})/) || [])[1] : null;
+                if (data?.[0]?.videoId) return data[0].videoId;
+                throw new Error('No ID');
             }
         ];
 
@@ -326,7 +275,9 @@
         let isYtReady = false;
         let progressInterval = null;
         let loadStartTime = 0;
+        let activeEngine = 'native'; // 'native' o 'youtube'
 
+        const nativeAudio = document.getElementById('nativeAudio');
         const btnPlay = document.getElementById('btnPlay');
         const progressBar = document.getElementById('progressBar');
         const progressContainer = document.getElementById('progressContainer');
@@ -358,19 +309,18 @@
                     events: {
                         'onReady': () => {
                             isYtReady = true;
-                            setEngineStatus('Motor Listo ⚡', 'green');
-                            loadTrack(currentPlaylist[0], false);
+                            if (activeEngine !== 'native') {
+                                setEngineStatus('Motor Listo ⚡', 'green');
+                            }
                         },
                         'onStateChange': onPlayerStateChange,
                         'onError': (err) => {
-                            console.warn("Error reproduciendo pista actual:", err);
-                            setEngineStatus('Error al reproducir pista', 'red');
+                            console.warn("Error en reproductor YouTube:", err);
                         }
                     }
                 });
             } catch (e) {
                 console.error("Error al inicializar YouTube Player:", e);
-                setEngineStatus('Error al iniciar motor.', 'red');
             }
         };
 
@@ -382,13 +332,9 @@
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         })();
 
-        setTimeout(() => {
-            if (!isYtReady && typeof YT !== 'undefined' && YT.Player && !ytPlayer) {
-                window.onYouTubeIframeAPIReady();
-            }
-        }, 2000);
-
         function onPlayerStateChange(event) {
+            if (activeEngine !== 'youtube') return;
+
             if (event.data === YT.PlayerState.PLAYING) {
                 isPlaying = true;
                 btnPlay.innerHTML = '<i class="fa-solid fa-pause text-base"></i>';
@@ -397,9 +343,10 @@
                     ytPlayer.setPlaybackQuality('small');
                 }
 
-                const elapsed = loadStartTime ? Math.round(performance.now() - loadStartTime) : 250;
+                const elapsed = loadStartTime ? Math.round(performance.now() - loadStartTime) : 120;
                 setEngineStatus(`Reproduciendo • ${elapsed}ms ⚡`, 'green');
                 document.getElementById('inspectSpeed').textContent = `${elapsed} ms`;
+                document.getElementById('inspectCodec').textContent = 'OPUS / WebM';
                 startProgressTimer();
             } else if (event.data === YT.PlayerState.PAUSED) {
                 isPlaying = false;
@@ -411,13 +358,14 @@
                 stopProgressTimer();
                 document.getElementById('btnNext').click();
             } else if (event.data === YT.PlayerState.BUFFERING) {
-                setEngineStatus('Cargando Audio...', 'amber');
+                setEngineStatus('Cargando Stream YouTube...', 'amber');
             }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             renderResults(currentPlaylist);
             setupAudioEvents();
+            setEngineStatus('Motor Nativo Listo ⚡', 'green');
         });
 
         function setEngineStatus(text, color) {
@@ -431,37 +379,32 @@
             }
         }
 
-        // Resolutor mejorado con tolerancia a fallos
+        // Resolutor rápido en paralelo con Timeout
         async function resolveYouTubeVideoId(query) {
-            const queriesToTry = [
-                query,
-                query.replace(/[\(\)\[\]]/g, '').trim(),
-                query.split('-')[0].trim()
-            ];
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2500);
 
-            for (const q of queriesToTry) {
-                if (!q) continue;
-                for (const resolver of SEARCH_RESOLVERS) {
-                    try {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 3500);
-                        
-                        const videoId = await resolver(q);
-                        clearTimeout(timeoutId);
-
-                        if (videoId && typeof videoId === 'string' && videoId.length === 11) {
-                            return videoId;
-                        }
-                    } catch (e) {
-                        continue;
-                    }
-                }
+            try {
+                const results = await Promise.allSettled(
+                    SEARCH_RESOLVERS.map(resolver => resolver(query, controller.signal))
+                );
+                clearTimeout(timeoutId);
+                const fulfilled = results.find(r => r.status === 'fulfilled' && r.value);
+                if (fulfilled) return fulfilled.value;
+            } catch (e) {
+                clearTimeout(timeoutId);
             }
             return null;
         }
 
         async function loadTrack(track, autoPlay = true) {
             loadStartTime = performance.now();
+
+            // Pausar cualquier reproductor previo
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+                try { ytPlayer.pauseVideo(); } catch(e){}
+            }
+            nativeAudio.pause();
 
             document.getElementById('currentCover').src = track.cover;
             document.getElementById('currentTitle').textContent = track.title;
@@ -476,11 +419,49 @@
             currentTimeEl.textContent = '0:00';
             totalTimeEl.textContent = '0:00';
 
+            // PRIORIDAD 1: Reproducción Instantánea vía Audio Nativo (iTunes Stream Preview)
+            if (track.previewUrl) {
+                activeEngine = 'native';
+                nativeAudio.src = track.previewUrl;
+                document.getElementById('inspectCodec').textContent = 'AAC / MP4 (Instant)';
+                document.getElementById('streamTag').textContent = 'Audio Instantáneo • HQ Directo';
+
+                if (autoPlay) {
+                    try {
+                        await nativeAudio.play();
+                        isPlaying = true;
+                        btnPlay.innerHTML = '<i class="fa-solid fa-pause text-base"></i>';
+                        const elapsed = Math.round(performance.now() - loadStartTime);
+                        setEngineStatus(`Reproduciendo al instante ⚡ (${elapsed}ms)`, 'green');
+                        document.getElementById('inspectSpeed').textContent = `${elapsed} ms`;
+                        startProgressTimer();
+                    } catch (err) {
+                        console.warn("Fallo al reproducir audio nativo:", err);
+                    }
+                }
+
+                // Cargar YouTube en segundo plano de forma silenciosa si se requiere
+                if (track.youtubeId) {
+                    document.getElementById('inspectVideoId').textContent = track.youtubeId;
+                } else {
+                    resolveYouTubeVideoId(track.query || `${track.artist} ${track.title}`).then(id => {
+                        if (id) {
+                            track.youtubeId = id;
+                            document.getElementById('inspectVideoId').textContent = id;
+                        }
+                    });
+                }
+                return;
+            }
+
+            // PRIORIDAD 2: YouTube Fallback (si no hay previewUrl directa)
+            activeEngine = 'youtube';
+            document.getElementById('streamTag').textContent = 'YouTube • Transmisión Directa';
             let videoId = track.youtubeId;
 
             if (!videoId) {
-                setEngineStatus('Resolviendo Video ID...', 'amber');
-                const searchQuery = track.query || `${track.artist} ${track.title} audio`;
+                setEngineStatus('Obteniendo enlace YouTube...', 'amber');
+                const searchQuery = track.query || `${track.artist} ${track.title}`;
                 videoId = await resolveYouTubeVideoId(searchQuery);
 
                 if (videoId) {
@@ -488,56 +469,62 @@
                 }
             }
 
-            if (!isYtReady || !ytPlayer) {
-                if (videoId) document.getElementById('inspectVideoId').textContent = videoId;
-                return;
-            }
-
             if (videoId) {
                 document.getElementById('inspectVideoId').textContent = videoId;
-                setEngineStatus('⚡ Transmitiendo audio...', 'amber');
-
-                try {
+                if (isYtReady && ytPlayer) {
                     if (autoPlay) {
-                        if (typeof ytPlayer.loadVideoById === 'function') {
-                            ytPlayer.loadVideoById(videoId);
-                        }
+                        ytPlayer.loadVideoById(videoId);
                     } else {
-                        if (typeof ytPlayer.cueVideoById === 'function') {
-                            ytPlayer.cueVideoById(videoId);
-                        }
+                        ytPlayer.cueVideoById(videoId);
                     }
-                } catch (err) {
-                    console.warn("Error enviando comando a YouTube Player:", err);
                 }
             } else {
-                setEngineStatus('No se encontró el audio exacto', 'red');
+                setEngineStatus('Pista no disponible', 'red');
                 document.getElementById('inspectVideoId').textContent = 'Error';
             }
         }
 
         function togglePlay() {
-            if (!isYtReady || !ytPlayer) {
-                if (typeof YT !== 'undefined' && YT.Player && !ytPlayer) {
-                    window.onYouTubeIframeAPIReady();
+            if (activeEngine === 'native') {
+                if (isPlaying) {
+                    nativeAudio.pause();
+                    isPlaying = false;
+                    btnPlay.innerHTML = '<i class="fa-solid fa-play text-base translate-x-0.5"></i>';
+                    setEngineStatus('Pausado', 'amber');
+                    stopProgressTimer();
+                } else {
+                    nativeAudio.play().then(() => {
+                        isPlaying = true;
+                        btnPlay.innerHTML = '<i class="fa-solid fa-pause text-base"></i>';
+                        setEngineStatus('Reproduciendo al instante ⚡', 'green');
+                        startProgressTimer();
+                    });
                 }
-                return;
-            }
-
-            if (isPlaying) {
-                if (typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
-            } else {
-                if (typeof ytPlayer.playVideo === 'function') ytPlayer.playVideo();
+            } else if (activeEngine === 'youtube' && isYtReady && ytPlayer) {
+                if (isPlaying) {
+                    if (typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
+                } else {
+                    if (typeof ytPlayer.playVideo === 'function') ytPlayer.playVideo();
+                }
             }
         }
 
         function startProgressTimer() {
             stopProgressTimer();
             progressInterval = setInterval(() => {
-                if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
+                if (activeEngine === 'native') {
+                    const current = nativeAudio.currentTime || 0;
+                    const duration = nativeAudio.duration || 0;
+                    if (duration > 0) {
+                        const percent = (current / duration) * 100;
+                        progressBar.style.width = `${percent}%`;
+                        currentTimeEl.textContent = formatTime(current);
+                        totalTimeEl.textContent = formatTime(duration);
+                        document.getElementById('inspectDuration').textContent = formatTime(duration);
+                    }
+                } else if (activeEngine === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
                     const current = ytPlayer.getCurrentTime() || 0;
                     const duration = ytPlayer.getDuration() || 0;
-
                     if (duration > 0) {
                         const percent = (current / duration) * 100;
                         progressBar.style.width = `${percent}%`;
@@ -546,7 +533,7 @@
                         document.getElementById('inspectDuration').textContent = formatTime(duration);
                     }
                 }
-            }, 400);
+            }, 300);
         }
 
         function stopProgressTimer() {
@@ -576,7 +563,7 @@
                     </div>
                     <div class="mt-2 text-[10px] text-spotify-green font-mono flex items-center space-x-1">
                         <i class="fa-solid fa-bolt text-yellow-400"></i>
-                        <span>Reproducción Individual</span>
+                        <span>Reproducción Instantánea</span>
                     </div>
                 `;
                 resultsGrid.appendChild(card);
@@ -593,7 +580,7 @@
             document.getElementById('sectionTitle').textContent = `Resultados para: "${query}"`;
 
             try {
-                const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=10`);
+                const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=12`);
                 const data = await response.json();
 
                 if (data.results && data.results.length > 0) {
@@ -603,6 +590,7 @@
                         artist: item.artistName,
                         album: item.collectionName || 'Sencillo',
                         cover: item.artworkUrl100.replace('100x100bb', '600x600bb'),
+                        previewUrl: item.previewUrl || '',
                         query: `${item.artistName} ${item.trackName}`
                     }));
 
@@ -610,6 +598,7 @@
                     renderResults(currentPlaylist);
                     currentIndex = 0;
                     
+                    // Cargar y reproducir inmediatamente al instante
                     loadTrack(currentPlaylist[0], true);
 
                 } else {
@@ -625,18 +614,29 @@
         function setupAudioEvents() {
             btnPlay.onclick = togglePlay;
 
+            nativeAudio.onended = () => {
+                isPlaying = false;
+                stopProgressTimer();
+                document.getElementById('btnNext').click();
+            };
+
             progressContainer.onclick = (e) => {
-                if (!ytPlayer || typeof ytPlayer.getDuration !== 'function') return;
                 const rect = progressContainer.getBoundingClientRect();
                 const pos = (e.clientX - rect.left) / rect.width;
-                const targetTime = pos * ytPlayer.getDuration();
-                if (typeof ytPlayer.seekTo === 'function') {
-                    ytPlayer.seekTo(targetTime, true);
+
+                if (activeEngine === 'native' && nativeAudio.duration) {
+                    nativeAudio.currentTime = pos * nativeAudio.duration;
+                } else if (activeEngine === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
+                    const targetTime = pos * ytPlayer.getDuration();
+                    if (typeof ytPlayer.seekTo === 'function') {
+                        ytPlayer.seekTo(targetTime, true);
+                    }
                 }
             };
 
             volumeSlider.oninput = (e) => {
                 const vol = parseInt(e.target.value);
+                nativeAudio.volume = vol / 100;
                 if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
                     ytPlayer.setVolume(vol);
                 }
