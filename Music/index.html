@@ -127,6 +127,48 @@
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
   }
+
+  /* ---------- Reproductor a pantalla completa ---------- */
+  #bigPlayer {
+    transform: translateY(100%);
+    transition: transform .45s cubic-bezier(.16,1,.3,1);
+  }
+  #bigPlayer.open { transform: translateY(0); }
+
+  /* ---------- Fondo neón difuminado ---------- */
+  @keyframes neonFloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(30px,-40px) scale(1.15); }
+    66% { transform: translate(-25px,30px) scale(0.9); }
+  }
+  .neon-blob { position: absolute; border-radius: 50%; filter: blur(110px); animation: neonFloat 18s ease-in-out infinite; will-change: transform; }
+  .neon-blob-1 { width: 420px; height: 420px; background: #ff2fd6; opacity: .32; top: -120px; left: -80px; }
+  .neon-blob-2 { width: 460px; height: 460px; background: #28e8ff; opacity: .26; bottom: -160px; right: -100px; animation-duration: 22s; animation-delay: -6s; }
+  .neon-blob-3 { width: 360px; height: 360px; background: #9d4bff; opacity: .28; top: 42%; left: 50%; animation-duration: 26s; animation-delay: -12s; }
+  @media (max-width: 480px) {
+    .neon-blob-1, .neon-blob-2, .neon-blob-3 { filter: blur(70px); }
+  }
+
+  /* ---------- Animación blur en la carátula ---------- */
+  @keyframes blurBreath {
+    0%, 100% { filter: blur(0px) saturate(1); transform: scale(1); }
+    50% { filter: blur(5px) saturate(1.3); transform: scale(1.015); }
+  }
+  .cover-blur-breath { animation: blurBreath 4.5s ease-in-out infinite; animation-play-state: paused; transition: filter .3s ease; }
+  .cover-blur-breath.is-playing { animation-play-state: running; }
+
+  @keyframes coverFadeIn { from { opacity: 0; transform: scale(.96); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+  .cover-fade-in { animation: coverFadeIn .6s cubic-bezier(.16,1,.3,1) both; }
+
+  .big-cover-wrap { width: min(74vw, 340px); height: min(74vw, 340px); }
+  @media (min-width: 768px) { .big-cover-wrap { width: min(36vw, 420px); height: min(36vw, 420px); } }
+
+  .repeat-badge { font-size: 9px; line-height: 1.4; min-width: 14px; text-align: center; }
+
+  /* ---------- Responsive extra para el reproductor grande ---------- */
+  @media (max-height: 700px) {
+    .big-cover-wrap { width: min(52vw, 240px); height: min(52vw, 240px); }
+  }
 </style>
 </head>
 <body class="bg-base text-white font-sans h-screen flex flex-col overflow-hidden select-none relative">
@@ -263,15 +305,20 @@
 <!-- Barra inferior -->
 <footer class="relative z-10 bg-surface/80 backdrop-blur-xl border-t border-edge px-4 py-3 flex items-center gap-4">
 
-  <div class="flex items-center gap-3 w-1/4 min-w-0">
-    <img id="barCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60"
-      class="w-11 h-11 rounded-lg shadow object-cover border border-edge">
-    <div class="truncate">
-      <h4 id="barTitle" class="text-sm font-semibold text-white truncate">Sin reproducción</h4>
-      <p id="barArtist" class="text-xs text-sub truncate">—</p>
-    </div>
-    <button class="text-sub hover:text-magenta transition-colors pl-2 hidden sm:block btn-scale">
+  <div class="flex items-center gap-2 sm:gap-3 w-1/4 min-w-0">
+    <button id="miniInfo" class="flex items-center gap-3 min-w-0 flex-1 text-left btn-scale" title="Abrir vista grande">
+      <img id="barCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60"
+        class="w-11 h-11 rounded-lg shadow object-cover border border-edge">
+      <div class="truncate">
+        <h4 id="barTitle" class="text-sm font-semibold text-white truncate">Sin reproducción</h4>
+        <p id="barArtist" class="text-xs text-sub truncate">—</p>
+      </div>
+    </button>
+    <button class="text-sub hover:text-magenta transition-colors pl-1 hidden sm:block btn-scale">
       <i class="fa-regular fa-heart"></i>
+    </button>
+    <button id="btnExpand" class="text-sub hover:text-white transition-colors pl-1 btn-scale shrink-0" title="Vista grande">
+      <i class="fa-solid fa-chevron-up"></i>
     </button>
   </div>
 
@@ -308,6 +355,101 @@
     <input type="range" id="volumeSlider" min="0" max="100" value="80" class="w-24">
   </div>
 </footer>
+
+<!-- Reproductor a pantalla completa (vista grande) -->
+<div id="bigPlayer" class="fixed inset-0 z-40 bg-black flex flex-col overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="neon-blob neon-blob-1"></div>
+    <div class="neon-blob neon-blob-2"></div>
+    <div class="neon-blob neon-blob-3"></div>
+    <div class="absolute inset-0 bg-black/40"></div>
+  </div>
+
+  <div class="relative z-10 flex flex-col h-full w-full max-w-3xl mx-auto px-5 sm:px-8 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+
+    <!-- Encabezado -->
+    <div class="flex items-center justify-between py-2 shrink-0">
+      <button id="btnCollapse" class="w-9 h-9 flex items-center justify-center text-sub hover:text-white transition-colors btn-scale" title="Minimizar">
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
+      <div class="text-center min-w-0 px-2">
+        <p class="text-[10px] uppercase tracking-wider text-sub font-semibold">Reproduciendo ahora</p>
+        <p id="bigAlbum" class="text-xs text-neutral-400 truncate max-w-[55vw] mx-auto">—</p>
+      </div>
+      <button class="w-9 h-9 flex items-center justify-center text-sub hover:text-magenta transition-colors btn-scale shrink-0">
+        <i class="fa-regular fa-heart"></i>
+      </button>
+    </div>
+
+    <!-- Carátula grande con animación blur -->
+    <div class="flex-1 flex items-center justify-center min-h-0">
+      <div class="relative big-cover-wrap">
+        <img id="bigCoverGlow" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60"
+          alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover rounded-3xl blur-3xl opacity-60 scale-110 -z-10">
+        <img id="bigCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60"
+          alt="Portada" class="cover-blur-breath relative w-full h-full object-cover rounded-3xl shadow-2xl border border-white/10">
+      </div>
+    </div>
+
+    <!-- Título / artista -->
+    <div class="text-center space-y-1 shrink-0 mb-4">
+      <h2 id="bigTitle" class="font-display font-bold text-xl sm:text-2xl text-white truncate">Elige una canción</h2>
+      <p id="bigArtist" class="text-sub text-sm sm:text-base truncate">Busca arriba para comenzar</p>
+      <div class="flex items-center justify-center gap-4 pt-1">
+        <a id="bigOpenYoutube" target="_blank" rel="noopener" class="text-[11px] text-sub hover:text-white transition-colors flex items-center gap-1.5">
+          <i class="fa-brands fa-youtube text-white"></i> YouTube
+        </a>
+        <a id="bigOpenYtMusic" target="_blank" rel="noopener" class="text-[11px] text-sub hover:text-white transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-music text-gray-300"></i> YouTube Music
+        </a>
+      </div>
+    </div>
+
+    <!-- Progreso -->
+    <div class="flex items-center gap-2.5 w-full shrink-0 mb-5">
+      <span id="bigCurrentTime" class="text-[11px] text-sub font-mono w-9 text-right">0:00</span>
+      <div id="bigProgressContainer" class="flex-1 h-1.5 bg-surface2 rounded-full overflow-hidden cursor-pointer relative">
+        <div id="bigProgressBar" class="h-full grad-bg rounded-full" style="width:0%"></div>
+      </div>
+      <span id="bigTotalTime" class="text-[11px] text-sub font-mono w-9">0:00</span>
+    </div>
+
+    <!-- Controles principales -->
+    <div class="flex items-center justify-center gap-5 sm:gap-8 shrink-0 mb-5">
+      <button id="btnShuffleBig" class="text-sub hover:text-white transition-colors text-base btn-scale" title="Aleatorio">
+        <i class="fa-solid fa-shuffle"></i>
+      </button>
+      <button id="btnPrevBig" class="text-white hover:text-neutral-200 transition-colors text-xl btn-scale" title="Anterior">
+        <i class="fa-solid fa-backward-step"></i>
+      </button>
+      <button id="btnPlayBig" class="w-16 h-16 rounded-full grad-bg text-black flex items-center justify-center play-main shadow-lg shadow-violet/30 text-xl">
+        <i class="fa-solid fa-play translate-x-0.5"></i>
+      </button>
+      <button id="btnNextBig" class="text-white hover:text-neutral-200 transition-colors text-xl btn-scale" title="Siguiente">
+        <i class="fa-solid fa-forward-step"></i>
+      </button>
+      <button id="btnRepeatBig" class="text-sub hover:text-white transition-colors text-base btn-scale relative" title="Repetir (una vez / indefinida / lista)">
+        <i class="fa-solid fa-repeat"></i>
+        <span id="repeatBadgeBig" class="repeat-badge hidden absolute -top-2 -right-2.5 px-1 rounded-full bg-magenta text-black font-bold">1</span>
+      </button>
+    </div>
+
+    <!-- Ecualizador + volumen -->
+    <div class="flex items-center justify-between gap-4 shrink-0 pb-1">
+      <div class="flex items-end gap-1.5 h-8 px-3 py-1.5 bg-black/50 rounded-lg border border-edge" id="audioVisualizerBig">
+        <div class="eq-bar eq1 w-1 grad-bg rounded-full h-2"></div>
+        <div class="eq-bar eq2 w-1 grad-bg rounded-full h-6"></div>
+        <div class="eq-bar eq3 w-1 grad-bg rounded-full h-3.5"></div>
+        <div class="eq-bar eq4 w-1 grad-bg rounded-full h-7"></div>
+        <div class="eq-bar eq5 w-1 grad-bg rounded-full h-3"></div>
+      </div>
+      <div class="flex items-center gap-2.5 flex-1 max-w-[160px]">
+        <i class="fa-solid fa-volume-low text-sub text-sm"></i>
+        <input type="range" id="volumeSliderBig" min="0" max="100" value="80" class="w-full">
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="playerHost" class="fixed -bottom-96 left-0 opacity-0 pointer-events-none">
   <div id="ytEngine"></div>
@@ -448,7 +590,8 @@
   let loadStartTime = 0;
   let loadToken = 0;           // evita que resultados de búsquedas viejas pisen la pista actual
   let shuffleOn = false;
-  let repeatMode = 'off';      // 'off' | 'all' | 'one'
+  let repeatMode = 'off';      // 'off' | 'all' | 'one' (indefinida) | 'once' (una vez)
+  let repeatOnceUsed = false;  // controla si ya se usó la repetición única de la pista actual
   const resolveCache = new Map(); // query -> Promise<videoId|null>
 
   /* ================= Referencias DOM ================= */
@@ -503,10 +646,15 @@
 
   function setPlayingVisuals(playing) {
     audioVisualizer.classList.toggle('is-playing', playing);
+    $('audioVisualizerBig').classList.toggle('is-playing', playing);
     $('currentCover').classList.toggle('is-playing', playing);
+    $('bigCover').classList.toggle('is-playing', playing);
     btnPlay.innerHTML = playing
       ? '<i class="fa-solid fa-pause text-sm"></i>'
       : '<i class="fa-solid fa-play text-sm translate-x-0.5"></i>';
+    $('btnPlayBig').innerHTML = playing
+      ? '<i class="fa-solid fa-pause"></i>'
+      : '<i class="fa-solid fa-play translate-x-0.5"></i>';
   }
 
   function ytSearchUrl(q) { return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`; }
@@ -765,6 +913,22 @@
     progressBar.style.width = '0%';
     currentTimeEl.textContent = '0:00';
     totalTimeEl.textContent = '0:00';
+
+    // Reproductor a pantalla completa (vista grande)
+    const bigCover = $('bigCover');
+    bigCover.classList.remove('cover-fade-in');
+    void bigCover.offsetWidth; // reinicia la animación de entrada
+    bigCover.classList.add('cover-fade-in');
+    bigCover.src = track.cover;
+    $('bigCoverGlow').src = track.cover;
+    $('bigTitle').textContent = track.title;
+    $('bigArtist').textContent = track.artist;
+    $('bigAlbum').textContent = track.album || 'Sencillo';
+    $('bigOpenYoutube').href = ytSearchUrl(track.query || `${track.artist} ${track.title}`);
+    $('bigOpenYtMusic').href = ytMusicUrl(track.query || `${track.artist} ${track.title}`);
+    $('bigProgressBar').style.width = '0%';
+    $('bigCurrentTime').textContent = '0:00';
+    $('bigTotalTime').textContent = '0:00';
   }
 
   function getVideoId(track, signal) {
@@ -779,9 +943,10 @@
     return p;
   }
 
-  async function loadTrack(track, autoPlay = true) {
+  async function loadTrack(track, autoPlay = true, isRepeatReplay = false) {
     const myToken = ++loadToken;
     loadStartTime = performance.now();
+    if (!isRepeatReplay) repeatOnceUsed = false;
 
     stopProgressTimer();
     if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') { try { ytPlayer.pauseVideo(); } catch (e) {} }
@@ -819,10 +984,26 @@
   }
 
   async function handleTrackEnded() {
-    if (repeatMode === 'one') {
-      const track = currentPlaylist[currentIndex];
-      if (track) { loadTrack(track, true); return; }
+    const track = currentPlaylist[currentIndex];
+
+    // Repetir esta canción indefinidamente
+    if (repeatMode === 'one' && track) {
+      loadTrack(track, true, true);
+      return;
     }
+
+    // Repetir esta canción una sola vez y luego continuar
+    if (repeatMode === 'once' && track) {
+      if (!repeatOnceUsed) {
+        repeatOnceUsed = true;
+        loadTrack(track, true, true);
+        return;
+      }
+      repeatMode = 'off';
+      repeatOnceUsed = false;
+      updateRepeatUI();
+    }
+
     nextTrack();
   }
 
@@ -861,56 +1042,115 @@
         duration = ytPlayer.getDuration() || 0;
       }
       if (duration > 0) {
-        progressBar.style.width = `${(current / duration) * 100}%`;
+        const pct = `${(current / duration) * 100}%`;
+        progressBar.style.width = pct;
         currentTimeEl.textContent = formatTime(current);
         totalTimeEl.textContent = formatTime(duration);
         $('inspectDuration').textContent = formatTime(duration);
+        $('bigProgressBar').style.width = pct;
+        $('bigCurrentTime').textContent = formatTime(current);
+        $('bigTotalTime').textContent = formatTime(duration);
       }
     }, 250);
   }
   function stopProgressTimer() { if (progressInterval) clearInterval(progressInterval); }
+
+  /* ================= Repetir / Aleatorio (compartido mini + grande) ================= */
+  function updateRepeatUI() {
+    const active = repeatMode !== 'off';
+    [$('btnRepeat'), $('btnRepeatBig')].forEach(btn => {
+      btn.classList.toggle('text-violet', active);
+      btn.classList.toggle('text-white', active);
+      btn.classList.toggle('text-sub', !active);
+    });
+    $('repeatOneDot').classList.toggle('hidden', repeatMode !== 'one');
+    const badge = $('repeatBadgeBig');
+    if (repeatMode === 'once') { badge.textContent = '1'; badge.classList.remove('hidden'); }
+    else if (repeatMode === 'one') { badge.textContent = '∞'; badge.classList.remove('hidden'); }
+    else { badge.classList.add('hidden'); }
+  }
+
+  function cycleRepeat() {
+    // Ciclo: apagado → repetir lista → repetir canción indefinidamente → repetir canción una vez → apagado
+    repeatMode = repeatMode === 'off' ? 'all'
+      : repeatMode === 'all' ? 'one'
+      : repeatMode === 'one' ? 'once'
+      : 'off';
+    repeatOnceUsed = false;
+    updateRepeatUI();
+    const messages = {
+      off: 'Repetir desactivado',
+      all: 'Repetir toda la lista',
+      one: 'Repetir esta canción indefinidamente',
+      once: 'Repetir esta canción una vez'
+    };
+    showToast(messages[repeatMode], 'info');
+  }
+
+  function toggleShuffle() {
+    shuffleOn = !shuffleOn;
+    [$('btnShuffle'), $('btnShuffleBig')].forEach(btn => {
+      btn.classList.toggle('text-violet', shuffleOn);
+      btn.classList.toggle('text-white', shuffleOn);
+      btn.classList.toggle('text-sub', !shuffleOn);
+    });
+    showToast(shuffleOn ? 'Aleatorio activado' : 'Aleatorio desactivado', 'info');
+  }
+
+  function seekWith(container) {
+    return (e) => {
+      const rect = container.getBoundingClientRect();
+      const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      const pos = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+      if (ytPlayer && typeof ytPlayer.getDuration === 'function') {
+        const target = pos * ytPlayer.getDuration();
+        if (typeof ytPlayer.seekTo === 'function') ytPlayer.seekTo(target, true);
+      }
+    };
+  }
+
+  function setVolume(vol) {
+    if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(vol);
+    volumeSlider.value = vol;
+    $('volumeSliderBig').value = vol;
+  }
+
+  /* ================= Vista grande (pantalla completa) ================= */
+  function openBigPlayer() { $('bigPlayer').classList.add('open'); }
+  function closeBigPlayer() { $('bigPlayer').classList.remove('open'); }
 
   /* ================= Eventos de UI ================= */
   function setupEvents() {
     btnPlay.onclick = togglePlay;
     $('btnNext').onclick = nextTrack;
     $('btnPrev').onclick = prevTrack;
+    $('btnShuffle').onclick = toggleShuffle;
+    $('btnRepeat').onclick = cycleRepeat;
 
-    $('btnShuffle').onclick = () => {
-      shuffleOn = !shuffleOn;
-      $('btnShuffle').classList.toggle('text-violet', shuffleOn);
-      $('btnShuffle').classList.toggle('text-sub', !shuffleOn);
-      showToast(shuffleOn ? 'Aleatorio activado' : 'Aleatorio desactivado', 'info');
-    };
+    // Controles espejo dentro del reproductor a pantalla completa
+    $('btnPlayBig').onclick = togglePlay;
+    $('btnNextBig').onclick = nextTrack;
+    $('btnPrevBig').onclick = prevTrack;
+    $('btnShuffleBig').onclick = toggleShuffle;
+    $('btnRepeatBig').onclick = cycleRepeat;
 
-    $('btnRepeat').onclick = () => {
-      repeatMode = repeatMode === 'off' ? 'all' : repeatMode === 'all' ? 'one' : 'off';
-      const btn = $('btnRepeat');
-      btn.classList.toggle('text-violet', repeatMode !== 'off');
-      btn.classList.toggle('text-sub', repeatMode === 'off');
-      $('repeatOneDot').classList.toggle('hidden', repeatMode !== 'one');
-      showToast(repeatMode === 'off' ? 'Repetir desactivado' : repeatMode === 'all' ? 'Repetir toda la lista' : 'Repetir esta canción', 'info');
-    };
+    progressContainer.onclick = seekWith(progressContainer);
+    $('bigProgressContainer').onclick = seekWith($('bigProgressContainer'));
 
-    progressContainer.onclick = (e) => {
-      const rect = progressContainer.getBoundingClientRect();
-      const pos = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-      if (ytPlayer && typeof ytPlayer.getDuration === 'function') {
-        const target = pos * ytPlayer.getDuration();
-        if (typeof ytPlayer.seekTo === 'function') ytPlayer.seekTo(target, true);
-      }
-    };
+    volumeSlider.oninput = (e) => setVolume(parseInt(e.target.value, 10));
+    $('volumeSliderBig').oninput = (e) => setVolume(parseInt(e.target.value, 10));
 
-    volumeSlider.oninput = (e) => {
-      const vol = parseInt(e.target.value, 10);
-      if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(vol);
-    };
+    // Abrir / cerrar la vista grande
+    $('miniInfo').onclick = openBigPlayer;
+    $('btnExpand').onclick = openBigPlayer;
+    $('btnCollapse').onclick = closeBigPlayer;
 
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && document.activeElement !== searchInput) {
         e.preventDefault();
         togglePlay();
       }
+      if (e.code === 'Escape') closeBigPlayer();
     });
   }
 
