@@ -544,29 +544,32 @@
   }
 
   async function pipedSearch(base, q, signal) {
+    // Solo se usa el filtro "music_songs" (el mismo que usa YouTube Music
+    // para su pestaña "Canciones"). A propósito NO se cae a filter=videos:
+    // eso traía videoclips, en vivo, reacciones, etc. Si este espejo no
+    // encuentra una canción, se deja que otro espejo/motor lo intente.
     const res = await fetch(`${base}/search?q=${encodeURIComponent(q)}&filter=music_songs`, { signal });
     if (!res.ok) throw new Error('piped-fail');
     const data = await res.json();
-    let item = (data.items || []).find(it => it.url);
-    if (!item) {
-      // Algunos espejos no soportan bien el filtro de música; se reintenta sin filtro.
-      const res2 = await fetch(`${base}/search?q=${encodeURIComponent(q)}&filter=videos`, { signal });
-      if (!res2.ok) throw new Error('piped-fail');
-      const data2 = await res2.json();
-      item = (data2.items || []).find(it => it.url);
-    }
+    const item = (data.items || []).find(it => it.url);
     const id = item && item.url && item.url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
     if (id) return id[1];
-    throw new Error('piped-no-id');
+    throw new Error('piped-no-song');
   }
 
   async function invidiousSearch(base, q, signal) {
+    // Invidious no tiene un filtro "solo canciones" como YouTube Music,
+    // así que se aproxima buscando el resultado cuyo canal termina en
+    // "- Topic": es el canal que YouTube genera automáticamente para la
+    // canción en audio completo (sin videoclip). Si ningún resultado es
+    // de un canal "Topic", se descarta en vez de reproducir un video.
     const res = await fetch(`${base}/api/v1/search?q=${encodeURIComponent(q)}&type=video`, { signal });
     if (!res.ok) throw new Error('inv-fail');
     const data = await res.json();
-    const id = data && data[0] && data[0].videoId;
-    if (id) return id;
-    throw new Error('inv-no-id');
+    if (!Array.isArray(data)) throw new Error('inv-no-song');
+    const song = data.find(v => v && v.videoId && v.author && /-\s*topic$/i.test(v.author.trim()));
+    if (song) return song.videoId;
+    throw new Error('inv-no-song');
   }
 
   // Resuelve el videoId más rápido disponible entre todos los espejos
@@ -700,6 +703,25 @@
         ytPlayer.seekTo(details.seekTime, true);
       }
     });
+  }
+
+  /* ================= Desbloqueo de audio para móvil ================= */
+  // Chrome/Safari en móvil bloquean el sonido de un <iframe> de otro origen
+  // (YouTube) si no viene ligado a un toque real del usuario. Como nuestro
+  // reproductor está oculto (nunca se toca directamente), usamos el patrón
+  // estándar "muteado + unMute() en el gesto": el player arranca muteado
+  // (el autoplay muteado siempre se permite) y, en el mismo instante síncrono
+  // del clic/tap del usuario, llamamos unMute(). Eso "desbloquea" el sonido
+  // para esa sesión del reproductor, incluso si la canción real se resuelve
+  // unos milisegundos después (búsqueda en Piped/Invidious es async).
+  let audioUnlocked = false;
+  function unlockAudio() {
+    if (!ytPlayer) return;
+    try {
+      if (typeof ytPlayer.unMute === 'function') ytPlayer.unMute();
+      if (typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(parseInt(volumeSlider.value, 10) || 80);
+      audioUnlocked = true;
+    } catch (e) { /* el reproductor aún no está listo, se reintentará en el próximo toque */ }
   }
 
   function setPlayingVisuals(playing) {
@@ -918,11 +940,17 @@
       ytPlayer = new YT.Player('ytEngine', {
         height: '100', width: '100',
         playerVars: {
-          autoplay: 0, controls: 0, playsinline: 1, rel: 0, enablejsapi: 1,
+          autoplay: 0, controls: 0, playsinline: 1, rel: 0, enablejsapi: 1, mute: 1,
           ...(originUrl ? { origin: originUrl } : {})
         },
         events: {
-          onReady: () => { isYtReady = true; },
+          onReady: () => {
+            isYtReady = true;
+            // Arranca muteado a propósito: el autoplay muteado siempre está
+            // permitido en móvil. El sonido real se habilita en unlockAudio(),
+            // que se llama de forma síncrona dentro del toque del usuario.
+            try { ytPlayer.mute(); } catch (e) {}
+          },
           onStateChange: onPlayerStateChange,
           onError: () => {
             showToast('Ese video de YouTube no está disponible, saltando…', 'error');
@@ -1005,6 +1033,7 @@
   }
 
   async function loadTrack(track, autoPlay = true, isRepeatReplay = false) {
+    unlockAudio(); // debe ir primero y de forma síncrona, antes de cualquier await
     const myToken = ++loadToken;
     loadStartTime = performance.now();
     if (!isRepeatReplay) repeatOnceUsed = false;
@@ -1037,10 +1066,10 @@
         setEngineStatus('Esperando al reproductor de YouTube…', 'amber');
       }
     } else {
-      setEngineStatus('No se encontró en ningún espejo', 'red');
+      setEngineStatus('No se encontró como canción', 'red');
       $('inspectVideoId').textContent = 'N/D';
-      $('streamTag').textContent = 'No disponible — usa "Abrir en YouTube"';
-      showToast('No se pudo resolver esta canción automáticamente, usa "Abrir en YouTube".', 'error');
+      $('streamTag').textContent = 'No disponible como canción — usa "Abrir en YouTube"';
+      showToast('No se encontró esta canción (solo se buscan canciones, no videos).', 'error');
     }
   }
 
@@ -1069,6 +1098,7 @@
   }
 
   function togglePlay() {
+    unlockAudio();
     if (isYtReady && ytPlayer) {
       if (isPlaying) { if (typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo(); }
       else { if (typeof ytPlayer.playVideo === 'function') ytPlayer.playVideo(); }
