@@ -75,7 +75,7 @@
         <!-- Buscador -->
         <div class="relative w-full max-w-md mx-4">
             <form id="searchForm" class="relative flex items-center">
-                <input type="text" id="searchInput" placeholder="Buscar canción o artista (ej. La Baraja - Cardenales)..." 
+                <input type="text" id="searchInput" placeholder="Buscar canción o artista (ej. Ysrael Barajas)..." 
                     class="w-full bg-neutral-800 text-sm text-white pl-10 pr-24 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-spotify-green border border-transparent transition-all">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-neutral-400 text-sm"></i>
                 <button type="submit" class="absolute right-1.5 px-4 py-1.5 bg-spotify-green text-black rounded-full text-xs font-bold hover:bg-emerald-400 transition-colors flex items-center gap-1">
@@ -102,11 +102,11 @@
                     <div class="space-y-3 text-xs text-neutral-300 bg-neutral-900 p-4 rounded-xl border border-neutral-800/80">
                         <div class="flex items-start space-x-2">
                             <span class="text-spotify-green font-bold">1.</span>
-                            <p><strong>Carga por Video ID:</strong> Cada canción resuelve y reproduce su propio ID de YouTube.</p>
+                            <p><strong>Scraper Proxy Directo:</strong> Obtiene el Video ID original de YouTube mediante proxies CORS.</p>
                         </div>
                         <div class="flex items-start space-x-2">
                             <span class="text-spotify-green font-bold">2.</span>
-                            <p><strong>Espejos de Respaldo:</strong> Utiliza Piped e Invidious si un servidor falla.</p>
+                            <p><strong>Instancias Invidious / Piped:</strong> Espejos fallback en caso de bloqueo de red.</p>
                         </div>
                         <div class="flex items-start space-x-2">
                             <span class="text-spotify-green font-bold">3.</span>
@@ -245,7 +245,6 @@
     </div>
 
     <script>
-        // Canciones iniciales con sus IDs ÚNICOS comprobados de YouTube
         const initialTracks = [
             {
                 id: '1',
@@ -276,13 +275,48 @@
             }
         ];
 
-        // Servidores espejo públicos para resolver IDs de YouTube en caso de fallo
-        const SEARCH_SERVERS = [
-            q => `https://api.piped.yt/search?q=${encodeURIComponent(q)}&filter=music_songs`,
-            q => `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(q)}&filter=music_songs`,
-            q => `https://inv.tux.pizza/api/v1/search?q=${encodeURIComponent(q)}&type=video`,
-            q => `https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(q)}&type=video`,
-            q => `https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(q)}&type=video`
+        // Resolución multinivel con scraping via CORS proxy + APIs espejo de Invidious y Piped
+        const SEARCH_RESOLVERS = [
+            // Método 1: Búsqueda directa en YouTube vía corsproxy.io (Más rápido y confiable)
+            async (q) => {
+                const targetUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+                const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+                if (!res.ok) throw new Error('Proxy 1 falló');
+                const html = await res.text();
+                const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
+                return match ? match[1] : null;
+            },
+            // Método 2: Búsqueda directa vía allorigins proxy
+            async (q) => {
+                const targetUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+                const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+                if (!res.ok) throw new Error('Proxy 2 falló');
+                const html = await res.text();
+                const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
+                return match ? match[1] : null;
+            },
+            // Método 3: API Invidious Tux Pizza
+            async (q) => {
+                const res = await fetch(`https://inv.tux.pizza/api/v1/search?q=${encodeURIComponent(q)}&type=video`);
+                if (!res.ok) throw new Error('Invidious 1 falló');
+                const data = await res.json();
+                return data?.[0]?.videoId || null;
+            },
+            // Método 4: API Invidious NerdVPN
+            async (q) => {
+                const res = await fetch(`https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(q)}&type=video`);
+                if (!res.ok) throw new Error('Invidious 2 falló');
+                const data = await res.json();
+                return data?.[0]?.videoId || null;
+            },
+            // Método 5: API Piped
+            async (q) => {
+                const res = await fetch(`https://api.piped.yt/search?q=${encodeURIComponent(q)}&filter=music_songs`);
+                if (!res.ok) throw new Error('Piped falló');
+                const data = await res.json();
+                const first = data?.items?.[0]?.url;
+                return first ? (first.match(/v=([a-zA-Z0-9_-]{11})/) || [])[1] : null;
+            }
         ];
 
         let currentPlaylist = [...initialTracks];
@@ -325,7 +359,7 @@
                         'onReady': () => {
                             isYtReady = true;
                             setEngineStatus('Motor Listo ⚡', 'green');
-                            loadTrack(currentPlaylist[0], true);
+                            loadTrack(currentPlaylist[0], false);
                         },
                         'onStateChange': onPlayerStateChange,
                         'onError': (err) => {
@@ -391,40 +425,36 @@
             if (color === 'green') {
                 statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-spotify-green animate-pulse';
             } else if (color === 'amber') {
-                statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+                statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping';
             } else {
                 statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
             }
         }
 
-        // Resolutor de Video ID de YouTube utilizando múltiples servidores espejo
+        // Resolutor mejorado con tolerancia a fallos
         async function resolveYouTubeVideoId(query) {
-            for (const getServerUrl of SEARCH_SERVERS) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 2000);
-                    const res = await fetch(getServerUrl(query), { signal: controller.signal });
-                    clearTimeout(timeoutId);
+            const queriesToTry = [
+                query,
+                query.replace(/[\(\)\[\]]/g, '').trim(),
+                query.split('-')[0].trim()
+            ];
 
-                    if (!res.ok) continue;
-                    const data = await res.json();
+            for (const q of queriesToTry) {
+                if (!q) continue;
+                for (const resolver of SEARCH_RESOLVERS) {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 3500);
+                        
+                        const videoId = await resolver(q);
+                        clearTimeout(timeoutId);
 
-                    if (data.items && data.items.length > 0) {
-                        for (const item of data.items) {
-                            if (item.url) {
-                                const match = item.url.match(/v=([a-zA-Z0-9_-]{11})/);
-                                if (match) return match[1];
-                            }
+                        if (videoId && typeof videoId === 'string' && videoId.length === 11) {
+                            return videoId;
                         }
+                    } catch (e) {
+                        continue;
                     }
-
-                    if (Array.isArray(data) && data.length > 0) {
-                        for (const item of data) {
-                            if (item.videoId) return item.videoId;
-                        }
-                    }
-                } catch (e) {
-                    continue;
                 }
             }
             return null;
@@ -446,18 +476,21 @@
             currentTimeEl.textContent = '0:00';
             totalTimeEl.textContent = '0:00';
 
-            if (!isYtReady || !ytPlayer) return;
-
             let videoId = track.youtubeId;
 
             if (!videoId) {
-                setEngineStatus('Buscando audio en YouTube...', 'amber');
-                const searchQuery = track.query || `${track.artist} ${track.title}`;
+                setEngineStatus('Resolviendo Video ID...', 'amber');
+                const searchQuery = track.query || `${track.artist} ${track.title} audio`;
                 videoId = await resolveYouTubeVideoId(searchQuery);
 
                 if (videoId) {
                     track.youtubeId = videoId;
                 }
+            }
+
+            if (!isYtReady || !ytPlayer) {
+                if (videoId) document.getElementById('inspectVideoId').textContent = videoId;
+                return;
             }
 
             if (videoId) {
@@ -468,19 +501,14 @@
                     if (autoPlay) {
                         if (typeof ytPlayer.loadVideoById === 'function') {
                             ytPlayer.loadVideoById(videoId);
-                        } else if (typeof ytPlayer.cueVideoById === 'function') {
-                            ytPlayer.cueVideoById(videoId);
-                            ytPlayer.playVideo();
                         }
                     } else {
                         if (typeof ytPlayer.cueVideoById === 'function') {
                             ytPlayer.cueVideoById(videoId);
-                        } else if (typeof ytPlayer.loadVideoById === 'function') {
-                            ytPlayer.loadVideoById(videoId);
                         }
                     }
                 } catch (err) {
-                    console.warn("Error calling YouTube player method:", err);
+                    console.warn("Error enviando comando a YouTube Player:", err);
                 }
             } else {
                 setEngineStatus('No se encontró el audio exacto', 'red');
