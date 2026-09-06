@@ -332,27 +332,82 @@
   ];
 
   /* ================= Resolutores de YouTube ================= */
-  // Instancias públicas conocidas (Piped / Invidious). Se consultan en paralelo
-  // y se usa la primera que responda — así el retraso lo marca el espejo más
-  // rápido disponible, no el más lento.
-  const PIPED_INSTANCES = [
+  // Listas de respaldo (actualizadas manualmente) por si la carga dinámica
+  // de instancias falla. Se combinan con la lista en vivo, nunca la sustituyen
+  // por completo, para maximizar cuántos espejos se prueban en paralelo.
+  const PIPED_FALLBACK = [
+    'https://pipedapi.kavin.rocks',
     'https://pipedapi-libre.kavin.rocks',
-    'https://api.piped.privacydev.net',
+    'https://pipedapi.leptons.xyz',
+    'https://pipedapi.nosebs.ru',
+    'https://piped-api.privacy.com.de',
     'https://pipedapi.adminforge.de',
-    'https://pipedapi.r4fo.com'
+    'https://api.piped.yt',
+    'https://pipedapi.drgns.space',
+    'https://pipedapi.owo.si',
+    'https://pipedapi.ducks.party',
+    'https://piped-api.codespace.cz',
+    'https://pipedapi.reallyaweso.me',
+    'https://api.piped.private.coffee',
+    'https://pipedapi.darkness.services',
+    'https://pipedapi.orangenet.cc'
   ];
-  const INVIDIOUS_INSTANCES = [
+  const INVIDIOUS_FALLBACK = [
     'https://invidious.nerdvpn.de',
     'https://inv.nadeko.net',
     'https://yewtu.be',
-    'https://invidious.f5.si'
+    'https://invidious.f5.si',
+    'https://invidious.jing.rocks',
+    'https://iv.melmac.space',
+    'https://invidious.perennialte.ch'
   ];
+
+  // Las listas fijas caducan (instancias públicas nacen y mueren seguido).
+  // En cada carga de página se intenta traer la lista actualizada desde los
+  // agregadores oficiales; si esa petición falla (red/CORS), simplemente se
+  // usa el respaldo de arriba sin interrumpir al usuario.
+  let instancesPromise = null;
+  async function getInstanceLists() {
+    if (instancesPromise) return instancesPromise;
+    instancesPromise = (async () => {
+      const piped = new Set(PIPED_FALLBACK);
+      const invidious = new Set(INVIDIOUS_FALLBACK);
+
+      try {
+        const res = await fetch('https://piped-instances.kavin.rocks/');
+        if (res.ok) {
+          const data = await res.json();
+          data.forEach(inst => { if (inst && inst.api_url) piped.add(inst.api_url.replace(/\/$/, '')); });
+        }
+      } catch (e) { /* se usa el respaldo */ }
+
+      try {
+        const res = await fetch('https://api.invidious.io/instances.json?sort_by=type,users');
+        if (res.ok) {
+          const data = await res.json();
+          data.forEach(([, info]) => {
+            if (info && info.type === 'https' && info.uri) invidious.add(info.uri.replace(/\/$/, ''));
+          });
+        }
+      } catch (e) { /* se usa el respaldo */ }
+
+      return { piped: [...piped], invidious: [...invidious] };
+    })();
+    return instancesPromise;
+  }
 
   async function pipedSearch(base, q, signal) {
     const res = await fetch(`${base}/search?q=${encodeURIComponent(q)}&filter=music_songs`, { signal });
     if (!res.ok) throw new Error('piped-fail');
     const data = await res.json();
-    const item = (data.items || []).find(it => it.url);
+    let item = (data.items || []).find(it => it.url);
+    if (!item) {
+      // Algunos espejos no soportan bien el filtro de música; se reintenta sin filtro.
+      const res2 = await fetch(`${base}/search?q=${encodeURIComponent(q)}&filter=videos`, { signal });
+      if (!res2.ok) throw new Error('piped-fail');
+      const data2 = await res2.json();
+      item = (data2.items || []).find(it => it.url);
+    }
     const id = item && item.url && item.url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
     if (id) return id[1];
     throw new Error('piped-no-id');
@@ -367,11 +422,13 @@
     throw new Error('inv-no-id');
   }
 
-  // Resuelve el videoId más rápido disponible entre todos los espejos.
+  // Resuelve el videoId más rápido disponible entre todos los espejos
+  // (lista en vivo + respaldo), probando muchos a la vez con Promise.any.
   async function resolveYouTubeVideoId(query, signal) {
+    const { piped, invidious } = await getInstanceLists();
     const jobs = [
-      ...PIPED_INSTANCES.map(base => pipedSearch(base, query, signal)),
-      ...INVIDIOUS_INSTANCES.map(base => invidiousSearch(base, query, signal))
+      ...piped.map(base => pipedSearch(base, query, signal)),
+      ...invidious.map(base => invidiousSearch(base, query, signal))
     ];
     try {
       return await Promise.any(jobs);
@@ -739,7 +796,7 @@
     setEngineStatus('Resolviendo en YouTube / YouTube Music…', 'amber');
 
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 8000);
+    setTimeout(() => controller.abort(), 15000);
 
     // Siempre se busca y reproduce la canción completa desde YouTube / YouTube Music.
     const videoId = await getVideoId(track, controller.signal);
