@@ -1,663 +1,825 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Bridge Engine - Mod Player (Ultra Speed)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        spotify: {
-                            green: '#1DB954',
-                            dark: '#121212',
-                            card: '#181818',
-                            hover: '#282828',
-                            subtext: '#b3b3b3'
-                        },
-                        youtube: {
-                            red: '#FF0000',
-                            dark: '#0f0f0f'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    }
-                }
-            }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nébula — Motor de Audio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          base: '#0a0a12',
+          surface: '#131320',
+          surface2: '#1b1b2c',
+          edge: '#28283d',
+          sub: '#9795b8',
+          violet: '#8b5cf6',
+          magenta: '#ec4899',
+          cyan: '#22d3ee'
+        },
+        fontFamily: {
+          display: ['Space Grotesk', 'sans-serif'],
+          sans: ['Inter', 'sans-serif']
         }
-    </script>
-    <style>
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #121212;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-            animation: spin-slow 12s linear infinite;
-        }
-    </style>
+      }
+    }
+  }
+</script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { background: #0a0a12; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a2a40; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3d3d5c; }
+
+  /* ---------- Ambient background ---------- */
+  .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .aurora span {
+    position: absolute; border-radius: 50%; filter: blur(90px); opacity: .28;
+    animation: drift 22s ease-in-out infinite;
+  }
+  .aurora span:nth-child(1) { width: 480px; height: 480px; background: #8b5cf6; top: -160px; left: -120px; animation-duration: 26s; }
+  .aurora span:nth-child(2) { width: 420px; height: 420px; background: #ec4899; bottom: -180px; right: -100px; animation-duration: 30s; animation-delay: -6s; }
+  .aurora span:nth-child(3) { width: 360px; height: 360px; background: #22d3ee; top: 40%; left: 45%; animation-duration: 34s; animation-delay: -14s; opacity: .16; }
+  @keyframes drift {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(40px, -30px) scale(1.1); }
+    66% { transform: translate(-30px, 25px) scale(0.95); }
+  }
+
+  /* ---------- Entrance animations ---------- */
+  @keyframes riseIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .rise-in { animation: riseIn .45s cubic-bezier(.16,1,.3,1) both; }
+
+  @keyframes popIn { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
+  .pop-in { animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+
+  @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+  .skeleton {
+    background: linear-gradient(90deg, #16162350 25%, #22223a70 37%, #16162350 63%);
+    background-size: 400px 100%; animation: shimmer 1.4s ease-in-out infinite;
+  }
+
+  /* ---------- Vinyl / cover ---------- */
+  @keyframes spinVinyl { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .vinyl-spin { animation: spinVinyl 8s linear infinite; animation-play-state: paused; }
+  .vinyl-spin.is-playing { animation-play-state: running; }
+
+  @keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,.35), 0 0 40px -8px rgba(236,72,153,.25); }
+    50% { box-shadow: 0 0 0 6px rgba(139,92,246,.08), 0 0 60px -4px rgba(236,72,153,.4); }
+  }
+  .glow-active { animation: glowPulse 3s ease-in-out infinite; }
+
+  /* ---------- Equalizer ---------- */
+  .eq-bar { transform-origin: bottom; transition: opacity .3s; }
+  @keyframes eq1 { 0%,100%{transform:scaleY(.3)} 50%{transform:scaleY(1)} }
+  @keyframes eq2 { 0%,100%{transform:scaleY(.9)} 50%{transform:scaleY(.25)} }
+  @keyframes eq3 { 0%,100%{transform:scaleY(.5)} 50%{transform:scaleY(1)} }
+  @keyframes eq4 { 0%,100%{transform:scaleY(.2)} 50%{transform:scaleY(.8)} }
+  @keyframes eq5 { 0%,100%{transform:scaleY(.7)} 50%{transform:scaleY(.35)} }
+  .eq1 { animation: eq1 .8s ease-in-out infinite; }
+  .eq2 { animation: eq2 .65s ease-in-out infinite; }
+  .eq3 { animation: eq3 .9s ease-in-out infinite; }
+  .eq4 { animation: eq4 .55s ease-in-out infinite; }
+  .eq5 { animation: eq5 .75s ease-in-out infinite; }
+  .eq-bar { animation-play-state: paused; }
+  #audioVisualizer.is-playing .eq-bar { animation-play-state: running; }
+
+  /* ---------- Buttons / interactions ---------- */
+  .btn-scale { transition: transform .15s ease, color .15s ease, background-color .15s ease; }
+  .btn-scale:hover { transform: scale(1.08); }
+  .btn-scale:active { transform: scale(.94); }
+
+  .play-main { transition: transform .15s ease, box-shadow .2s ease; }
+  .play-main:hover { transform: scale(1.06); box-shadow: 0 0 24px -4px rgba(139,92,246,.7); }
+  .play-main:active { transform: scale(.95); }
+
+  .grad-text { background: linear-gradient(90deg, #8b5cf6, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .grad-bg { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+  .grad-ring:focus-within { box-shadow: 0 0 0 2px #0a0a12, 0 0 0 4px #8b5cf6; }
+
+  .track-card { transition: transform .2s ease, border-color .2s ease, background-color .2s ease; }
+  .track-card:hover { transform: translateY(-4px); }
+
+  #progressContainer { cursor: pointer; }
+  #progressBar { transition: width .18s linear; }
+
+  /* ---------- Toasts ---------- */
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translate(-50%, -10px); } }
+  .toast-in { animation: toastIn .35s cubic-bezier(.16,1,.3,1) both; }
+  .toast-out { animation: toastOut .3s ease both; }
+
+  input[type=range] { -webkit-appearance: none; height: 4px; border-radius: 999px; background: #2a2a40; }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+    background: #fff; cursor: pointer; box-shadow: 0 0 0 3px rgba(139,92,246,.4);
+    transition: box-shadow .15s ease;
+  }
+  input[type=range]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 5px rgba(139,92,246,.5); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+</style>
 </head>
-<body class="bg-black text-white font-sans h-screen flex flex-col overflow-hidden select-none">
+<body class="bg-base text-white font-sans h-screen flex flex-col overflow-hidden select-none relative">
 
-    <!-- Encabezado Principal -->
-    <header class="bg-spotify-dark px-6 py-4 flex items-center justify-between border-b border-neutral-800">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-spotify-green to-emerald-400 flex items-center justify-center text-black font-bold text-xl shadow-lg">
-                <i class="fa-solid fa-bolt text-yellow-300"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-lg leading-tight flex items-center gap-2">
-                    Audio Bridge Engine 
-                    <span class="text-[10px] bg-spotify-green/20 text-spotify-green px-2 py-0.5 rounded-full border border-spotify-green/30 font-semibold">⚡ Multi-Resolver</span>
-                </h1>
-                <p class="text-xs text-spotify-subtext">Metadatos iTunes + Extracción Multi-Servidor YouTube</p>
-            </div>
+<div class="aurora"><span></span><span></span><span></span></div>
+
+<!-- Toasts -->
+<div id="toastContainer" class="fixed top-4 left-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none"></div>
+
+<!-- Encabezado -->
+<header class="relative z-10 bg-surface/70 backdrop-blur-xl px-4 md:px-6 py-3.5 flex items-center gap-4 border-b border-edge">
+  <div class="flex items-center gap-2.5 shrink-0 pop-in">
+    <div class="w-9 h-9 rounded-xl grad-bg flex items-center justify-center shadow-lg shadow-violet/30">
+      <i class="fa-solid fa-wave-square text-white text-sm"></i>
+    </div>
+    <div class="hidden sm:block">
+      <h1 class="font-display font-bold text-base leading-tight">Nébula</h1>
+      <p class="text-[11px] text-sub -mt-0.5">Búsqueda + reproducción instantánea</p>
+    </div>
+  </div>
+
+  <form id="searchForm" class="relative flex-1 max-w-lg mx-auto rounded-full grad-ring">
+    <div class="relative flex items-center">
+      <i class="fa-solid fa-magnifying-glass absolute left-4 text-sub text-sm pointer-events-none"></i>
+      <input type="text" id="searchInput" placeholder="Busca una canción o artista…"
+        class="w-full bg-surface2 text-sm text-white pl-11 pr-24 py-2.5 rounded-full focus:outline-none border border-edge transition-colors">
+      <button type="submit" class="absolute right-1.5 px-4 py-1.5 grad-bg text-white rounded-full text-xs font-semibold btn-scale flex items-center gap-1.5">
+        <i class="fa-solid fa-bolt text-[10px]"></i> Buscar
+      </button>
+    </div>
+  </form>
+
+  <div class="hidden md:flex items-center gap-2.5 text-xs bg-surface2 px-3.5 py-2 rounded-full border border-edge shrink-0">
+    <span id="statusIndicator" class="w-2 h-2 rounded-full bg-amber-400"></span>
+    <span class="text-neutral-300 font-medium whitespace-nowrap" id="engineStatus">Iniciando motor…</span>
+  </div>
+</header>
+
+<!-- Contenido -->
+<div class="relative z-10 flex-1 flex overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-72 bg-surface/60 backdrop-blur-xl border-r border-edge p-5 flex-col justify-between hidden lg:flex">
+    <div class="space-y-5">
+      <div>
+        <h2 class="text-[11px] font-bold text-sub uppercase tracking-wider mb-2.5">Cómo reproduce</h2>
+        <div class="space-y-3 text-xs text-neutral-300 bg-surface2/70 p-3.5 rounded-2xl border border-edge">
+          <div class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full grad-bg text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <p><strong class="text-white">Arranque instantáneo:</strong> reproduce al momento el preview oficial de iTunes.</p>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full grad-bg text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <p><strong class="text-white">Búsqueda en paralelo:</strong> localiza la canción completa en YouTube / YouTube Music entre varios espejos a la vez.</p>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full grad-bg text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+            <p><strong class="text-white">Relevo sin cortes:</strong> al terminar el preview, continúa automáticamente la canción completa.</p>
+          </div>
         </div>
+      </div>
 
-        <!-- Buscador -->
-        <div class="relative w-full max-w-md mx-4">
-            <form id="searchForm" class="relative flex items-center">
-                <input type="text" id="searchInput" placeholder="Buscar canción o artista (ej. Ysrael Barajas)..." 
-                    class="w-full bg-neutral-800 text-sm text-white pl-10 pr-24 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-spotify-green border border-transparent transition-all">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-neutral-400 text-sm"></i>
-                <button type="submit" class="absolute right-1.5 px-4 py-1.5 bg-spotify-green text-black rounded-full text-xs font-bold hover:bg-emerald-400 transition-colors flex items-center gap-1">
-                    <i class="fa-solid fa-bolt text-[10px]"></i> Buscar
-                </button>
-            </form>
+      <div>
+        <h2 class="text-[11px] font-bold text-sub uppercase tracking-wider mb-2.5">Inspector de pista</h2>
+        <div class="bg-surface2/70 p-3.5 rounded-2xl border border-edge space-y-2.5 text-xs">
+          <div class="flex justify-between items-center"><span class="text-sub">Motor activo:</span><span id="inspectEngine" class="font-mono text-cyan font-semibold">—</span></div>
+          <div class="flex justify-between items-center"><span class="text-sub">ID de YouTube:</span><span id="inspectVideoId" class="font-mono text-violet font-semibold">---</span></div>
+          <div class="flex justify-between items-center"><span class="text-sub">Tiempo de carga:</span><span id="inspectSpeed" class="font-mono text-emerald-400 font-semibold">0 ms</span></div>
+          <div class="flex justify-between items-center"><span class="text-sub">Códec / stream:</span><span id="inspectCodec" class="font-mono text-neutral-200">—</span></div>
+          <div class="flex justify-between items-center"><span class="text-sub">Duración:</span><span id="inspectDuration" class="font-mono text-neutral-200">0:00</span></div>
         </div>
-
-        <!-- Estado del Motor -->
-        <div class="hidden md:flex items-center space-x-3 text-xs bg-neutral-900 px-3.5 py-2 rounded-full border border-neutral-800">
-            <span id="statusIndicator" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-            <span class="text-neutral-300 font-medium" id="engineStatus">Iniciando Motor...</span>
-        </div>
-    </header>
-
-    <!-- Contenido Principal -->
-    <div class="flex-1 flex overflow-hidden">
-        
-        <!-- Sidebar Técnico -->
-        <aside class="w-80 bg-spotify-dark border-r border-neutral-800 p-5 flex flex-col justify-between hidden lg:flex">
-            <div class="space-y-6">
-                <div>
-                    <h2 class="text-xs font-bold text-spotify-subtext uppercase tracking-wider mb-3">Motor Multi-Servidor</h2>
-                    <div class="space-y-3 text-xs text-neutral-300 bg-neutral-900 p-4 rounded-xl border border-neutral-800/80">
-                        <div class="flex items-start space-x-2">
-                            <span class="text-spotify-green font-bold">1.</span>
-                            <p><strong>Scraper Proxy Directo:</strong> Obtiene el Video ID original de YouTube mediante proxies CORS.</p>
-                        </div>
-                        <div class="flex items-start space-x-2">
-                            <span class="text-spotify-green font-bold">2.</span>
-                            <p><strong>Instancias Invidious / Piped:</strong> Espejos fallback en caso de bloqueo de red.</p>
-                        </div>
-                        <div class="flex items-start space-x-2">
-                            <span class="text-spotify-green font-bold">3.</span>
-                            <p><strong>Modo Audio Ligero:</strong> Fuerza calidad <i>small</i> para acelerar el búfer.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h2 class="text-xs font-bold text-spotify-subtext uppercase tracking-wider mb-3">Inspector de Pista</h2>
-                    <div class="bg-neutral-900 p-4 rounded-xl border border-neutral-800 space-y-3 text-xs">
-                        <div class="flex justify-between items-center">
-                            <span class="text-neutral-400">ID de YouTube:</span>
-                            <span id="inspectVideoId" class="font-mono text-spotify-green font-semibold">---</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-neutral-400">Tiempo Carga:</span>
-                            <span id="inspectSpeed" class="font-mono text-emerald-400 font-semibold">0 ms</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-neutral-400">Códec / Stream:</span>
-                            <span id="inspectCodec" class="font-mono text-neutral-200">OPUS / WebM</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-neutral-400">Duración:</span>
-                            <span id="inspectDuration" class="font-mono text-neutral-200">0:00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-[11px] text-neutral-500 text-center leading-relaxed">
-                Reproductor independiente multitarget.<br>Resolución dinámica de audio.
-            </div>
-        </aside>
-
-        <!-- Galería y Tarjeta Actual -->
-        <main class="flex-1 bg-gradient-to-b from-neutral-900 via-neutral-950 to-black overflow-y-auto p-6 flex flex-col justify-between">
-            
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold" id="sectionTitle">Canciones Sugeridas</h2>
-                    <span id="resultCount" class="text-xs text-spotify-subtext">3 resultados</span>
-                </div>
-
-                <div id="resultsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    <!-- Se llena dinámicamente -->
-                </div>
-            </div>
-
-            <!-- Tarjeta de Reproducción Actual -->
-            <div id="nowPlayingCard" class="mt-8 bg-neutral-900/80 border border-neutral-800 rounded-2xl p-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 backdrop-blur-md shadow-2xl">
-                <img id="currentCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60" 
-                     alt="Portada" class="w-32 h-32 md:w-40 md:h-40 rounded-lg shadow-2xl object-cover border border-neutral-800">
-                
-                <div class="flex-1 text-center md:text-left space-y-2">
-                    <div class="inline-flex items-center space-x-2 bg-spotify-green/10 border border-spotify-green/30 px-3 py-1 rounded-full text-xs text-spotify-green font-semibold">
-                        <i class="fa-solid fa-bolt text-yellow-400"></i>
-                        <span id="streamTag">YouTube • Transmisión Directa</span>
-                    </div>
-                    <h3 id="currentTitle" class="text-2xl md:text-3xl font-bold text-white tracking-wide">La Baraja</h3>
-                    <p id="currentArtist" class="text-spotify-subtext text-base font-medium">Los Cardenales De Nuevo León</p>
-                    <p id="currentAlbum" class="text-neutral-500 text-xs">Espejo De Cantina (1996)</p>
-                </div>
-
-                <div class="flex items-end space-x-1.5 h-12 px-4 py-2 bg-black/60 rounded-xl border border-neutral-800" id="audioVisualizer">
-                    <div class="w-1.5 bg-spotify-green rounded-full h-3 animate-pulse"></div>
-                    <div class="w-1.5 bg-spotify-green rounded-full h-8 animate-pulse"></div>
-                    <div class="w-1.5 bg-spotify-green rounded-full h-5 animate-pulse"></div>
-                    <div class="w-1.5 bg-spotify-green rounded-full h-10 animate-pulse"></div>
-                    <div class="w-1.5 bg-spotify-green rounded-full h-4 animate-pulse"></div>
-                </div>
-            </div>
-
-        </main>
+      </div>
     </div>
 
-    <!-- Barra Inferior de Reproducción -->
-    <footer class="bg-neutral-950 border-t border-neutral-800 px-4 py-3 flex items-center justify-between z-10">
-        
-        <div class="flex items-center space-x-3 w-1/4">
-            <img id="barCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60" 
-                 class="w-12 h-12 rounded shadow object-cover border border-neutral-800">
-            <div class="truncate">
-                <h4 id="barTitle" class="text-sm font-semibold text-white truncate">La Baraja</h4>
-                <p id="barArtist" class="text-xs text-spotify-subtext truncate">Los Cardenales De Nuevo León</p>
-            </div>
-            <button class="text-neutral-400 hover:text-spotify-green transition-colors pl-2 hidden sm:block">
-                <i class="fa-regular fa-heart"></i>
-            </button>
-        </div>
+    <div class="text-[11px] text-neutral-500 text-center leading-relaxed">
+      Depende de espejos públicos gratuitos (Piped / Invidious) para el ID de YouTube — si todos fallan, usa los botones de "abrir en YouTube".
+    </div>
+  </aside>
 
-        <div class="flex flex-col items-center w-2/4 max-w-xl">
-            <div class="flex items-center space-x-6 mb-1">
-                <button id="btnShuffle" class="text-neutral-400 hover:text-white transition-colors text-xs">
-    <!-- Contenedor iframe de YouTube y Audio Nativo -->
-    <audio id="nativeAudio" preload="auto"></audio>
-    <div id="playerHost" class="fixed -bottom-96 left-0 opacity-0 pointer-events-none">
-        <div id="ytEngine"></div>
+  <!-- Galería + tarjeta actual -->
+  <main class="flex-1 bg-gradient-to-b from-transparent via-transparent to-black/40 overflow-y-auto p-5 md:p-6 flex flex-col gap-6">
+
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg md:text-xl font-display font-bold" id="sectionTitle">Sugerencias para empezar</h2>
+        <span id="resultCount" class="text-xs text-sub"></span>
+      </div>
+      <div id="resultsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4"></div>
     </div>
 
-    <script>
-        const initialTracks = [
-            {
-                id: '1',
-                title: 'La Baraja',
-                artist: 'Los Cardenales De Nuevo León',
-                album: 'Espejo De Cantina',
-                cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60',
-                youtubeId: 'tnZ38lJnX4A',
-                previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3d/8c/29/3d8c29fa-3f39-6548-81fa-22345d3e0db8/mzaf_16238323671848135898.plus.aac.p.m4a',
-                query: 'Los Cardenales De Nuevo Leon La Baraja'
-            },
-            {
-                id: '2',
-                title: 'Comprende',
-                artist: 'Los Cardenales De Nuevo León',
-                album: 'Con Chispas de Diamante',
-                cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=60',
-                youtubeId: 'xS3X08eXg9A',
-                previewUrl: '',
-                query: 'Los Cardenales De Nuevo Leon Comprende'
-            },
-            {
-                id: '3',
-                title: 'Tragos de Amargo Licor',
-                artist: 'Ramón Ayala',
-                album: 'Corridos Famosos',
-                cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=60',
-                youtubeId: 'peMNZvjCWTs',
-                previewUrl: '',
-                query: 'Ramon Ayala Tragos de amargo licor'
-            }
-        ];
+    <!-- Now playing -->
+    <div id="nowPlayingCard" class="mt-auto bg-surface/70 border border-edge rounded-3xl p-5 md:p-6 flex flex-col md:flex-row items-center gap-5 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+      <div class="absolute inset-0 opacity-40 pointer-events-none" style="background: radial-gradient(circle at 15% 20%, rgba(139,92,246,.18), transparent 55%), radial-gradient(circle at 85% 80%, rgba(236,72,153,.15), transparent 55%);"></div>
 
-        // Resolutores de API JSON rápidas (evitan bloqueos de scraping CORS)
-        const SEARCH_RESOLVERS = [
-            async (q, signal) => {
-                const res = await fetch(`https://api.piped.yt/search?q=${encodeURIComponent(q)}&filter=music_songs`, { signal });
-                if (!res.ok) throw new Error('Piped 1 failed');
-                const data = await res.json();
-                const id = data?.items?.[0]?.url?.match(/v=([a-zA-Z0-9_-]{11})/)?.[1];
-                if (id) return id;
-                throw new Error('No ID');
-            },
-            async (q, signal) => {
-                const res = await fetch(`https://inv.tux.pizza/api/v1/search?q=${encodeURIComponent(q)}&type=video`, { signal });
-                if (!res.ok) throw new Error('Invidious 1 failed');
-                const data = await res.json();
-                if (data?.[0]?.videoId) return data[0].videoId;
-                throw new Error('No ID');
-            },
-            async (q, signal) => {
-                const res = await fetch(`https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(q)}&type=video`, { signal });
-                if (!res.ok) throw new Error('Invidious 2 failed');
-                const data = await res.json();
-                if (data?.[0]?.videoId) return data[0].videoId;
-                throw new Error('No ID');
-            }
-        ];
+      <img id="currentCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60"
+        alt="Portada" class="relative w-28 h-28 md:w-36 md:h-36 rounded-full shadow-2xl object-cover border-4 border-surface2 vinyl-spin">
 
-        let currentPlaylist = [...initialTracks];
-        let currentIndex = 0;
-        let isPlaying = false;
-        let ytPlayer = null;
-        let isYtReady = false;
-        let progressInterval = null;
-        let loadStartTime = 0;
-        let activeEngine = 'native'; // 'native' o 'youtube'
+      <div class="relative flex-1 text-center md:text-left space-y-1.5 min-w-0">
+        <div class="inline-flex items-center gap-2 bg-violet/10 border border-violet/30 px-3 py-1 rounded-full text-xs text-violet font-semibold">
+          <i class="fa-solid fa-bolt text-yellow-400"></i>
+          <span id="streamTag">Esperando búsqueda…</span>
+        </div>
+        <h3 id="currentTitle" class="text-xl md:text-2xl font-display font-bold text-white tracking-wide truncate">Elige una canción</h3>
+        <p id="currentArtist" class="text-sub text-sm md:text-base font-medium truncate">Busca arriba para comenzar</p>
+        <p id="currentAlbum" class="text-neutral-500 text-xs truncate">—</p>
+        <div class="flex items-center justify-center md:justify-start gap-3 pt-1">
+          <a id="openYoutube" target="_blank" rel="noopener" class="text-[11px] text-sub hover:text-white transition-colors flex items-center gap-1.5">
+            <i class="fa-brands fa-youtube text-red-500"></i> Abrir en YouTube
+          </a>
+          <a id="openYtMusic" target="_blank" rel="noopener" class="text-[11px] text-sub hover:text-white transition-colors flex items-center gap-1.5">
+            <i class="fa-solid fa-music text-emerald-400"></i> YouTube Music
+          </a>
+        </div>
+      </div>
 
-        const nativeAudio = document.getElementById('nativeAudio');
-        const btnPlay = document.getElementById('btnPlay');
-        const progressBar = document.getElementById('progressBar');
-        const progressContainer = document.getElementById('progressContainer');
-        const currentTimeEl = document.getElementById('currentTime');
-        const totalTimeEl = document.getElementById('totalTime');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const searchForm = document.getElementById('searchForm');
-        const searchInput = document.getElementById('searchInput');
-        const resultsGrid = document.getElementById('resultsGrid');
-        const engineStatus = document.getElementById('engineStatus');
-        const statusIndicator = document.getElementById('statusIndicator');
+      <div class="relative flex items-end gap-1.5 h-12 px-4 py-2 bg-black/50 rounded-xl border border-edge shrink-0" id="audioVisualizer">
+        <div class="eq-bar eq1 w-1.5 grad-bg rounded-full h-3"></div>
+        <div class="eq-bar eq2 w-1.5 grad-bg rounded-full h-8"></div>
+        <div class="eq-bar eq3 w-1.5 grad-bg rounded-full h-5"></div>
+        <div class="eq-bar eq4 w-1.5 grad-bg rounded-full h-10"></div>
+        <div class="eq-bar eq5 w-1.5 grad-bg rounded-full h-4"></div>
+      </div>
+    </div>
 
-        // Inicialización de la API Iframe de YouTube
-        window.onYouTubeIframeAPIReady = function() {
-            try {
-                const originUrl = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : undefined;
-                ytPlayer = new YT.Player('ytEngine', {
-                    height: '100',
-                    width: '100',
-                    playerVars: {
-                        'autoplay': 1,
-                        'controls': 0,
-                        'playsinline': 1,
-                        'modestbranding': 1,
-                        'rel': 0,
-                        'enablejsapi': 1,
-                        ...(originUrl ? { 'origin': originUrl } : {})
-                    },
-                    events: {
-                        'onReady': () => {
-                            isYtReady = true;
-                            if (activeEngine !== 'native') {
-                                setEngineStatus('Motor Listo ⚡', 'green');
-                            }
-                        },
-                        'onStateChange': onPlayerStateChange,
-                        'onError': (err) => {
-                            console.warn("Error en reproductor YouTube:", err);
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("Error al inicializar YouTube Player:", e);
-            }
-        };
+  </main>
+</div>
 
-        // Cargar script de la API
-        (function loadYtScript() {
-            const tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/iframe_api";
-            const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        })();
+<!-- Barra inferior -->
+<footer class="relative z-10 bg-surface/80 backdrop-blur-xl border-t border-edge px-4 py-3 flex items-center gap-4">
 
-        function onPlayerStateChange(event) {
-            if (activeEngine !== 'youtube') return;
+  <div class="flex items-center gap-3 w-1/4 min-w-0">
+    <img id="barCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60"
+      class="w-11 h-11 rounded-lg shadow object-cover border border-edge">
+    <div class="truncate">
+      <h4 id="barTitle" class="text-sm font-semibold text-white truncate">Sin reproducción</h4>
+      <p id="barArtist" class="text-xs text-sub truncate">—</p>
+    </div>
+    <button class="text-sub hover:text-magenta transition-colors pl-2 hidden sm:block btn-scale">
+      <i class="fa-regular fa-heart"></i>
+    </button>
+  </div>
 
-            if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                btnPlay.innerHTML = '<i class="fa-solid fa-pause text-base"></i>';
-                
-                if (ytPlayer && typeof ytPlayer.setPlaybackQuality === 'function') {
-                    ytPlayer.setPlaybackQuality('small');
-                }
+  <div class="flex flex-col items-center flex-1 max-w-xl mx-auto">
+    <div class="flex items-center gap-5 mb-1.5">
+      <button id="btnShuffle" class="text-sub hover:text-white transition-colors text-sm btn-scale" title="Aleatorio">
+        <i class="fa-solid fa-shuffle"></i>
+      </button>
+      <button id="btnPrev" class="text-neutral-200 hover:text-white transition-colors text-base btn-scale">
+        <i class="fa-solid fa-backward-step"></i>
+      </button>
+      <button id="btnPlay" class="w-10 h-10 rounded-full grad-bg text-white flex items-center justify-center play-main shadow-lg shadow-violet/30">
+        <i class="fa-solid fa-play text-sm translate-x-0.5"></i>
+      </button>
+      <button id="btnNext" class="text-neutral-200 hover:text-white transition-colors text-base btn-scale">
+        <i class="fa-solid fa-forward-step"></i>
+      </button>
+      <button id="btnRepeat" class="text-sub hover:text-white transition-colors text-sm btn-scale relative" title="Repetir">
+        <i class="fa-solid fa-repeat"></i>
+        <span id="repeatOneDot" class="hidden absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-magenta"></span>
+      </button>
+    </div>
+    <div class="flex items-center gap-2.5 w-full">
+      <span id="currentTime" class="text-[11px] text-sub font-mono w-9 text-right">0:00</span>
+      <div id="progressContainer" class="flex-1 h-1 bg-surface2 rounded-full overflow-hidden group relative">
+        <div id="progressBar" class="h-full grad-bg rounded-full" style="width:0%"></div>
+      </div>
+      <span id="totalTime" class="text-[11px] text-sub font-mono w-9">0:00</span>
+    </div>
+  </div>
 
-                const elapsed = loadStartTime ? Math.round(performance.now() - loadStartTime) : 120;
-                setEngineStatus(`Reproduciendo • ${elapsed}ms ⚡`, 'green');
-                document.getElementById('inspectSpeed').textContent = `${elapsed} ms`;
-                document.getElementById('inspectCodec').textContent = 'OPUS / WebM';
-                startProgressTimer();
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                isPlaying = false;
-                btnPlay.innerHTML = '<i class="fa-solid fa-play text-base translate-x-0.5"></i>';
-                setEngineStatus('Pausado', 'amber');
-                stopProgressTimer();
-            } else if (event.data === YT.PlayerState.ENDED) {
-                isPlaying = false;
-                stopProgressTimer();
-                document.getElementById('btnNext').click();
-            } else if (event.data === YT.PlayerState.BUFFERING) {
-                setEngineStatus('Cargando Stream YouTube...', 'amber');
-            }
+  <div class="flex items-center gap-2.5 w-1/4 justify-end">
+    <i class="fa-solid fa-volume-low text-sub text-sm"></i>
+    <input type="range" id="volumeSlider" min="0" max="100" value="80" class="w-24">
+  </div>
+</footer>
+
+<audio id="nativeAudio" preload="auto"></audio>
+<div id="playerHost" class="fixed -bottom-96 left-0 opacity-0 pointer-events-none">
+  <div id="ytEngine"></div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ================= Datos iniciales ================= */
+  const initialTracks = [
+    { id: '1', title: 'La Baraja', artist: 'Los Cardenales De Nuevo León', album: 'Espejo De Cantina',
+      cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60',
+      youtubeId: 'tnZ38lJnX4A', previewUrl: '', query: 'Los Cardenales De Nuevo Leon La Baraja' },
+    { id: '2', title: 'Comprende', artist: 'Los Cardenales De Nuevo León', album: 'Con Chispas de Diamante',
+      cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=60',
+      youtubeId: 'xS3X08eXg9A', previewUrl: '', query: 'Los Cardenales De Nuevo Leon Comprende' },
+    { id: '3', title: 'Tragos de Amargo Licor', artist: 'Ramón Ayala', album: 'Corridos Famosos',
+      cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=60',
+      youtubeId: 'peMNZvjCWTs', previewUrl: '', query: 'Ramon Ayala Tragos de amargo licor' }
+  ];
+
+  /* ================= Resolutores de YouTube ================= */
+  // Instancias públicas conocidas (Piped / Invidious). Se consultan en paralelo
+  // y se usa la primera que responda — así el retraso lo marca el espejo más
+  // rápido disponible, no el más lento.
+  const PIPED_INSTANCES = [
+    'https://pipedapi-libre.kavin.rocks',
+    'https://api.piped.privacydev.net',
+    'https://pipedapi.adminforge.de',
+    'https://pipedapi.r4fo.com'
+  ];
+  const INVIDIOUS_INSTANCES = [
+    'https://invidious.nerdvpn.de',
+    'https://inv.nadeko.net',
+    'https://yewtu.be',
+    'https://invidious.f5.si'
+  ];
+
+  async function pipedSearch(base, q, signal) {
+    const res = await fetch(`${base}/search?q=${encodeURIComponent(q)}&filter=music_songs`, { signal });
+    if (!res.ok) throw new Error('piped-fail');
+    const data = await res.json();
+    const item = (data.items || []).find(it => it.url);
+    const id = item && item.url && item.url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+    if (id) return id[1];
+    throw new Error('piped-no-id');
+  }
+
+  async function invidiousSearch(base, q, signal) {
+    const res = await fetch(`${base}/api/v1/search?q=${encodeURIComponent(q)}&type=video`, { signal });
+    if (!res.ok) throw new Error('inv-fail');
+    const data = await res.json();
+    const id = data && data[0] && data[0].videoId;
+    if (id) return id;
+    throw new Error('inv-no-id');
+  }
+
+  // Resuelve el videoId más rápido disponible entre todos los espejos.
+  async function resolveYouTubeVideoId(query, signal) {
+    const jobs = [
+      ...PIPED_INSTANCES.map(base => pipedSearch(base, query, signal)),
+      ...INVIDIOUS_INSTANCES.map(base => invidiousSearch(base, query, signal))
+    ];
+    try {
+      return await Promise.any(jobs);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /* ================= Estado ================= */
+  let currentPlaylist = [...initialTracks];
+  let currentIndex = 0;
+  let isPlaying = false;
+  let activeEngine = 'native'; // 'native' | 'youtube'
+  let ytPlayer = null;
+  let isYtReady = false;
+  let progressInterval = null;
+  let loadStartTime = 0;
+  let loadToken = 0;           // evita que resultados de búsquedas viejas pisen la pista actual
+  let shuffleOn = false;
+  let repeatMode = 'off';      // 'off' | 'all' | 'one'
+  const resolveCache = new Map(); // query -> Promise<videoId|null>
+
+  /* ================= Referencias DOM ================= */
+  const $ = (id) => document.getElementById(id);
+  const nativeAudio = $('nativeAudio');
+  const btnPlay = $('btnPlay');
+  const progressBar = $('progressBar');
+  const progressContainer = $('progressContainer');
+  const currentTimeEl = $('currentTime');
+  const totalTimeEl = $('totalTime');
+  const volumeSlider = $('volumeSlider');
+  const searchForm = $('searchForm');
+  const searchInput = $('searchInput');
+  const resultsGrid = $('resultsGrid');
+  const engineStatus = $('engineStatus');
+  const statusIndicator = $('statusIndicator');
+  const audioVisualizer = $('audioVisualizer');
+
+  /* ================= Utilidades UI ================= */
+  function setEngineStatus(text, color) {
+    engineStatus.textContent = text;
+    const base = 'w-2 h-2 rounded-full ';
+    if (color === 'green') statusIndicator.className = base + 'bg-emerald-400 animate-pulse';
+    else if (color === 'amber') statusIndicator.className = base + 'bg-amber-400 animate-pulse';
+    else statusIndicator.className = base + 'bg-red-500';
+  }
+
+  function showToast(msg, tone = 'info') {
+    const box = document.createElement('div');
+    const colors = {
+      info: 'border-violet/40 bg-surface2/95',
+      error: 'border-red-500/40 bg-surface2/95',
+      success: 'border-emerald-400/40 bg-surface2/95'
+    };
+    box.className = `toast-in pointer-events-auto text-xs font-medium text-white px-4 py-2.5 rounded-xl border ${colors[tone] || colors.info} shadow-xl backdrop-blur-xl flex items-center gap-2`;
+    const icon = tone === 'error' ? 'fa-triangle-exclamation text-red-400' : tone === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-info text-violet';
+    box.innerHTML = `<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
+    $('toastContainer').appendChild(box);
+    setTimeout(() => {
+      box.classList.remove('toast-in');
+      box.classList.add('toast-out');
+      setTimeout(() => box.remove(), 320);
+    }, 3200);
+  }
+
+  function formatTime(seconds) {
+    if (!isFinite(seconds) || seconds < 0) seconds = 0;
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  }
+
+  function setPlayingVisuals(playing) {
+    audioVisualizer.classList.toggle('is-playing', playing);
+    $('currentCover').classList.toggle('is-playing', playing);
+    btnPlay.innerHTML = playing
+      ? '<i class="fa-solid fa-pause text-sm"></i>'
+      : '<i class="fa-solid fa-play text-sm translate-x-0.5"></i>';
+  }
+
+  function ytSearchUrl(q) { return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`; }
+  function ytMusicUrl(q) { return `https://music.youtube.com/search?q=${encodeURIComponent(q)}`; }
+
+  /* ================= Render de resultados ================= */
+  function renderSkeleton(count = 10) {
+    resultsGrid.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'rounded-xl overflow-hidden';
+      el.innerHTML = `<div class="skeleton w-full aspect-square rounded-xl mb-3"></div>
+                       <div class="skeleton h-3 w-4/5 rounded mb-2"></div>
+                       <div class="skeleton h-2.5 w-3/5 rounded"></div>`;
+      resultsGrid.appendChild(el);
+    }
+  }
+
+  function renderResults(tracks) {
+    resultsGrid.innerHTML = '';
+    tracks.forEach((track, index) => {
+      const card = document.createElement('div');
+      card.className = 'track-card rise-in bg-surface p-3 rounded-2xl cursor-pointer group flex flex-col border border-edge hover:border-violet/50 hover:bg-surface2';
+      card.style.animationDelay = `${index * 45}ms`;
+      card.onclick = () => { currentIndex = index; loadTrack(track, true); };
+
+      card.innerHTML = `
+        <div class="relative mb-3">
+          <img src="${track.cover}" class="w-full aspect-square object-cover rounded-xl shadow-lg" loading="lazy">
+          <div class="absolute inset-0 rounded-xl bg-black/0 group-hover:bg-black/30 transition-colors"></div>
+          <button class="w-10 h-10 rounded-full grad-bg text-white flex items-center justify-center absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 translate-y-1.5 group-hover:translate-y-0 transition-all shadow-xl play-main">
+            <i class="fa-solid fa-play text-sm translate-x-0.5"></i>
+          </button>
+        </div>
+        <h4 class="font-semibold text-sm text-white truncate">${track.title}</h4>
+        <p class="text-xs text-sub truncate mt-0.5">${track.artist}</p>
+        <div class="mt-2 text-[10px] text-violet font-mono flex items-center gap-1.5">
+          <i class="fa-solid fa-bolt text-yellow-400"></i><span>Listo para reproducir</span>
+        </div>`;
+      resultsGrid.appendChild(card);
+    });
+    $('resultCount').textContent = `${tracks.length} canciones`;
+  }
+
+  /* ================= Búsqueda (metadatos vía iTunes) ================= */
+  searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const query = searchInput.value.trim();
+    if (!query) return;
+
+    setEngineStatus('Buscando canciones…', 'amber');
+    $('sectionTitle').textContent = `Resultados para "${query}"`;
+    renderSkeleton();
+
+    try {
+      const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=15`);
+      const data = await response.json();
+
+      if (data.results && data.results.length > 0) {
+        currentPlaylist = data.results.map((item) => ({
+          id: String(item.trackId),
+          title: item.trackName,
+          artist: item.artistName,
+          album: item.collectionName || 'Sencillo',
+          cover: item.artworkUrl100.replace('100x100bb', '600x600bb'),
+          previewUrl: item.previewUrl || '',
+          youtubeId: '',
+          query: `${item.artistName} ${item.trackName}`
+        }));
+
+        renderResults(currentPlaylist);
+        currentIndex = 0;
+        loadTrack(currentPlaylist[0], true);
+      } else {
+        resultsGrid.innerHTML = '';
+        $('sectionTitle').textContent = 'Sin resultados';
+        $('resultCount').textContent = '';
+        setEngineStatus('No se encontraron canciones', 'red');
+        showToast('No encontramos esa canción, intenta con otro término.', 'error');
+      }
+    } catch (err) {
+      console.error('Error al buscar metadatos:', err);
+      setEngineStatus('Error de conexión', 'red');
+      showToast('No se pudo conectar con el buscador.', 'error');
+    }
+  });
+
+  /* ================= YouTube IFrame API ================= */
+  window.onYouTubeIframeAPIReady = function () {
+    try {
+      const originUrl = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : undefined;
+      ytPlayer = new YT.Player('ytEngine', {
+        height: '100', width: '100',
+        playerVars: {
+          autoplay: 0, controls: 0, playsinline: 1, rel: 0, enablejsapi: 1,
+          ...(originUrl ? { origin: originUrl } : {})
+        },
+        events: {
+          onReady: () => { isYtReady = true; },
+          onStateChange: onPlayerStateChange,
+          onError: () => {
+            showToast('Ese video de YouTube no está disponible, saltando…', 'error');
+            nextTrack();
+          }
         }
+      });
+    } catch (e) { console.error(e); }
+  };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            renderResults(currentPlaylist);
-            setupAudioEvents();
-            setEngineStatus('Motor Nativo Listo ⚡', 'green');
-        });
+  function onPlayerStateChange(event) {
+    if (activeEngine !== 'youtube') return;
+    if (event.data === YT.PlayerState.PLAYING) {
+      isPlaying = true;
+      setPlayingVisuals(true);
+      const elapsed = loadStartTime ? Math.round(performance.now() - loadStartTime) : 0;
+      setEngineStatus(`Reproduciendo (YouTube) ⚡ ${elapsed}ms`, 'green');
+      $('inspectSpeed').textContent = `${elapsed} ms`;
+      $('inspectCodec').textContent = 'OPUS / WebM';
+      startProgressTimer();
+    } else if (event.data === YT.PlayerState.PAUSED) {
+      isPlaying = false;
+      setPlayingVisuals(false);
+      setEngineStatus('Pausado', 'amber');
+      stopProgressTimer();
+    } else if (event.data === YT.PlayerState.ENDED) {
+      isPlaying = false;
+      stopProgressTimer();
+      handleTrackEnded();
+    } else if (event.data === YT.PlayerState.BUFFERING) {
+      setEngineStatus('Cargando stream de YouTube…', 'amber');
+    }
+  }
 
-        function setEngineStatus(text, color) {
-            engineStatus.textContent = text;
-            if (color === 'green') {
-                statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-spotify-green animate-pulse';
-            } else if (color === 'amber') {
-                statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping';
-            } else {
-                statusIndicator.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
-            }
+  /* ================= Carga y relevo de pistas ================= */
+  function updateNowPlayingUI(track) {
+    $('currentCover').src = track.cover;
+    $('currentTitle').textContent = track.title;
+    $('currentArtist').textContent = track.artist;
+    $('currentAlbum').textContent = track.album || 'Sencillo';
+    $('barCover').src = track.cover;
+    $('barTitle').textContent = track.title;
+    $('barArtist').textContent = track.artist;
+    $('openYoutube').href = ytSearchUrl(track.query || `${track.artist} ${track.title}`);
+    $('openYtMusic').href = ytMusicUrl(track.query || `${track.artist} ${track.title}`);
+    progressBar.style.width = '0%';
+    currentTimeEl.textContent = '0:00';
+    totalTimeEl.textContent = '0:00';
+  }
+
+  function getVideoId(track, signal) {
+    const query = track.query || `${track.artist} ${track.title}`;
+    if (track.youtubeId) return Promise.resolve(track.youtubeId);
+    if (resolveCache.has(query)) return resolveCache.get(query);
+    const p = resolveYouTubeVideoId(query, signal).then(id => {
+      if (id) track.youtubeId = id;
+      return id;
+    });
+    resolveCache.set(query, p);
+    return p;
+  }
+
+  async function loadTrack(track, autoPlay = true) {
+    const myToken = ++loadToken;
+    loadStartTime = performance.now();
+
+    stopProgressTimer();
+    if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') { try { ytPlayer.pauseVideo(); } catch (e) {} }
+    nativeAudio.pause();
+    isPlaying = false;
+    setPlayingVisuals(false);
+
+    updateNowPlayingUI(track);
+    $('inspectVideoId').textContent = track.youtubeId || '---';
+
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 6000);
+
+    if (track.previewUrl) {
+      // Arranque instantáneo con el preview oficial de iTunes.
+      activeEngine = 'native';
+      nativeAudio.src = track.previewUrl;
+      $('inspectEngine').textContent = 'Nativo (iTunes)';
+      $('inspectCodec').textContent = 'AAC / MP4';
+      $('streamTag').textContent = 'Reproducción instantánea';
+
+      if (autoPlay) {
+        try {
+          await nativeAudio.play();
+          if (myToken !== loadToken) return;
+          isPlaying = true;
+          setPlayingVisuals(true);
+          const elapsed = Math.round(performance.now() - loadStartTime);
+          setEngineStatus(`Reproduciendo al instante ⚡ ${elapsed}ms`, 'green');
+          $('inspectSpeed').textContent = `${elapsed} ms`;
+          startProgressTimer();
+        } catch (err) {
+          console.warn('No se pudo reproducir el audio nativo:', err);
         }
+      }
 
-        // Resolutor rápido en paralelo con Timeout
-        async function resolveYouTubeVideoId(query) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2500);
+      // Búsqueda en segundo plano para poder continuar con la canción completa.
+      getVideoId(track, controller.signal).then(id => {
+        if (myToken !== loadToken) return;
+        if (id) $('inspectVideoId').textContent = id;
+      });
+      return;
+    }
 
-            try {
-                const results = await Promise.allSettled(
-                    SEARCH_RESOLVERS.map(resolver => resolver(query, controller.signal))
-                );
-                clearTimeout(timeoutId);
-                const fulfilled = results.find(r => r.status === 'fulfilled' && r.value);
-                if (fulfilled) return fulfilled.value;
-            } catch (e) {
-                clearTimeout(timeoutId);
-            }
-            return null;
-        }
+    // Sin preview: se va directo a YouTube.
+    activeEngine = 'youtube';
+    $('inspectEngine').textContent = 'YouTube';
+    $('streamTag').textContent = 'Buscando en YouTube…';
+    setEngineStatus('Resolviendo en YouTube / YouTube Music…', 'amber');
 
-        async function loadTrack(track, autoPlay = true) {
-            loadStartTime = performance.now();
+    const videoId = await getVideoId(track, controller.signal);
+    if (myToken !== loadToken) return;
 
-            // Pausar cualquier reproductor previo
-            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                try { ytPlayer.pauseVideo(); } catch(e){}
-            }
-            nativeAudio.pause();
+    if (videoId) {
+      $('inspectVideoId').textContent = videoId;
+      $('streamTag').textContent = 'YouTube • transmisión directa';
+      if (isYtReady && ytPlayer) {
+        if (autoPlay) ytPlayer.loadVideoById(videoId); else ytPlayer.cueVideoById(videoId);
+      }
+    } else {
+      setEngineStatus('No se encontró en ningún espejo', 'red');
+      $('inspectVideoId').textContent = 'N/D';
+      $('streamTag').textContent = 'No disponible — usa "Abrir en YouTube"';
+      showToast('No se pudo resolver esta canción automáticamente.', 'error');
+    }
+  }
 
-            document.getElementById('currentCover').src = track.cover;
-            document.getElementById('currentTitle').textContent = track.title;
-            document.getElementById('currentArtist').textContent = track.artist;
-            document.getElementById('currentAlbum').textContent = track.album || 'Sencillo';
+  // Al terminar el preview, intenta continuar la canción completa por YouTube
+  // desde donde se quedó, en vez de simplemente saltar a la siguiente.
+  async function handleTrackEnded() {
+    const track = currentPlaylist[currentIndex];
+    if (!track) return nextTrack();
 
-            document.getElementById('barCover').src = track.cover;
-            document.getElementById('barTitle').textContent = track.title;
-            document.getElementById('barArtist').textContent = track.artist;
+    if (activeEngine === 'native') {
+      setEngineStatus('Buscando la versión completa…', 'amber');
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 5000);
+      const videoId = await getVideoId(track, controller.signal);
 
-            progressBar.style.width = '0%';
-            currentTimeEl.textContent = '0:00';
-            totalTimeEl.textContent = '0:00';
+      if (videoId && isYtReady && ytPlayer) {
+        activeEngine = 'youtube';
+        $('inspectEngine').textContent = 'YouTube';
+        $('streamTag').textContent = 'Continuando canción completa…';
+        loadStartTime = performance.now();
+        ytPlayer.loadVideoById(videoId);
+        return;
+      }
+    }
+    if (repeatMode === 'one') { loadTrack(track, true); return; }
+    nextTrack();
+  }
 
-            // PRIORIDAD 1: Reproducción Instantánea vía Audio Nativo (iTunes Stream Preview)
-            if (track.previewUrl) {
-                activeEngine = 'native';
-                nativeAudio.src = track.previewUrl;
-                document.getElementById('inspectCodec').textContent = 'AAC / MP4 (Instant)';
-                document.getElementById('streamTag').textContent = 'Audio Instantáneo • HQ Directo';
+  function togglePlay() {
+    if (activeEngine === 'native') {
+      if (isPlaying) {
+        nativeAudio.pause();
+        isPlaying = false;
+        setPlayingVisuals(false);
+        setEngineStatus('Pausado', 'amber');
+        stopProgressTimer();
+      } else {
+        nativeAudio.play().then(() => {
+          isPlaying = true;
+          setPlayingVisuals(true);
+          setEngineStatus('Reproduciendo al instante ⚡', 'green');
+          startProgressTimer();
+        }).catch(() => {});
+      }
+    } else if (activeEngine === 'youtube' && isYtReady && ytPlayer) {
+      if (isPlaying) { if (typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo(); }
+      else { if (typeof ytPlayer.playVideo === 'function') ytPlayer.playVideo(); }
+    }
+  }
 
-                if (autoPlay) {
-                    try {
-                        await nativeAudio.play();
-                        isPlaying = true;
-                        btnPlay.innerHTML = '<i class="fa-solid fa-pause text-base"></i>';
-                        const elapsed = Math.round(performance.now() - loadStartTime);
-                        setEngineStatus(`Reproduciendo al instante ⚡ (${elapsed}ms)`, 'green');
-                        document.getElementById('inspectSpeed').textContent = `${elapsed} ms`;
-                        startProgressTimer();
-                    } catch (err) {
-                        console.warn("Fallo al reproducir audio nativo:", err);
-                    }
-                }
+  function nextTrack() {
+    if (!currentPlaylist.length) return;
+    if (shuffleOn && currentPlaylist.length > 1) {
+      let idx;
+      do { idx = Math.floor(Math.random() * currentPlaylist.length); } while (idx === currentIndex);
+      currentIndex = idx;
+    } else {
+      currentIndex = (currentIndex + 1) % currentPlaylist.length;
+    }
+    loadTrack(currentPlaylist[currentIndex], true);
+  }
 
-                // Cargar YouTube en segundo plano de forma silenciosa si se requiere
-                if (track.youtubeId) {
-                    document.getElementById('inspectVideoId').textContent = track.youtubeId;
-                } else {
-                    resolveYouTubeVideoId(track.query || `${track.artist} ${track.title}`).then(id => {
-                        if (id) {
-                            track.youtubeId = id;
-                            document.getElementById('inspectVideoId').textContent = id;
-                        }
-                    });
-                }
-                return;
-            }
+  function prevTrack() {
+    if (!currentPlaylist.length) return;
+    currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+    loadTrack(currentPlaylist[currentIndex], true);
+  }
 
-            // PRIORIDAD 2: YouTube Fallback (si no hay previewUrl directa)
-            activeEngine = 'youtube';
-            document.getElementById('streamTag').textContent = 'YouTube • Transmisión Directa';
-            let videoId = track.youtubeId;
+  /* ================= Progreso ================= */
+  function startProgressTimer() {
+    stopProgressTimer();
+    progressInterval = setInterval(() => {
+      let current = 0, duration = 0;
+      if (activeEngine === 'native') {
+        current = nativeAudio.currentTime || 0;
+        duration = nativeAudio.duration || 0;
+      } else if (activeEngine === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+        current = ytPlayer.getCurrentTime() || 0;
+        duration = ytPlayer.getDuration() || 0;
+      }
+      if (duration > 0) {
+        progressBar.style.width = `${(current / duration) * 100}%`;
+        currentTimeEl.textContent = formatTime(current);
+        totalTimeEl.textContent = formatTime(duration);
+        $('inspectDuration').textContent = formatTime(duration);
+      }
+    }, 250);
+  }
+  function stopProgressTimer() { if (progressInterval) clearInterval(progressInterval); }
 
-            if (!videoId) {
-                setEngineStatus('Obteniendo enlace YouTube...', 'amber');
-                const searchQuery = track.query || `${track.artist} ${track.title}`;
-                videoId = await resolveYouTubeVideoId(searchQuery);
+  /* ================= Eventos de UI ================= */
+  function setupEvents() {
+    btnPlay.onclick = togglePlay;
+    $('btnNext').onclick = nextTrack;
+    $('btnPrev').onclick = prevTrack;
 
-                if (videoId) {
-                    track.youtubeId = videoId;
-                }
-            }
+    $('btnShuffle').onclick = () => {
+      shuffleOn = !shuffleOn;
+      $('btnShuffle').classList.toggle('text-violet', shuffleOn);
+      $('btnShuffle').classList.toggle('text-sub', !shuffleOn);
+      showToast(shuffleOn ? 'Aleatorio activado' : 'Aleatorio desactivado', 'info');
+    };
 
-            if (videoId) {
-                document.getElementById('inspectVideoId').textContent = videoId;
-                if (isYtReady && ytPlayer) {
-                    if (autoPlay) {
-                        ytPlayer.loadVideoById(videoId);
-                    } else {
-                        ytPlayer.cueVideoById(videoId);
-                    }
-                }
-            } else {
-                setEngineStatus('Pista no disponible', 'red');
-                document.getElementById('inspectVideoId').textContent = 'Error';
-            }
-        }
+    $('btnRepeat').onclick = () => {
+      repeatMode = repeatMode === 'off' ? 'all' : repeatMode === 'all' ? 'one' : 'off';
+      const btn = $('btnRepeat');
+      btn.classList.toggle('text-violet', repeatMode !== 'off');
+      btn.classList.toggle('text-sub', repeatMode === 'off');
+      $('repeatOneDot').classList.toggle('hidden', repeatMode !== 'one');
+      showToast(repeatMode === 'off' ? 'Repetir desactivado' : repeatMode === 'all' ? 'Repetir toda la lista' : 'Repetir esta canción', 'info');
+    };
 
-        function togglePlay() {
-            if (activeEngine === 'native') {
-                if (isPlaying) {
-                    nativeAudio.pause();
-                    isPlaying = false;
-                    btnPlay.innerHTML = '<i class="fa-solid fa-play text-base translate-x-0.5"></i>';
-                    setEngineStatus('Pausado', 'amber');
-                    stopProgressTimer();
-                } else {
-                    nativeAudio.play().then(() => {
-                        isPlaying = true;
-                        btnPlay.innerHTML = '<i class="fa-solid fa-pause text-base"></i>';
-                        setEngineStatus('Reproduciendo al instante ⚡', 'green');
-                        startProgressTimer();
-                    });
-                }
-            } else if (activeEngine === 'youtube' && isYtReady && ytPlayer) {
-                if (isPlaying) {
-                    if (typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
-                } else {
-                    if (typeof ytPlayer.playVideo === 'function') ytPlayer.playVideo();
-                }
-            }
-        }
+    nativeAudio.onended = () => { isPlaying = false; stopProgressTimer(); handleTrackEnded(); };
 
-        function startProgressTimer() {
-            stopProgressTimer();
-            progressInterval = setInterval(() => {
-                if (activeEngine === 'native') {
-                    const current = nativeAudio.currentTime || 0;
-                    const duration = nativeAudio.duration || 0;
-                    if (duration > 0) {
-                        const percent = (current / duration) * 100;
-                        progressBar.style.width = `${percent}%`;
-                        currentTimeEl.textContent = formatTime(current);
-                        totalTimeEl.textContent = formatTime(duration);
-                        document.getElementById('inspectDuration').textContent = formatTime(duration);
-                    }
-                } else if (activeEngine === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                    const current = ytPlayer.getCurrentTime() || 0;
-                    const duration = ytPlayer.getDuration() || 0;
-                    if (duration > 0) {
-                        const percent = (current / duration) * 100;
-                        progressBar.style.width = `${percent}%`;
-                        currentTimeEl.textContent = formatTime(current);
-                        totalTimeEl.textContent = formatTime(duration);
-                        document.getElementById('inspectDuration').textContent = formatTime(duration);
-                    }
-                }
-            }, 300);
-        }
+    progressContainer.onclick = (e) => {
+      const rect = progressContainer.getBoundingClientRect();
+      const pos = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+      if (activeEngine === 'native' && nativeAudio.duration) {
+        nativeAudio.currentTime = pos * nativeAudio.duration;
+      } else if (activeEngine === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
+        const target = pos * ytPlayer.getDuration();
+        if (typeof ytPlayer.seekTo === 'function') ytPlayer.seekTo(target, true);
+      }
+    };
 
-        function stopProgressTimer() {
-            if (progressInterval) clearInterval(progressInterval);
-        }
+    volumeSlider.oninput = (e) => {
+      const vol = parseInt(e.target.value, 10);
+      nativeAudio.volume = vol / 100;
+      if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(vol);
+    };
+    nativeAudio.volume = volumeSlider.value / 100;
 
-        function renderResults(tracks) {
-            resultsGrid.innerHTML = '';
-            tracks.forEach((track, index) => {
-                const card = document.createElement('div');
-                card.className = 'bg-spotify-card p-3.5 rounded-xl hover:bg-spotify-hover transition-all cursor-pointer group flex flex-col justify-between border border-transparent hover:border-neutral-800';
-                card.onclick = () => {
-                    currentIndex = index;
-                    loadTrack(track, true);
-                };
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && document.activeElement !== searchInput) {
+        e.preventDefault();
+        togglePlay();
+      }
+    });
+  }
 
-                card.innerHTML = `
-                    <div class="relative mb-3">
-                        <img src="${track.cover}" class="w-full aspect-square object-cover rounded-md shadow-lg">
-                        <button class="w-10 h-10 rounded-full bg-spotify-green text-black flex items-center justify-center absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 transition-all shadow-xl">
-                            <i class="fa-solid fa-play translate-x-0.5"></i>
-                        </button>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-sm text-white truncate">${track.title}</h4>
-                        <p class="text-xs text-spotify-subtext truncate mt-1">${track.artist}</p>
-                    </div>
-                    <div class="mt-2 text-[10px] text-spotify-green font-mono flex items-center space-x-1">
-                        <i class="fa-solid fa-bolt text-yellow-400"></i>
-                        <span>Reproducción Instantánea</span>
-                    </div>
-                `;
-                resultsGrid.appendChild(card);
-            });
-            document.getElementById('resultCount').textContent = `${tracks.length} canciones listas`;
-        }
-
-        searchForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const query = searchInput.value.trim();
-            if (!query) return;
-
-            setEngineStatus('Buscando canciones...', 'amber');
-            document.getElementById('sectionTitle').textContent = `Resultados para: "${query}"`;
-
-            try {
-                const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=12`);
-                const data = await response.json();
-
-                if (data.results && data.results.length > 0) {
-                    const fetchedTracks = data.results.map((item) => ({
-                        id: item.trackId.toString(),
-                        title: item.trackName,
-                        artist: item.artistName,
-                        album: item.collectionName || 'Sencillo',
-                        cover: item.artworkUrl100.replace('100x100bb', '600x600bb'),
-                        previewUrl: item.previewUrl || '',
-                        query: `${item.artistName} ${item.trackName}`
-                    }));
-
-                    currentPlaylist = fetchedTracks;
-                    renderResults(currentPlaylist);
-                    currentIndex = 0;
-                    
-                    // Cargar y reproducir inmediatamente al instante
-                    loadTrack(currentPlaylist[0], true);
-
-                } else {
-                    document.getElementById('sectionTitle').textContent = 'Sin resultados';
-                    setEngineStatus('No se encontraron canciones', 'red');
-                }
-            } catch (err) {
-                console.error("Error al buscar metadatos:", err);
-                setEngineStatus('Error de conexión a la API', 'red');
-            }
-        });
-
-        function setupAudioEvents() {
-            btnPlay.onclick = togglePlay;
-
-            nativeAudio.onended = () => {
-                isPlaying = false;
-                stopProgressTimer();
-                document.getElementById('btnNext').click();
-            };
-
-            progressContainer.onclick = (e) => {
-                const rect = progressContainer.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-
-                if (activeEngine === 'native' && nativeAudio.duration) {
-                    nativeAudio.currentTime = pos * nativeAudio.duration;
-                } else if (activeEngine === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
-                    const targetTime = pos * ytPlayer.getDuration();
-                    if (typeof ytPlayer.seekTo === 'function') {
-                        ytPlayer.seekTo(targetTime, true);
-                    }
-                }
-            };
-
-            volumeSlider.oninput = (e) => {
-                const vol = parseInt(e.target.value);
-                nativeAudio.volume = vol / 100;
-                if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-                    ytPlayer.setVolume(vol);
-                }
-            };
-
-            document.getElementById('btnNext').onclick = () => {
-                currentIndex = (currentIndex + 1) % currentPlaylist.length;
-                loadTrack(currentPlaylist[currentIndex], true);
-            };
-
-            document.getElementById('btnPrev').onclick = () => {
-                currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-                loadTrack(currentPlaylist[currentIndex], true);
-            };
-        }
-
-        function formatTime(seconds) {
-            const min = Math.floor(seconds / 60);
-            const sec = Math.floor(seconds % 60);
-            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-        }
-    </script>
+  /* ================= Arranque ================= */
+  window.addEventListener('DOMContentLoaded', () => {
+    renderResults(currentPlaylist);
+    setupEvents();
+    setEngineStatus('Motor listo ⚡', 'green');
+  });
+})();
+</script>
 </body>
 </html>
