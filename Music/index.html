@@ -2,7 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nébula">
 <title>Nébula — Motor de Audio</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -179,35 +184,35 @@
 <div id="toastContainer" class="fixed top-4 left-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none"></div>
 
 <!-- Encabezado -->
-<header class="relative z-10 bg-surface/70 backdrop-blur-xl px-4 md:px-6 py-3.5 flex items-center gap-4 border-b border-edge">
+<header class="relative z-10 bg-surface/70 backdrop-blur-xl px-2.5 sm:px-4 md:px-6 py-2.5 sm:py-3.5 flex items-center gap-2 sm:gap-4 border-b border-edge">
   <div class="flex items-center gap-2.5 shrink-0 pop-in">
     <div class="w-9 h-9 rounded-xl grad-bg flex items-center justify-center shadow-lg shadow-violet/30">
       <i class="fa-solid fa-wave-square text-black text-sm"></i>
     </div>
     <div class="hidden sm:block">
       <h1 class="font-display font-bold text-base leading-tight">Nébula</h1>
-      <p class="text-[11px] text-sub -mt-0.5">Canciones completas vía YouTube / YouTube Music</p>
+      <p class="hidden text-[11px] text-sub -mt-0.5">Canciones completas vía YouTube / YouTube Music</p>
     </div>
   </div>
 
-  <form id="searchForm" class="relative flex-1 max-w-2xl mx-auto flex items-center gap-2">
-    <div class="relative flex-1 flex items-center rounded-full grad-ring">
-      <i class="fa-solid fa-magnifying-glass absolute left-4 text-sub text-sm pointer-events-none"></i>
-      <input type="text" id="searchInput" placeholder="Busca una canción, artista, álbum o EP…"
-        class="w-full bg-surface2 text-sm text-white pl-11 pr-24 py-2.5 rounded-full focus:outline-none border border-edge transition-colors">
-      <button type="submit" class="absolute right-1.5 px-4 py-1.5 grad-bg text-black rounded-full text-xs font-semibold btn-scale flex items-center gap-1.5">
-        <i class="fa-solid fa-bolt text-[10px]"></i> Buscar
+  <form id="searchForm" class="relative flex-1 max-w-2xl mx-auto flex items-center gap-1.5 sm:gap-2 min-w-0">
+    <div class="relative flex-1 min-w-0 flex items-center rounded-full grad-ring">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 sm:left-4 text-sub text-sm pointer-events-none"></i>
+      <input type="text" id="searchInput" placeholder="Canción, artista, álbum…"
+        class="w-full bg-surface2 text-sm text-white pl-9 sm:pl-11 pr-14 sm:pr-24 py-2.5 rounded-full focus:outline-none border border-edge transition-colors">
+      <button type="submit" class="absolute right-1.5 px-2.5 sm:px-4 py-1.5 grad-bg text-black rounded-full text-xs font-semibold btn-scale flex items-center gap-1.5">
+        <i class="fa-solid fa-bolt text-[10px]"></i> <span class="hidden sm:inline">Buscar</span>
       </button>
     </div>
     <select id="searchType" title="Tipo de búsqueda"
-      class="bg-surface2 border border-edge text-xs text-neutral-200 rounded-full pl-3 pr-7 py-2.5 focus:outline-none focus:border-white/40 shrink-0 cursor-pointer">
+      class="bg-surface2 border border-edge text-xs text-neutral-200 rounded-full pl-2 sm:pl-3 pr-5 sm:pr-7 py-2.5 focus:outline-none focus:border-white/40 shrink-0 cursor-pointer w-[74px] sm:w-auto">
       <option value="song">Canción</option>
       <option value="album">Álbum / EP</option>
       <option value="artist">Artista</option>
     </select>
   </form>
 
-  <div class="hidden md:flex items-center gap-2.5 text-xs bg-surface2 px-3.5 py-2 rounded-full border border-edge shrink-0">
+  <div class="hidden items-center gap-2.5 text-xs bg-surface2 px-3.5 py-2 rounded-full border border-edge shrink-0">
     <span id="statusIndicator" class="w-2 h-2 rounded-full bg-gray-400"></span>
     <span class="text-neutral-300 font-medium whitespace-nowrap" id="engineStatus">Iniciando motor…</span>
   </div>
@@ -217,7 +222,7 @@
 <div class="relative z-10 flex-1 flex overflow-hidden">
 
   <!-- Sidebar -->
-  <aside class="w-72 bg-surface/60 backdrop-blur-xl border-r border-edge p-5 flex-col justify-between hidden lg:flex">
+  <aside class="w-72 bg-surface/60 backdrop-blur-xl border-r border-edge p-5 flex-col justify-between hidden">
     <div class="space-y-5">
       <div>
         <h2 class="text-[11px] font-bold text-sub uppercase tracking-wider mb-2.5">Cómo reproduce</h2>
@@ -255,18 +260,18 @@
   </aside>
 
   <!-- Galería + tarjeta actual -->
-  <main class="flex-1 bg-gradient-to-b from-transparent via-transparent to-black/40 overflow-y-auto p-5 md:p-6 flex flex-col gap-6">
+  <main class="flex-1 bg-gradient-to-b from-transparent via-transparent to-black/40 overflow-y-auto p-3 sm:p-5 md:p-6 flex flex-col gap-6">
 
     <div>
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg md:text-xl font-display font-bold" id="sectionTitle">Sugerencias para empezar</h2>
         <span id="resultCount" class="text-xs text-sub"></span>
       </div>
-      <div id="resultsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4"></div>
+      <div id="resultsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"></div>
     </div>
 
     <!-- Now playing -->
-    <div id="nowPlayingCard" class="mt-auto bg-surface/70 border border-edge rounded-3xl p-5 md:p-6 flex flex-col md:flex-row items-center gap-5 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+    <div id="nowPlayingCard" class="hidden mt-auto bg-surface/70 border border-edge rounded-3xl p-5 md:p-6 flex-col md:flex-row items-center gap-5 backdrop-blur-xl shadow-2xl relative overflow-hidden">
       <div class="absolute inset-0 opacity-40 pointer-events-none" style="background: radial-gradient(circle at 15% 20%, rgba(255,255,255,.12), transparent 55%), radial-gradient(circle at 85% 80%, rgba(150,150,150,.14), transparent 55%);"></div>
 
       <img id="currentCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60"
@@ -303,15 +308,15 @@
 </div>
 
 <!-- Barra inferior -->
-<footer class="relative z-10 bg-surface/80 backdrop-blur-xl border-t border-edge px-4 py-3 flex items-center gap-4">
+<footer class="relative z-10 bg-surface/80 backdrop-blur-xl border-t border-edge px-2.5 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-4">
 
-  <div class="flex items-center gap-2 sm:gap-3 w-1/4 min-w-0">
-    <button id="miniInfo" class="flex items-center gap-3 min-w-0 flex-1 text-left btn-scale" title="Abrir vista grande">
+  <div class="flex items-center gap-1.5 sm:gap-3 w-[34%] sm:w-1/4 min-w-0">
+    <button id="miniInfo" class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 text-left btn-scale" title="Abrir vista grande">
       <img id="barCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60"
-        class="w-11 h-11 rounded-lg shadow object-cover border border-edge">
+        class="w-9 h-9 sm:w-11 sm:h-11 rounded-lg shadow object-cover border border-edge shrink-0">
       <div class="truncate">
-        <h4 id="barTitle" class="text-sm font-semibold text-white truncate">Sin reproducción</h4>
-        <p id="barArtist" class="text-xs text-sub truncate">—</p>
+        <h4 id="barTitle" class="text-xs sm:text-sm font-semibold text-white truncate">Sin reproducción</h4>
+        <p id="barArtist" class="text-[11px] sm:text-xs text-sub truncate">—</p>
       </div>
     </button>
     <button class="text-sub hover:text-magenta transition-colors pl-1 hidden sm:block btn-scale">
@@ -322,35 +327,35 @@
     </button>
   </div>
 
-  <div class="flex flex-col items-center flex-1 max-w-xl mx-auto">
-    <div class="flex items-center gap-5 mb-1.5">
-      <button id="btnShuffle" class="text-sub hover:text-white transition-colors text-sm btn-scale" title="Aleatorio">
+  <div class="flex flex-col items-center flex-1 min-w-0 max-w-xl mx-auto">
+    <div class="flex items-center gap-3 sm:gap-5 mb-1 sm:mb-1.5">
+      <button id="btnShuffle" class="hidden sm:inline-block text-sub hover:text-white transition-colors text-sm btn-scale" title="Aleatorio">
         <i class="fa-solid fa-shuffle"></i>
       </button>
-      <button id="btnPrev" class="text-neutral-200 hover:text-white transition-colors text-base btn-scale">
+      <button id="btnPrev" class="text-neutral-200 hover:text-white transition-colors text-sm sm:text-base btn-scale">
         <i class="fa-solid fa-backward-step"></i>
       </button>
-      <button id="btnPlay" class="w-10 h-10 rounded-full grad-bg text-black flex items-center justify-center play-main shadow-lg shadow-violet/30">
+      <button id="btnPlay" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full grad-bg text-black flex items-center justify-center play-main shadow-lg shadow-violet/30">
         <i class="fa-solid fa-play text-sm translate-x-0.5"></i>
       </button>
-      <button id="btnNext" class="text-neutral-200 hover:text-white transition-colors text-base btn-scale">
+      <button id="btnNext" class="text-neutral-200 hover:text-white transition-colors text-sm sm:text-base btn-scale">
         <i class="fa-solid fa-forward-step"></i>
       </button>
-      <button id="btnRepeat" class="text-sub hover:text-white transition-colors text-sm btn-scale relative" title="Repetir">
+      <button id="btnRepeat" class="hidden sm:inline-block text-sub hover:text-white transition-colors text-sm btn-scale relative" title="Repetir">
         <i class="fa-solid fa-repeat"></i>
         <span id="repeatOneDot" class="hidden absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-magenta"></span>
       </button>
     </div>
-    <div class="flex items-center gap-2.5 w-full">
-      <span id="currentTime" class="text-[11px] text-sub font-mono w-9 text-right">0:00</span>
+    <div class="flex items-center gap-1.5 sm:gap-2.5 w-full">
+      <span id="currentTime" class="text-[10px] sm:text-[11px] text-sub font-mono w-7 sm:w-9 text-right">0:00</span>
       <div id="progressContainer" class="flex-1 h-1 bg-surface2 rounded-full overflow-hidden group relative">
         <div id="progressBar" class="h-full grad-bg rounded-full" style="width:0%"></div>
       </div>
-      <span id="totalTime" class="text-[11px] text-sub font-mono w-9">0:00</span>
+      <span id="totalTime" class="text-[10px] sm:text-[11px] text-sub font-mono w-7 sm:w-9">0:00</span>
     </div>
   </div>
 
-  <div class="flex items-center gap-2.5 w-1/4 justify-end">
+  <div class="hidden sm:flex items-center gap-2.5 w-1/4 justify-end">
     <i class="fa-solid fa-volume-low text-sub text-sm"></i>
     <input type="range" id="volumeSlider" min="0" max="100" value="80" class="w-24">
   </div>
@@ -395,7 +400,7 @@
     <div class="text-center space-y-1 shrink-0 mb-4">
       <h2 id="bigTitle" class="font-display font-bold text-xl sm:text-2xl text-white truncate">Elige una canción</h2>
       <p id="bigArtist" class="text-sub text-sm sm:text-base truncate">Busca arriba para comenzar</p>
-      <div class="flex items-center justify-center gap-4 pt-1">
+      <div class="hidden items-center justify-center gap-4 pt-1">
         <a id="bigOpenYoutube" target="_blank" rel="noopener" class="text-[11px] text-sub hover:text-white transition-colors flex items-center gap-1.5">
           <i class="fa-brands fa-youtube text-white"></i> YouTube
         </a>
@@ -434,16 +439,16 @@
       </button>
     </div>
 
-    <!-- Ecualizador + volumen -->
-    <div class="flex items-center justify-between gap-4 shrink-0 pb-1">
-      <div class="flex items-end gap-1.5 h-8 px-3 py-1.5 bg-black/50 rounded-lg border border-edge" id="audioVisualizerBig">
+    <!-- Ecualizador (oculto) + volumen -->
+    <div class="flex items-center justify-center gap-4 shrink-0 pb-1">
+      <div class="hidden items-end gap-1.5 h-8 px-3 py-1.5 bg-black/50 rounded-lg border border-edge" id="audioVisualizerBig">
         <div class="eq-bar eq1 w-1 grad-bg rounded-full h-2"></div>
         <div class="eq-bar eq2 w-1 grad-bg rounded-full h-6"></div>
         <div class="eq-bar eq3 w-1 grad-bg rounded-full h-3.5"></div>
         <div class="eq-bar eq4 w-1 grad-bg rounded-full h-7"></div>
         <div class="eq-bar eq5 w-1 grad-bg rounded-full h-3"></div>
       </div>
-      <div class="flex items-center gap-2.5 flex-1 max-w-[160px]">
+      <div class="flex items-center gap-2.5 w-full max-w-xs">
         <i class="fa-solid fa-volume-low text-sub text-sm"></i>
         <input type="range" id="volumeSliderBig" min="0" max="100" value="80" class="w-full">
       </div>
@@ -642,6 +647,59 @@
     const min = Math.floor(seconds / 60);
     const sec = Math.floor(seconds % 60);
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  }
+
+  /* ================= Media Session (reproducción en segundo plano) ================= */
+  function updateMediaSessionMetadata(track) {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title || 'Nébula',
+        artist: track.artist || '',
+        album: track.album || 'Sencillo',
+        artwork: track.cover ? [
+          { src: track.cover, sizes: '96x96', type: 'image/jpeg' },
+          { src: track.cover, sizes: '256x256', type: 'image/jpeg' },
+          { src: track.cover, sizes: '384x384', type: 'image/jpeg' },
+          { src: track.cover, sizes: '512x512', type: 'image/jpeg' }
+        ] : []
+      });
+    } catch (e) { /* algunos navegadores son estrictos con MediaMetadata */ }
+  }
+
+  function setMediaSessionPlaybackState(state) {
+    if ('mediaSession' in navigator) {
+      try { navigator.mediaSession.playbackState = state; } catch (e) {}
+    }
+  }
+
+  function setupMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    const safeHandler = (action, fn) => {
+      try { navigator.mediaSession.setActionHandler(action, fn); } catch (e) { /* acción no soportada */ }
+    };
+    safeHandler('play', () => { if (!isPlaying) togglePlay(); });
+    safeHandler('pause', () => { if (isPlaying) togglePlay(); });
+    safeHandler('previoustrack', () => prevTrack());
+    safeHandler('nexttrack', () => nextTrack());
+    safeHandler('stop', () => { if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo(); });
+    safeHandler('seekbackward', (details) => {
+      if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.seekTo === 'function') {
+        const skip = details.seekOffset || 10;
+        ytPlayer.seekTo(Math.max(0, ytPlayer.getCurrentTime() - skip), true);
+      }
+    });
+    safeHandler('seekforward', (details) => {
+      if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function' && typeof ytPlayer.seekTo === 'function') {
+        const skip = details.seekOffset || 10;
+        ytPlayer.seekTo(Math.min(ytPlayer.getDuration(), ytPlayer.getCurrentTime() + skip), true);
+      }
+    });
+    safeHandler('seekto', (details) => {
+      if (ytPlayer && typeof ytPlayer.seekTo === 'function' && details.seekTime != null) {
+        ytPlayer.seekTo(details.seekTime, true);
+      }
+    });
   }
 
   function setPlayingVisuals(playing) {
@@ -880,6 +938,7 @@
     if (event.data === YT.PlayerState.PLAYING) {
       isPlaying = true;
       setPlayingVisuals(true);
+      setMediaSessionPlaybackState('playing');
       const elapsed = loadStartTime ? Math.round(performance.now() - loadStartTime) : 0;
       setEngineStatus(`Reproduciendo (YouTube) ⚡ ${elapsed}ms`, 'green');
       $('inspectSpeed').textContent = `${elapsed} ms`;
@@ -888,6 +947,7 @@
     } else if (event.data === YT.PlayerState.PAUSED) {
       isPlaying = false;
       setPlayingVisuals(false);
+      setMediaSessionPlaybackState('paused');
       setEngineStatus('Pausado', 'amber');
       stopProgressTimer();
     } else if (event.data === YT.PlayerState.ENDED) {
@@ -901,6 +961,7 @@
 
   /* ================= Carga y relevo de pistas ================= */
   function updateNowPlayingUI(track) {
+    updateMediaSessionMetadata(track);
     $('currentCover').src = track.cover;
     $('currentTitle').textContent = track.title;
     $('currentArtist').textContent = track.artist;
@@ -1050,6 +1111,9 @@
         $('bigProgressBar').style.width = pct;
         $('bigCurrentTime').textContent = formatTime(current);
         $('bigTotalTime').textContent = formatTime(duration);
+        if ('mediaSession' in navigator && typeof navigator.mediaSession.setPositionState === 'function') {
+          try { navigator.mediaSession.setPositionState({ duration, playbackRate: 1, position: Math.min(current, duration) }); } catch (e) {}
+        }
       }
     }, 250);
   }
@@ -1158,6 +1222,7 @@
   window.addEventListener('DOMContentLoaded', () => {
     renderResults(currentPlaylist);
     setupEvents();
+    setupMediaSession();
     setEngineStatus('Motor listo ⚡', 'green');
   });
 })();
