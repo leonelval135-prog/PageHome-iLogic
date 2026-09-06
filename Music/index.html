@@ -235,9 +235,6 @@
         <div id="ytEngine"></div>
     </div>
 
-    <!-- YouTube Iframe API Script -->
-    <script src="https://www.youtube.com/iframe_api"></script>
-
     <script>
         // Lista inicial de canciones con YouTube Video IDs PRE-RESOLVIDOS para reproducción INSTANTÁNEA
         const initialTracks = [
@@ -292,41 +289,62 @@
         const engineStatus = document.getElementById('engineStatus');
         const statusIndicator = document.getElementById('statusIndicator');
 
-        function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('ytEngine', {
-                height: '100',
-                width: '100',
-                playerVars: {
-                    'autoplay': 1,
-                    'controls': 0,
-                    'playsinline': 1,
-                    'modestbranding': 1,
-                    'rel': 0,
-                    'origin': window.location.origin || '*'
-                },
-                events: {
-                    'onReady': () => {
-                        isYtReady = true;
-                        setEngineStatus('Motor Ultra-Rápido Listo ⚡', 'green');
-                        // Pre-cargar primera pista
-                        loadTrack(currentPlaylist[0], false);
+        // Función global definida ANTES de importar el script de YouTube
+        window.onYouTubeIframeAPIReady = function() {
+            try {
+                const originUrl = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : undefined;
+                ytPlayer = new YT.Player('ytEngine', {
+                    height: '100',
+                    width: '100',
+                    playerVars: {
+                        'autoplay': 1,
+                        'controls': 0,
+                        'playsinline': 1,
+                        'modestbranding': 1,
+                        'rel': 0,
+                        'enablejsapi': 1,
+                        ...(originUrl ? { 'origin': originUrl } : {})
                     },
-                    'onStateChange': onPlayerStateChange,
-                    'onError': (err) => {
-                        console.warn("Error en YouTube Player, usando respaldo...", err);
-                        // Respando automático si un ID falla
-                        const track = currentPlaylist[currentIndex];
-                        if (track && track.query) {
-                            ytPlayer.loadPlaylist({
-                                listType: 'search',
-                                list: track.query,
-                                index: 0
-                            });
+                    events: {
+                        'onReady': () => {
+                            isYtReady = true;
+                            setEngineStatus('Motor Ultra-Rápido Listo ⚡', 'green');
+                            loadTrack(currentPlaylist[0], false);
+                        },
+                        'onStateChange': onPlayerStateChange,
+                        'onError': (err) => {
+                            console.warn("Error en YouTube Player, usando respaldo...", err);
+                            const track = currentPlaylist[currentIndex];
+                            if (track && track.query) {
+                                ytPlayer.loadPlaylist({
+                                    listType: 'search',
+                                    list: track.query,
+                                    index: 0
+                                });
+                            }
                         }
                     }
-                }
-            });
-        }
+                });
+            } catch (e) {
+                console.error("Error al inicializar YouTube Player:", e);
+                setEngineStatus('Error iniciando motor. Reintentando...', 'amber');
+            }
+        };
+
+        // Cargar dinámicamente la API de YouTube después de declarar la función callback
+        (function loadYtScript() {
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        })();
+
+        // Respaldo de inicialización forzada por si la red/iframe se retrasa
+        setTimeout(() => {
+            if (!isYtReady && typeof YT !== 'undefined' && YT.Player) {
+                window.onYouTubeIframeAPIReady();
+            }
+        }, 2000);
 
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING) {
@@ -473,7 +491,11 @@
 
         function togglePlay() {
             if (!isYtReady || !ytPlayer) {
-                setEngineStatus('Esperando motor...', 'amber');
+                // Intentar forzar la inicialización si el usuario da clic
+                if (typeof YT !== 'undefined' && YT.Player && !ytPlayer) {
+                    window.onYouTubeIframeAPIReady();
+                }
+                setEngineStatus('Iniciando motor...', 'amber');
                 return;
             }
 
