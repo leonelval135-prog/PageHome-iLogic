@@ -692,7 +692,7 @@
             const progressFill = document.getElementById('modal-progress-fill');
             const statusMsg = document.getElementById('modal-status-msg');
 
-            osText.innerText = 'eMusic.apk (e-Onyx Technologies)';
+            osText.innerText = 'eMusic_v0.9.4.apk (e-Onyx Technologies)';
             progressFill.style.width = '0%';
             statusMsg.innerText = 'Verificando paquete de instalación Android...';
 
@@ -718,7 +718,7 @@
                 if (progress > 40 && progress < 80) {
                     statusMsg.innerText = 'Verificando firmas digitales de e-Onyx...';
                 } else if (progress >= 80) {
-                    statusMsg.innerText = 'Generando enlace de descarga eMusic.apk...';
+                    statusMsg.innerText = 'Generando enlace de descarga eMusic_v0.9.4.apk...';
                 }
             }, 180);
         }
@@ -728,62 +728,20 @@
         }
 
         function triggerActualDownload() {
-            // Enlace directo al archivo APK ubicado en la carpeta Download/ para GitHub Pages
-            const apkUrl = './Download/eMusic.apk';
+            // OPCIÓN RECOMENDADA (GitHub Releases):
+            // Reemplaza este enlace con la URL de descarga directa de tu Release en GitHub
+            // Ejemplo: 'https://github.com/tu-usuario/tu-repositorio/releases/download/v0.9.4/eMusic_v0.9.4.apk'
+            const apkUrl = 'https://github.com/leonelval135-prog/PageHome-iLogic/releases/download/eMusic/eMusic.apk';
             
+            // Si prefieres usar la carpeta local 'Download/' (si subes por consola Git soporta hasta 100MB):
+            // const apkUrl = './Download/eMusic_v0.9.4.apk';
+
             const a = document.createElement('a');
             a.href = apkUrl;
             a.download = 'eMusic_v0.9.4.apk';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        }
-
-        function initHeroCanvas() {
-            const canvas = document.getElementById('hero-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = canvas.parentElement.offsetHeight || 600;
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            const particles = [];
-            for (let i = 0; i < 50; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    radius: Math.random() * 2.5 + 0.8,
-                    vx: (Math.random() - 0.5) * 0.6,
-                    vy: (Math.random() - 0.5) * 0.6,
-                    alpha: Math.random() * 0.4 + 0.1
-                });
-            }
-
-            function drawParticles() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    if (p.x < 0) p.x = canvas.width;
-                    if (p.x > canvas.width) p.x = 0;
-                    if (p.y < 0) p.y = canvas.height;
-                    if (p.y > canvas.height) p.y = 0;
-
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.globalAlpha = p.alpha;
-                    ctx.fill();
-                });
-                ctx.globalAlpha = 1;
-                requestAnimationFrame(drawParticles);
-            }
-            drawParticles();
         }
     </script>
 </body>
