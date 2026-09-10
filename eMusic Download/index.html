@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eMusic - Reproductor Hi-Fi para Android (APK) | Acceso Gratuito</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        mono: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'radar-sweep': 'radar 3s linear infinite',
+                        'float': 'float 5s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        radar: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #f4f4f5;
+            overflow-x: hidden;
+        }
+
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 18, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -10px rgba(255, 255, 255, 0.15);
+        }
+
+        .text-gradient-bright {
+            background: linear-gradient(135deg, #ffffff 0%, #d4d4d8 50%, #71717a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffffff;
+        }
+
+        .scan-radar-grid {
+            background-size: 20px 20px;
+            background-image: 
+                radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        }
+
+        /* Ambient Glow & Blur Styles */
+        .glow-orb-white {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+            filter: blur(100px);
+        }
+        .glow-orb-zinc {
+            background: radial-gradient(circle, rgba(161, 161, 170, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            filter: blur(120px);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-white selection:text-black bg-black relative overflow-x-hidden">
+
+    <!-- Diffused Background Glows & Blur Layers -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute -top-40 -left-40 w-[500px] h-[500px] glow-orb-white rounded-full opacity-60"></div>
+        <div class="absolute top-1/3 -right-40 w-[600px] h-[600px] glow-orb-zinc rounded-full opacity-50"></div>
+        <div class="absolute top-2/3 -left-40 w-[700px] h-[700px] glow-orb-white rounded-full opacity-30"></div>
+        <div class="absolute -bottom-40 right-1/4 w-[600px] h-[600px] glow-orb-zinc rounded-full opacity-40"></div>
+    </div>
+
+    <!-- Announcement Banner -->
+    <div class="bg-zinc-900/90 backdrop-blur-md text-white text-xs sm:text-sm py-3 px-4 text-center font-medium relative z-50 flex items-center justify-center gap-2 sm:gap-3 border-b border-zinc-800/80 flex-wrap">
+        <span class="bg-white text-black text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold flex items-center gap-1 shrink-0">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> ANDROID APK DISPONIBLE
+        </span>
+        <span class="text-zinc-300">Un servicio desarrollado por <strong class="text-white font-bold">e-Onyx Technologies</strong>.</span>
+        <a href="#download" class="underline font-semibold text-white hover:text-zinc-300 transition-colors ml-1 hidden sm:inline">Descargar APK Gratis &rarr;</a>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-zinc-800/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                    <div class="w-11 h-11 rounded-full bg-white/10 border border-zinc-600/80 p-1 flex items-center justify-center shadow-lg shadow-white/10 group-hover:scale-105 group-hover:border-white transition-all overflow-hidden backdrop-blur-sm">
+                        <img src="https://i.ibb.co/ksV4BXG3/file-00000000abd081f5a310b8b066aaa85e.png" alt="eMusic Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.parentElement.innerHTML='<i data-lucide=\'disc\' class=\'w-6 h-6 text-white\'></i>'; lucide.createIcons();">
+                    </div>
+                    <div>
+                        <span class="text-2xl font-black tracking-tight text-white flex items-center gap-1.5 leading-none">
+                            e<span class="text-zinc-400">Music</span>
+                            <span class="text-[9px] bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded uppercase tracking-wider font-bold">BETA APK</span>
+                        </span>
+                        <span class="text-[10px] text-zinc-400 block font-medium mt-1">by e-Onyx Technologies</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+                    <a href="#features" class="hover:text-white transition-colors">Características</a>
+                    <a href="#pricing" class="hover:text-white transition-colors">Planes y Precios</a>
+                    <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+                </nav>
+
+                <!-- CTA Button -->
+                <div class="flex items-center gap-4">
+                    <button onclick="openDownloadModal('android')" class="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-black bg-white hover:bg-zinc-200 transition-all duration-300 shadow-lg shadow-white/10 hover:scale-[1.02] active:scale-95">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Descargar APK</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-[85vh] flex items-center justify-center overflow-hidden py-16 md:py-28">
+        <!-- Background Visualizer Canvas -->
+        <canvas id="hero-canvas"></canvas>
+
+        <!-- Ambient Glow Orbs -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-white/10 via-zinc-500/5 to-transparent rounded-full blur-[140px] pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-panel border border-zinc-700/80 text-zinc-300 text-xs sm:text-sm font-medium mb-8 sm:mb-10 animate-float backdrop-blur-md">
+                <span class="flex h-2.5 w-2.5 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                </span>
+                <span class="text-zinc-200">Servicio por <strong class="text-white">e-Onyx Technologies</strong></span>
+                <span class="text-zinc-500">•</span>
+                <span class="text-white font-bold flex items-center gap-1">
+                    <i data-lucide="smartphone" class="w-3.5 h-3.5 text-zinc-300"></i> Exclusivo Android APK
+                </span>
+            </div>
+
+            <!-- Main Heading -->
+            <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight text-white max-w-5xl mx-auto leading-[1.1] mb-6 sm:mb-8">
+                Escucha a todos tus <br class="hidden sm:inline" />
+                <span class="text-gradient-bright">Artistas Preferidos.</span>
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-base sm:text-xl text-zinc-300 max-w-3xl mx-auto mb-10 sm:mb-12 leading-relaxed font-normal px-2">
+                Disfruta de tus canciones con la más alta fidelidad de sonido HD, reproduce música local o en streaming y vive cada pista con <strong class="text-white">"Canvas" Interactivos</strong> sincronizados al ritmo en tu pantalla.
+            </p>
+
+            <!-- Download CTA Buttons -->
+            <div id="download" class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-14">
+                <!-- Android APK Button (AVAILABLE NOW) -->
+                <button onclick="openDownloadModal('android')" class="w-full sm:w-auto px-9 py-4 rounded-2xl bg-white hover:bg-zinc-200 text-black font-extrabold text-base shadow-2xl shadow-white/20 hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-3 group ring-2 ring-white/50">
+                    <i data-lucide="smartphone" class="w-6 h-6 group-hover:scale-110 transition-transform text-black"></i>
+                    <div class="text-left">
+                        <div class="text-[10px] text-zinc-600 uppercase tracking-wider font-bold flex items-center gap-1">
+                            <span>Disponible Ahora</span> • <span class="bg-black text-white px-1.5 py-0.2 rounded text-[9px]">v0.9.4 APK</span>
+                        </div>
+                        <div class="text-lg font-black leading-none">Descargar APK (Android)</div>
+                    </div>
+                </button>
+
+                <!-- Windows (COMING SOON) -->
+                <button disabled class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-zinc-900/60 backdrop-blur-md text-zinc-500 font-bold text-base border border-zinc-800 cursor-not-allowed flex items-center justify-center gap-3 opacity-60">
+                    <i data-lucide="monitor" class="w-5 h-5 text-zinc-600"></i>
+                    <div class="text-left">
+                        <div class="text-[10px] text-zinc-600 uppercase tracking-wider font-bold">Próximamente</div>
+                        <div class="text-base font-bold leading-none text-zinc-500">Windows (.exe)</div>
+                    </div>
+                </button>
+
+                <!-- macOS (COMING SOON) -->
+                <button disabled class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-zinc-900/60 backdrop-blur-md text-zinc-500 font-bold text-base border border-zinc-800 cursor-not-allowed flex items-center justify-center gap-3 opacity-60">
+                    <i data-lucide="apple" class="w-5 h-5 text-zinc-600"></i>
+                    <div class="text-left">
+                        <div class="text-[10px] text-zinc-600 uppercase tracking-wider font-bold">Próximamente</div>
+                        <div class="text-base font-bold leading-none text-zinc-500">macOS (.dmg)</div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- APK Note Banner -->
+            <div class="max-w-2xl mx-auto p-5 rounded-2xl glass-card border border-zinc-800 backdrop-blur-lg flex flex-col sm:flex-row items-center justify-between text-left gap-4 shadow-xl">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shrink-0 shadow-inner">
+                        <i data-lucide="sparkles" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">Experiencia Visual Con Canvas</h4>
+                        <p class="text-xs text-zinc-400 mt-0.5">Cada canción cobra vida con portadas animadas y Canvas interactivos en bucle mientras escuchas a tus artistas favoritos.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section id="features" class="py-20 md:py-28 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16 md:mb-20">
+                <span class="text-xs uppercase tracking-widest text-zinc-300 font-bold bg-zinc-900/80 backdrop-blur-md border border-zinc-700 px-3.5 py-1.5 rounded-full inline-block">Características Clave</span>
+                <h3 class="text-3xl sm:text-5xl font-black text-white mt-4 tracking-tight">Diseñado para melómanos exigentes</h3>
+                <p class="text-zinc-400 mt-3 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">Una plataforma de reproducción moderna desarrollada por e-Onyx Technologies para potenciar tu experiencia musical.</p>
+            </div>
+
+            <!-- Grid of 6 feature cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                
+                <!-- Feature 1: Canvas Interactivos -->
+                <div class="glass-card p-8 rounded-3xl relative group flex flex-col justify-between backdrop-blur-xl border-zinc-800 hover:border-zinc-500">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-all shadow-md">
+                            <i data-lucide="clapperboard" class="w-7 h-7"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-white mb-3">Canvas Interactivos</h4>
+                        <p class="text-zinc-400 text-sm leading-relaxed">Disfruta de animaciones en video looping y efectos visuales sincronizados con cada reproducción para sumergirte por completo en la canción.</p>
+                    </div>
+                    <span class="mt-6 text-[11px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Exclusivo eMusic
+                    </span>
+                </div>
+
+                <!-- Feature 2: Artistas Preferidos -->
+                <div class="glass-card p-8 rounded-3xl relative group flex flex-col justify-between backdrop-blur-xl border-zinc-800 hover:border-zinc-500">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-all shadow-md">
+                            <i data-lucide="users" class="w-7 h-7"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-white mb-3">Tus Artistas Preferidos</h4>
+                        <p class="text-zinc-400 text-sm leading-relaxed">Organiza, explora y escucha toda la discografía de tus cantantes y bandas favoritas con catálogos HD y biografía integrada.</p>
+                    </div>
+                    <span class="mt-6 text-[11px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="heart" class="w-3.5 h-3.5"></i> Biblioteca HD
+                    </span>
+                </div>
+
+                <!-- Feature 3: Audio HD Lossless -->
+                <div class="glass-card p-8 rounded-3xl relative group flex flex-col justify-between backdrop-blur-xl border-zinc-800 hover:border-zinc-500">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-all shadow-md">
+                            <i data-lucide="disc" class="w-7 h-7"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-white mb-3">Audio HD Lossless 32-bit</h4>
+                        <p class="text-zinc-400 text-sm leading-relaxed">Soporte nativo en Android para FLAC, WAV, ALAC y MP3 con decodificación de ultra baja latencia y alta resolución.</p>
+                    </div>
+                    <span class="mt-6 text-[11px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Calidad Estudio
+                    </span>
+                </div>
+
+                <!-- Feature 4: Ecualizador -->
+                <div class="glass-card p-8 rounded-3xl relative group flex flex-col justify-between backdrop-blur-xl border-zinc-800 hover:border-zinc-500">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-all shadow-md">
+                            <i data-lucide="sliders" class="w-7 h-7"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-white mb-3">Ecualizador Pro de 10 Bandas</h4>
+                        <p class="text-zinc-400 text-sm leading-relaxed">Personalización completa de frecuencias, refuerzo de bajos Bass Boost y perfiles creados por ingenieros de sonido.</p>
+                    </div>
+                    <span class="mt-6 text-[11px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="settings" class="w-3.5 h-3.5"></i> Control Total
+                    </span>
+                </div>
+
+                <!-- Feature 5: Ahorro de batería -->
+                <div class="glass-card p-8 rounded-3xl relative group flex flex-col justify-between backdrop-blur-xl border-zinc-800 hover:border-zinc-500">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-all shadow-md">
+                            <i data-lucide="battery-charging" class="w-7 h-7"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-white mb-3">Ahorro Extremo de Batería</h4>
+                        <p class="text-zinc-400 text-sm leading-relaxed">Motor optimizado en C++ por e-Onyx Technologies para reducir drásticamente el consumo de batería en segundo plano.</p>
+                    </div>
+                    <span class="mt-6 text-[11px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i> Bajo Consumo
+                    </span>
+                </div>
+
+                <!-- Feature 6: Seguridad & Privacidad -->
+                <div class="glass-card p-8 rounded-3xl relative group flex flex-col justify-between backdrop-blur-xl border-zinc-800 hover:border-zinc-500">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white mb-6 group-hover:bg-white group-hover:text-black transition-all shadow-md">
+                            <i data-lucide="shield-check" class="w-7 h-7"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-white mb-3">100% Seguro y Privado</h4>
+                        <p class="text-zinc-400 text-sm leading-relaxed">Sin publicidad invasiva ni recolección de datos personales. Tu música local se mantiene 100% en tu teléfono móvil.</p>
+                    </div>
+                    <span class="mt-6 text-[11px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i> Privacidad Guard
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing / 3 Monthly Plans Section -->
+    <section id="pricing" class="py-20 md:py-28 relative bg-zinc-950/80 border-t border-zinc-800/80 backdrop-blur-xl">
+        <!-- Diffused Glow in Pricing -->
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-900/40 to-black pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16 md:mb-20">
+                <span class="text-xs uppercase tracking-widest text-zinc-400 font-bold bg-zinc-900 border border-zinc-800 px-3.5 py-1.5 rounded-full">Modelos de Licencia Suscripción</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white mt-4 tracking-tight">Planes y Precios del Servicio</h2>
+                <p class="text-zinc-400 mt-3 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">eMusic es un servicio de e-Onyx Technologies totalmente <strong class="text-white">Gratuito durante la etapa Beta</strong>. Las opciones de pago entrarán en vigor al lanzarse la versión final.</p>
+            </div>
+
+            <!-- Pricing Comparison Grid: 3 Plans -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
+                
+                <!-- PLAN 1: GRATUITO ($0 / mes) - ACTIVO EN BETA -->
+                <div class="rounded-3xl p-8 sm:p-9 glass-panel border-2 border-white/80 bg-zinc-900/80 backdrop-blur-2xl flex flex-col justify-between shadow-2xl shadow-white/10 relative overflow-hidden">
+                    <div class="absolute top-5 right-5 bg-white text-black text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow">
+                        ACTUAL EN BETA
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-zinc-300">Acceso Beta Gratis</div>
+                        <h3 class="text-3xl font-black text-white mt-1">Gratuito</h3>
+                        
+                        <div class="mt-6 mb-8 flex items-baseline gap-1">
+                            <span class="text-5xl font-black text-white">$0</span>
+                            <span class="text-zinc-300 text-sm font-semibold">MXN / mes</span>
+                        </div>
+
+                        <ul class="space-y-4 text-sm text-zinc-200">
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-white shrink-0"></i>
+                                <span>Acceso total sin costo en la Beta APK</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-white shrink-0"></i>
+                                <span>Reproducción de tus <strong>Artistas Preferidos</strong></span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-white shrink-0"></i>
+                                <span>Modo <strong>Canvas Interactivos</strong> habilitado</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-white shrink-0"></i>
+                                <span>Ecualizador eMusic HD</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-10">
+                        <button onclick="openDownloadModal('android')" class="w-full py-4 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-sm text-center shadow-lg transition-all hover:scale-[1.02] active:scale-95">
+                            Descargar APK Gratis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PLAN 2: PERSONAL (50 MXN / mes) - PRÓXIMAMENTE -->
+                <div class="rounded-3xl p-8 sm:p-9 glass-card border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl flex flex-col justify-between opacity-80 relative overflow-hidden">
+                    <div class="absolute top-5 right-5 bg-zinc-800 text-zinc-400 border border-zinc-700 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full">
+                        PRÓXIMAMENTE
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-zinc-400">Plan Individual</div>
+                        <h3 class="text-2xl font-extrabold text-white mt-1">Personal</h3>
+                        
+                        <div class="mt-6 mb-8 flex items-baseline gap-1">
+                            <span class="text-4xl font-black text-zinc-300">$50</span>
+                            <span class="text-zinc-500 text-xs font-semibold">MXN / mes</span>
+                        </div>
+
+                        <ul class="space-y-4 text-sm text-zinc-400">
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="clock" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                                <span><strong>1 Dispositivo</strong> Android activo</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="clock" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                                <span>Audio HD Lossless 32-bit ilimitado</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="clock" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                                <span>Canvas Interactivos en ultra calidad</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="clock" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                                <span>Soporte e-Onyx prioritario</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-10">
+                        <button disabled class="w-full py-4 rounded-xl bg-zinc-800/80 text-zinc-500 font-bold text-sm text-center border border-zinc-700/50 cursor-not-allowed">
+                            Disponible al Lanzamiento
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PLAN 3: AMIGOS (120 MXN / mes) - PRÓXIMAMENTE -->
+                <div class="rounded-3xl p-8 sm:p-9 glass-card border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl flex flex-col justify-between opacity-80 relative overflow-hidden">
+                    <div class="absolute top-5 right-5 bg-zinc-800 text-zinc-400 border border-zinc-700 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full">
+                        PRÓXIMAMENTE
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-zinc-400">Familiar / Grupal</div>
+                        <h3 class="text-2xl font-extrabold text-white mt-1">Amigos</h3>
+                        
+                        <div class="mt-6 mb-8 flex items-baseline gap-1">
+                            <span class="text-4xl font-black text-zinc-300">$120</span>
+                            <span class="text-zinc-500 text-xs font-semibold">MXN / mes</span>
+                        </div>
+
+                        <ul class="space-y-4 text-sm text-zinc-400">
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="clock" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                                <span>Hasta <strong>5 Dispositivos</strong> simultáneos</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="clock" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                                <span>Todas las funciones del Plan Personal</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="clock" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                                <span>Sincronización de Canvas y Artistas</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i data-lucide="clock" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                                <span>Soporte prioritario 24/7</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-10">
+                        <button disabled class="w-full py-4 rounded-xl bg-zinc-800/80 text-zinc-500 font-bold text-sm text-center border border-zinc-700/50 cursor-not-allowed">
+                            Disponible al Lanzamiento
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 md:py-28 relative bg-black/90">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-14 md:mb-16">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Preguntas Frecuentes</h2>
+                <p class="text-zinc-400 mt-2">Dudas sobre el servicio de eMusic por e-Onyx Technologies.</p>
+            </div>
+
+            <div class="space-y-4" id="faq-container">
+                <!-- FAQ Item 1 -->
+                <div class="glass-panel rounded-2xl border border-zinc-800/80 backdrop-blur-md overflow-hidden transition-colors">
+                    <button class="w-full p-6 text-left flex items-center justify-between font-bold text-white text-base sm:text-lg focus:outline-none" onclick="toggleFaq(this)">
+                        <span>¿Qué son los "Canvas" interactivos en eMusic?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-400 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-6 pb-6 text-zinc-400 text-sm leading-relaxed hidden">
+                        Los Canvas son animaciones visuales en bucle y efectos dinámicos de corta duración que se muestran en pantalla completa mientras reproduces las canciones de tus artistas preferidos, creando una atmósfera inmersiva única.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="glass-panel rounded-2xl border border-zinc-800/80 backdrop-blur-md overflow-hidden transition-colors">
+                    <button class="w-full p-6 text-left flex items-center justify-between font-bold text-white text-base sm:text-lg focus:outline-none" onclick="toggleFaq(this)">
+                        <span>¿Quién desarrolla eMusic?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-400 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-6 pb-6 text-zinc-400 text-sm leading-relaxed hidden">
+                        eMusic es un servicio de software audio digital concebido, diseñado y optimizado por <strong>e-Onyx Technologies</strong>.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="glass-panel rounded-2xl border border-zinc-800/80 backdrop-blur-md overflow-hidden transition-colors">
+                    <button class="w-full p-6 text-left flex items-center justify-between font-bold text-white text-base sm:text-lg focus:outline-none" onclick="toggleFaq(this)">
+                        <span>¿Por qué los planes Personal y Amigos están en "Próximamente"?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-400 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-6 pb-6 text-zinc-400 text-sm leading-relaxed hidden">
+                        Actualmente nos encontramos en fase Beta pública ($0 MXN / mes). Al lanzar la versión final oficial, los planes de suscripción mensual (Personal a $50 MXN y Amigos a $120 MXN para 5 dispositivos) estarán disponibles.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="glass-panel rounded-2xl border border-zinc-800/80 backdrop-blur-md overflow-hidden transition-colors">
+                    <button class="w-full p-6 text-left flex items-center justify-between font-bold text-white text-base sm:text-lg focus:outline-none" onclick="toggleFaq(this)">
+                        <span>¿Es seguro instalar el instalador APK en mi Android?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-400 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-6 pb-6 text-zinc-400 text-sm leading-relaxed hidden">
+                        100% seguro. Todos los paquetes APK de eMusic son firmados oficialmente por e-Onyx Technologies y compatibles con Google Play Protect.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Direct APK Download -->
+    <div id="download-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden transition-all duration-300">
+        <div class="glass-panel w-full max-w-lg rounded-3xl border border-zinc-700 p-6 sm:p-8 shadow-2xl relative">
+            <!-- Close Button -->
+            <button onclick="closeDownloadModal()" class="absolute top-5 right-5 p-2 text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Modal Content State 1: Download Progress -->
+            <div id="modal-state-loading" class="text-center py-4">
+                <div class="w-16 h-16 rounded-2xl bg-white text-black flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i data-lucide="arrow-down-to-line" class="w-8 h-8"></i>
+                </div>
+
+                <h3 class="text-2xl font-black text-white">Preparando Descarga eMusic APK</h3>
+                <p class="text-zinc-400 text-sm mt-1 font-mono-code" id="modal-os-text">Servicio e-Onyx Technologies...</p>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-zinc-900 rounded-full h-3 my-6 overflow-hidden p-0.5 border border-zinc-800">
+                    <div id="modal-progress-fill" class="bg-white h-full rounded-full transition-all duration-300 w-0"></div>
+                </div>
+
+                <p class="text-xs text-zinc-300 font-mono-code" id="modal-status-msg">Iniciando transferencia de archivos...</p>
+            </div>
+
+            <!-- Modal Content State 2: Success & Direct Download Notice -->
+            <div id="modal-state-success" class="hidden text-center py-2">
+                <div class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center mx-auto mb-4 font-bold shadow-lg shadow-white/20">
+                    <i data-lucide="check" class="w-8 h-8"></i>
+                </div>
+
+                <h3 class="text-2xl font-black text-white">¡Descarga Iniciada!</h3>
+                <p class="text-zinc-300 text-sm mt-2">El archivo <strong class="text-white">eMusic_v0.9.4.apk</strong> se ha descargado en tu dispositivo.</p>
+
+                <div class="my-6 p-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-2 text-xs text-zinc-400">
+                    <div class="flex items-center gap-2 text-white font-bold">
+                        <i data-lucide="smartphone" class="w-4 h-4 text-zinc-300"></i> Pasos para instalar en Android:
+                    </div>
+                    <ol class="list-decimal list-inside space-y-1 text-zinc-300">
+                        <li>Abre el archivo descargado en tu gestor de descargas.</li>
+                        <li>Si el sistema lo solicita, autoriza "Instalar aplicaciones desconocidas".</li>
+                        <li>Presiona "Instalar" y ¡escucha a tus artistas con Canvas interactivos!</li>
+                    </ol>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="closeDownloadModal()" class="w-full py-3.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-sm font-extrabold transition-colors">
+                        Entendido / Cerrar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-black border-t border-zinc-800/80 py-14 text-sm text-zinc-500 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+                <!-- Brand -->
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white/10 border border-zinc-600/80 p-1 flex items-center justify-center shadow-md overflow-hidden backdrop-blur-sm">
+                        <img src="https://i.ibb.co/ksV4BXG3/file-00000000abd081f5a310b8b066aaa85e.png" alt="eMusic Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.parentElement.innerHTML='<i data-lucide=\'disc\' class=\'w-5 h-5 text-white\'></i>'; lucide.createIcons();">
+                    </div>
+                    <div>
+                        <span class="text-xl font-black text-white block leading-none">eMusic</span>
+                        <span class="text-xs text-zinc-400 mt-1 block">Un servicio desarrollado por <strong class="text-zinc-200">e-Onyx Technologies</strong>. © 2026.</span>
+                    </div>
+                </div>
+
+                <!-- Security Badge -->
+                <div class="flex items-center gap-2 text-xs text-zinc-400">
+                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                    <span>Infraestructura APK: <strong class="text-white">e-Onyx Cloud Safe</strong></span>
+                </div>
+
+                <!-- Socials -->
+                <div class="flex items-center gap-5 text-zinc-400">
+                    <a href="#" class="hover:text-white transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i data-lucide="shield" class="w-5 h-5"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initHeroCanvas();
+        });
+
+        function toggleFaq(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('[data-lucide="chevron-down"]');
+            
+            const isHidden = content.classList.contains('hidden');
+            
+            document.querySelectorAll('#faq-container > div').forEach(item => {
+                const inner = item.querySelector('div:not(:first-child)');
+                if (inner) inner.classList.add('hidden');
+                const ic = item.querySelector('[data-lucide="chevron-down"]');
+                if (ic) ic.style.transform = 'rotate(0deg)';
+            });
+
+            if (isHidden) {
+                content.classList.remove('hidden');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        function openDownloadModal(os) {
+            const modal = document.getElementById('download-modal');
+            const stateLoading = document.getElementById('modal-state-loading');
+            const stateSuccess = document.getElementById('modal-state-success');
+            const osText = document.getElementById('modal-os-text');
+            const progressFill = document.getElementById('modal-progress-fill');
+            const statusMsg = document.getElementById('modal-status-msg');
+
+            osText.innerText = 'eMusic.apk (e-Onyx Technologies)';
+            progressFill.style.width = '0%';
+            statusMsg.innerText = 'Verificando paquete de instalación Android...';
+
+            stateLoading.classList.remove('hidden');
+            stateSuccess.classList.add('hidden');
+            modal.classList.remove('hidden');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 25) + 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        stateLoading.classList.add('hidden');
+                        stateSuccess.classList.remove('hidden');
+                        triggerActualDownload();
+                    }, 300);
+                }
+                progressFill.style.width = `${progress}%`;
+                
+                if (progress > 40 && progress < 80) {
+                    statusMsg.innerText = 'Verificando firmas digitales de e-Onyx...';
+                } else if (progress >= 80) {
+                    statusMsg.innerText = 'Generando enlace de descarga eMusic.apk...';
+                }
+            }, 180);
+        }
+
+        function closeDownloadModal() {
+            document.getElementById('download-modal').classList.add('hidden');
+        }
+
+        function triggerActualDownload() {
+            // Enlace directo al archivo APK ubicado en la carpeta Download/ para GitHub Pages
+            const apkUrl = './Download/eMusic.apk';
+            
+            const a = document.createElement('a');
+            a.href = apkUrl;
+            a.download = 'eMusic_v0.9.4.apk';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function initHeroCanvas() {
+            const canvas = document.getElementById('hero-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = canvas.parentElement.offsetHeight || 600;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            const particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2.5 + 0.8,
+                    vx: (Math.random() - 0.5) * 0.6,
+                    vy: (Math.random() - 0.5) * 0.6,
+                    alpha: Math.random() * 0.4 + 0.1
+                });
+            }
+
+            function drawParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(drawParticles);
+            }
+            drawParticles();
+        }
+    </script>
+</body>
+</html>
