@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="eMusic, el reproductor Hi-Fi para Android de e-Onyx Technologies. Audio lossless, ecualizador de 10 bandas y Canvas interactivos. APK gratis en fase beta.">
+<meta name="description" content="eMusic, el reproductor Hi-Fi para Android de e-Onyx Technologies. Audio lossless, Dolby Atmos, ecualizador de 10 bandas y Canvas interactivos. APK gratis en fase beta.">
 <title>eMusic — Reproductor Hi-Fi para Android | e-Onyx Technologies</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -89,11 +89,7 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-  .aurora span{position:absolute;border-radius:50%;filter:blur(110px);opacity:.55;}
-  .aurora .a1{width:640px;height:640px;top:-220px;left:-160px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);}
-  .aurora .a2{width:560px;height:560px;top:20%;right:-200px;background:radial-gradient(circle,rgba(170,170,170,.16),transparent 70%);}
-  .aurora .a3{width:680px;height:680px;bottom:-260px;left:15%;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);}
+  .particles-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;filter:blur(58px);opacity:.7;mix-blend-mode:screen;}
 
   /* ---------- Header ---------- */
   header{transition:background .4s var(--ease),border-color .4s var(--ease),padding .3s var(--ease);}
@@ -116,7 +112,6 @@
   .btn-ghost:hover{color:var(--text);border-color:var(--accent-line);background:var(--accent-soft);}
 
   /* ---------- Hero ---------- */
-  #hero-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.6;}
 
   .badge-pill{
     display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border-radius:999px;
@@ -130,10 +125,10 @@
   .headline-underline svg{position:absolute;left:0;bottom:-.12em;width:100%;height:.2em;}
 
   /* ---------- Reveal on scroll (single orchestrated pattern) ---------- */
-  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease), transform .8s var(--ease);}
-  .reveal.in{opacity:1;transform:translateY(0);}
-  .reveal-stagger > *{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease), transform .7s var(--ease);}
-  .reveal-stagger.in > *{opacity:1;transform:translateY(0);}
+  .reveal{opacity:0;transform:translateY(28px);filter:blur(14px);transition:opacity .9s var(--ease), transform .9s var(--ease), filter .9s var(--ease);}
+  .reveal.in{opacity:1;transform:translateY(0);filter:blur(0);}
+  .reveal-stagger > *{opacity:0;transform:translateY(22px);filter:blur(12px);transition:opacity .8s var(--ease), transform .8s var(--ease), filter .8s var(--ease);}
+  .reveal-stagger.in > *{opacity:1;transform:translateY(0);filter:blur(0);}
   .reveal-stagger.in > *:nth-child(1){transition-delay:.02s;}
   .reveal-stagger.in > *:nth-child(2){transition-delay:.09s;}
   .reveal-stagger.in > *:nth-child(3){transition-delay:.16s;}
@@ -142,7 +137,7 @@
   .reveal-stagger.in > *:nth-child(6){transition-delay:.37s;}
 
   @media (prefers-reduced-motion: reduce){
-    .reveal,.reveal-stagger > *{opacity:1 !important;transform:none !important;transition:none !important;}
+    .reveal,.reveal-stagger > *{opacity:1 !important;transform:none !important;filter:none !important;transition:none !important;}
     *{animation-duration:.001ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important;}
   }
 
@@ -224,7 +219,7 @@
 <body class="relative">
 
 <div class="grain"></div>
-<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<canvas id="particles-canvas" class="particles-canvas" aria-hidden="true"></canvas>
 
 <!-- Announcement bar -->
 <div class="relative z-40 bg-[#141414] text-[13px] py-2.5 px-4 text-center border-b border-[var(--border)] flex items-center justify-center gap-2.5 flex-wrap">
@@ -279,7 +274,6 @@
 
 <!-- Hero -->
 <section id="top" class="relative min-h-[88vh] flex items-center overflow-hidden py-20 md:py-28">
-  <canvas id="hero-canvas"></canvas>
   <div class="max-container relative z-10 w-full">
     <div class="max-w-3xl mx-auto text-center reveal" data-reveal>
       <span class="badge-pill mb-9">
@@ -293,7 +287,7 @@
       </h1>
 
       <p class="text-[17px] sm:text-lg text-[var(--text-muted)] max-w-xl mx-auto mb-11 leading-relaxed">
-        Audio Hi-Fi lossless, ecualizador profesional de 10 bandas y Canvas interactivos que laten al ritmo de cada canción. Todo en una app diseñada para quienes escuchan de verdad.
+        Audio Hi-Fi lossless, soporte para Dolby Atmos, ecualizador profesional de 10 bandas y Canvas interactivos que laten al ritmo de cada canción. Todo en una app diseñada para quienes escuchan de verdad.
       </p>
 
       <div id="download" class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -390,6 +384,15 @@
           <div class="icon-box mb-6"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
           <h3 class="text-xl text-[var(--text)] mb-3">Privado por diseño</h3>
           <p class="text-[var(--text-muted)] text-[15px] leading-relaxed">Sin publicidad invasiva. Tu música local nunca sale de tu teléfono.</p>
+        </div>
+      </div>
+
+      <!-- Dolby Atmos -->
+      <div class="card narrow flex flex-col justify-between">
+        <div>
+          <div class="icon-box mb-6"><i data-lucide="waves" class="w-6 h-6"></i></div>
+          <h3 class="text-xl text-[var(--text)] mb-3">Dolby Atmos</h3>
+          <p class="text-[var(--text-muted)] text-[15px] leading-relaxed">Sonido espacial inmersivo que se adapta a tus audífonos para una experiencia envolvente en 360°.</p>
         </div>
       </div>
     </div>
@@ -643,12 +646,12 @@
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-    initHeroCanvas();
     initHeaderScroll();
     initRevealObserver();
     initMobileMenu();
     initBackToTop();
     initCountdown();
+    initParticles();
   });
 
   /* ---------- Header shrink on scroll ---------- */
@@ -776,10 +779,8 @@
     const btn = document.getElementById('btn-download-new');
     if (!timerEl || !btn) return;
 
-    // Objetivo: mañana a las 3:00 PM, calculado en el momento en que carga la página
-    const target = new Date();
-    target.setDate(target.getDate() + 1);
-    target.setHours(15, 0, 0, 0);
+    // Objetivo: 13 de septiembre de 2026, 3:00 PM (hora local del visitante)
+    const target = new Date(2026, 8, 13, 15, 0, 0);
 
     function unlock(){
       textEl.innerHTML = '<i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Descarga disponible';
@@ -810,49 +811,61 @@
     const interval = setInterval(tick, 1000);
   }
 
-  /* ---------- Hero audio-waveform visualizer ---------- */
-  function initHeroCanvas(){
-    const canvas = document.getElementById('hero-canvas');
+  /* ---------- Fondo: partículas difuminadas en movimiento (estilo iOS) ---------- */
+  function initParticles(){
+    const canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let w, h, bars, dpr;
+    const tones = ['255,255,255', '210,210,210', '170,170,170'];
+    let w, h, dpr, particles;
 
     function resize(){
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = canvas.clientWidth; h = canvas.clientHeight;
+      w = window.innerWidth; h = window.innerHeight;
       canvas.width = w * dpr; canvas.height = h * dpr;
-      ctx.setTransform(dpr,0,0,dpr,0,0);
-      const count = Math.floor(w / 14);
-      bars = new Array(count).fill(0).map((_, i) => ({
-        phase: Math.random() * Math.PI * 2,
-        speed: 0.6 + Math.random() * 0.9,
-        base: 0.15 + Math.random() * 0.25
+      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const count = Math.max(7, Math.round((w * h) / 160000));
+      particles = new Array(count).fill(0).map(() => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 110 + Math.random() * 180,
+        dx: (Math.random() - 0.5) * 0.10,
+        dy: (Math.random() - 0.5) * 0.10,
+        c: tones[Math.floor(Math.random() * tones.length)],
+        a: 0.10 + Math.random() * 0.14
       }));
     }
     window.addEventListener('resize', resize);
     resize();
 
-    let t = 0;
-    function draw(){
-      ctx.clearRect(0,0,w,h);
-      const midY = h * 0.62;
-      const barWidth = 3;
-      const gap = w / bars.length;
-      bars.forEach((b, i) => {
-        const x = i * gap + gap/2;
-        const envelope = Math.sin((i / bars.length) * Math.PI);
-        const amp = (b.base + 0.5 * Math.abs(Math.sin(t * b.speed + b.phase))) * envelope;
-        const barH = amp * h * 0.5;
-        const grad = ctx.createLinearGradient(0, midY - barH, 0, midY + barH * 0.3);
-        grad.addColorStop(0, 'rgba(255,255,255,0.85)');
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
+    function drawFrame(){
+      ctx.clearRect(0, 0, w, h);
+      particles.forEach(p => {
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        grad.addColorStop(0, `rgba(${p.c},${p.a})`);
+        grad.addColorStop(1, `rgba(${p.c},0)`);
         ctx.fillStyle = grad;
-        ctx.fillRect(x - barWidth/2, midY - barH, barWidth, barH * 1.3);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
       });
-      t += 0.02;
-      if (!reduceMotion) requestAnimationFrame(draw);
     }
-    draw();
+
+    function step(){
+      particles.forEach(p => {
+        p.x += p.dx; p.y += p.dy;
+        if (p.x < -p.r) p.x = w + p.r;
+        if (p.x > w + p.r) p.x = -p.r;
+        if (p.y < -p.r) p.y = h + p.r;
+        if (p.y > h + p.r) p.y = -p.r;
+      });
+      drawFrame();
+      if (!reduceMotion) requestAnimationFrame(step);
+    }
+    step();
   }
 </script>
 </body>
