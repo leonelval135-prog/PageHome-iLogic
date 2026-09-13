@@ -404,18 +404,38 @@
       <p class="text-[var(--text-muted)] text-base leading-relaxed">Descarga el paquete APK disponible actualmente. Nuevas versiones se irán agregando aquí a medida que salgan de fase beta.</p>
     </div>
 
-    <div class="max-w-xl reveal" data-reveal>
+    <div class="max-w-xl reveal mb-6" data-reveal>
       <div class="card flex flex-col sm:flex-row sm:items-center gap-6">
         <div class="icon-box shrink-0"><i data-lucide="package" class="w-6 h-6"></i></div>
         <div class="flex-1">
           <div class="flex items-center gap-3 mb-1 flex-wrap">
-            <h3 class="text-xl text-[var(--text)]">eMusic v0.9.4</h3>
+            <h3 class="text-xl text-[var(--text)]">eMusic v1.0.1 Beta</h3>
             <span class="text-[11px] bg-[var(--accent)] text-[#0a0a0a] font-bold px-2.5 py-1 rounded-full">Última versión</span>
+          </div>
+          <p class="text-[var(--text-muted)] text-sm mb-1">Android APK · fase beta pública</p>
+          <p class="text-[var(--text-dim)] text-xs font-mono">eMusic_v1.0.1-beta.apk</p>
+          <p id="countdown-text" class="text-[var(--accent)] text-xs font-mono mt-3 flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i> Se libera en <span id="countdown-timer" class="font-semibold">--:--:--</span>
+          </p>
+        </div>
+        <button id="btn-download-new" onclick="openDownloadModal('v1.0.1 Beta','https://github.com/leonel692pud-dotcom/repooo/releases/download/eMuusicc/eMusic_v1.0.1-beta.apk','eMusic_v1.0.1-beta.apk')" disabled class="w-full sm:w-auto shrink-0 px-6 py-3.5 rounded-xl bg-[var(--surface-2)] text-[var(--text-dim)] font-semibold text-sm border border-[var(--border)] cursor-not-allowed flex items-center justify-center gap-2 transition-colors">
+          <i data-lucide="lock" class="w-4 h-4"></i> Bloqueado
+        </button>
+      </div>
+    </div>
+
+    <div class="max-w-xl reveal" data-reveal>
+      <div class="card flex flex-col sm:flex-row sm:items-center gap-6 opacity-80">
+        <div class="icon-box shrink-0"><i data-lucide="package" class="w-6 h-6"></i></div>
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-1 flex-wrap">
+            <h3 class="text-xl text-[var(--text)]">eMusic v0.9.4</h3>
+            <span class="text-[11px] bg-[var(--surface-2)] text-[var(--text-muted)] font-semibold px-2.5 py-1 rounded-full border border-[var(--border)]">Versión anterior</span>
           </div>
           <p class="text-[var(--text-muted)] text-sm mb-1">Android APK · fase beta pública</p>
           <p class="text-[var(--text-dim)] text-xs font-mono">eMusic_v0.9.4.apk</p>
         </div>
-        <button onclick="openDownloadModal()" class="w-full sm:w-auto shrink-0 px-6 py-3.5 rounded-xl btn-primary font-bold text-sm flex items-center justify-center gap-2 focus-ring">
+        <button onclick="openDownloadModal('v0.9.4','https://github.com/leonelval135-prog/PageHome-iLogic/releases/download/eMusic/eMusic_v1.0.0-beta.apk','eMusic_v0.9.4.apk')" class="w-full sm:w-auto shrink-0 px-6 py-3.5 rounded-xl btn-primary font-bold text-sm flex items-center justify-center gap-2 focus-ring">
           <i data-lucide="download" class="w-4 h-4"></i> Descargar
         </button>
       </div>
@@ -572,7 +592,7 @@
         <i data-lucide="check" class="w-7 h-7"></i>
       </div>
       <h3 class="text-xl text-[var(--text)] mb-2 display">Descarga iniciada</h3>
-      <p class="text-[var(--text-muted)] text-sm">El archivo <strong class="text-[var(--text)]">eMusic_v0.9.4.apk</strong> se está descargando en tu dispositivo.</p>
+      <p class="text-[var(--text-muted)] text-sm">El archivo <strong class="text-[var(--text)]" id="modal-success-filename">eMusic_v0.9.4.apk</strong> se está descargando en tu dispositivo.</p>
 
       <div class="my-6 p-4 rounded-2xl bg-[var(--surface-1)] border border-[var(--border)] text-left space-y-2.5 text-[13px]">
         <div class="flex items-center gap-2 text-[var(--text)] font-semibold mb-1">
@@ -628,6 +648,7 @@
     initRevealObserver();
     initMobileMenu();
     initBackToTop();
+    initCountdown();
   });
 
   /* ---------- Header shrink on scroll ---------- */
@@ -693,13 +714,21 @@
   }
 
   /* ---------- Download modal ---------- */
-  function openDownloadModal(){
+  function openDownloadModal(
+    versionLabel = 'v0.9.4',
+    apkUrl = 'https://github.com/leonelval135-prog/PageHome-iLogic/releases/download/eMusic/eMusic_v1.0.0-beta.apk',
+    filename = 'eMusic_v0.9.4.apk'
+  ){
     const modal = document.getElementById('download-modal');
     const stateLoading = document.getElementById('modal-state-loading');
     const stateSuccess = document.getElementById('modal-state-success');
     const progressFill = document.getElementById('modal-progress-fill');
     const statusMsg = document.getElementById('modal-status-msg');
+    const osText = document.getElementById('modal-os-text');
+    const successFilename = document.getElementById('modal-success-filename');
 
+    osText.innerText = filename;
+    successFilename.innerText = filename;
     progressFill.style.width = '0%';
     statusMsg.innerText = 'Verificando paquete de instalación…';
     stateLoading.classList.remove('hidden');
@@ -716,7 +745,7 @@
         setTimeout(() => {
           stateLoading.classList.add('hidden');
           stateSuccess.classList.remove('hidden');
-          triggerActualDownload();
+          triggerActualDownload(apkUrl, filename);
         }, 300);
       }
       progressFill.style.width = `${progress}%`;
@@ -731,14 +760,54 @@
     setTimeout(() => modal.classList.add('hidden'), 250);
   }
 
-  function triggerActualDownload(){
-    const apkUrl = 'https://github.com/leonelval135-prog/PageHome-iLogic/releases/download/eMusic/eMusic_v1.0.0-beta.apk';
+  function triggerActualDownload(apkUrl, filename){
     const a = document.createElement('a');
     a.href = apkUrl;
-    a.download = 'eMusic_v0.9.4.apk';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  }
+
+  /* ---------- Countdown para liberar v1.0.1 Beta ---------- */
+  function initCountdown(){
+    const timerEl = document.getElementById('countdown-timer');
+    const textEl = document.getElementById('countdown-text');
+    const btn = document.getElementById('btn-download-new');
+    if (!timerEl || !btn) return;
+
+    // Objetivo: mañana a las 3:00 PM, calculado en el momento en que carga la página
+    const target = new Date();
+    target.setDate(target.getDate() + 1);
+    target.setHours(15, 0, 0, 0);
+
+    function unlock(){
+      textEl.innerHTML = '<i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Descarga disponible';
+      textEl.classList.remove('text-[var(--accent)]');
+      textEl.classList.add('text-[var(--success)]');
+
+      btn.disabled = false;
+      btn.classList.remove('bg-[var(--surface-2)]','text-[var(--text-dim)]','border','border-[var(--border)]','cursor-not-allowed','font-semibold');
+      btn.classList.add('btn-primary','font-bold','focus-ring');
+      btn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> Descargar';
+      lucide.createIcons();
+    }
+
+    function tick(){
+      const diff = target - new Date();
+      if (diff <= 0){
+        clearInterval(interval);
+        unlock();
+        return;
+      }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      timerEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    tick();
+    const interval = setInterval(tick, 1000);
   }
 
   /* ---------- Hero audio-waveform visualizer ---------- */
