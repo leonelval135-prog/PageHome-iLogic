@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-black text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correo Electrónico Confirmado - eSocial</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        zinc: {
+                            850: '#141417',
+                            950: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes checkPop {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            70% { transform: scale(1.15) rotate(0deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes subtleGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .animate-check {
+            animation: checkPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .animate-glow {
+            animation: subtleGlow 4s infinite ease-in-out;
+        }
+        /* Grid background pattern */
+        .bg-grid-pattern {
+            background-size: 32px 32px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="h-full bg-black text-zinc-100 font-sans antialiased selection:bg-white selection:text-black flex flex-col justify-between relative overflow-x-hidden">
+
+    <div class="fixed inset-0 bg-grid-pattern pointer-events-none z-0"></div>
+    <div class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/5 rounded-full blur-[120px] pointer-events-none animate-glow z-0"></div>
+
+    <div class="relative z-10 flex-1 flex flex-col">
+        <header class="w-full border-b border-zinc-800/80 bg-black/60 backdrop-blur-xl sticky top-0 z-30">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+                <!-- Company Logo -->
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 p-1.5 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center overflow-hidden shadow-inner">
+                        <img 
+                            src="https://i.ibb.co/23Tt5TKp/file-00000000937871f881f9deaaa82625b7.png" 
+                            alt="Logo de la empresa" 
+                            class="h-full w-full object-cover rounded-full filter invert contrast-125"
+                            onerror="this.onerror=null; this.src='https://placehold.co/100x100/000000/FFFFFF?text=LOG';this.classList.remove('invert');"
+                        />
+                    </div>
+                    <div class="hidden sm:block h-5 w-[1px] bg-zinc-800"></div>
+                    <span class="hidden sm:inline-block text-xs font-medium tracking-wider text-zinc-400 uppercase">
+                        Módulo eSocial
+                    </span>
+                </div>
+
+                <!-- Status Badge Removed -->
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col justify-center">
+            
+            <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-10 shadow-2xl shadow-black relative overflow-hidden backdrop-blur-sm">
+                
+                <!-- Corner accent border lines -->
+                <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-zinc-400 to-transparent opacity-30"></div>
+                
+                <div class="flex flex-col items-center text-center space-y-6">
+                    
+                    <!-- Icon badge -->
+                    <div class="relative">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-zinc-900 border border-zinc-700/80 flex items-center justify-center shadow-inner">
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white text-black flex items-center justify-center shadow-xl animate-check">
+                                <i data-lucide="mail-check" class="w-8 h-8 sm:w-10 sm:h-10 stroke-[2.2]"></i>
+                            </div>
+                        </div>
+                        <span class="absolute -bottom-2 -right-2 bg-zinc-200 text-black text-[10px] font-black px-2 py-0.5 rounded-full border border-white tracking-widest uppercase">
+                            VERIFICADO
+                        </span>
+                    </div>
+
+                    <!-- Heading -->
+                    <div class="space-y-2 max-w-xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">
+                            <i data-lucide="mail" class="w-3.5 h-3.5 text-white"></i>
+                            VERIFICACIÓN DE CUENTA
+                        </div>
+                        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+                            Correo Electrónico Confirmado
+                        </h1>
+                        <p class="text-zinc-400 text-sm sm:text-base font-normal leading-relaxed">
+                            Tu dirección de correo electrónico ha sido validada correctamente y transmitida a la base de datos oficial del sistema eSocial.
+                        </p>
+                    </div>
+
+                    <!-- Return to App Button -->
+                    <div class="flex flex-col items-center justify-center gap-3 w-full pt-2">
+                        <button onclick="openAndroidApp()" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white text-black font-bold text-sm sm:text-base hover:bg-zinc-200 transition-all shadow-xl flex items-center justify-center gap-2.5 active:scale-95 group">
+                            <i data-lucide="smartphone" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                            Volver a eSocial
+                        </button>
+                    </div>
+
+                    <!-- Importance of Email Verification Section -->
+                    <div class="w-full mt-4 pt-6 border-t border-zinc-800/80 text-left">
+                        <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-4">
+                            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-200">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-white"></i>
+                                ¿Por qué es importante confirmar tu correo?
+                            </div>
+                            
+                            <ul class="space-y-3 text-xs sm:text-sm text-zinc-400">
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-white flex-shrink-0 mt-0.5"></i>
+                                    <span><strong class="text-zinc-200">Seguridad y recuperación:</strong> Podrás recuperar el acceso a tu cuenta de forma inmediata si llegas a olvidar tu contraseña.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-white flex-shrink-0 mt-0.5"></i>
+                                    <span><strong class="text-zinc-200">Notificaciones oficiales:</strong> Garantiza la recepción oportuna de alertas regulatorias, folios de trámite y comprobantes fiscales del eSocial.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-white flex-shrink-0 mt-0.5"></i>
+                                    <span><strong class="text-zinc-200">Protección de identidad:</strong> Asegura que solo tú tengas control total sobre las operaciones registradas a tu nombre.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="w-full border-t border-zinc-900 bg-black py-6 text-center text-xs text-zinc-400">
+            <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p>© 2026 Sistema de Verificación eSocial. Todos los derechos reservados.</p>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hover:text-white transition-colors">Términos de Servicio</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-white transition-colors">Política de Privacidad</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-white transition-colors">Soporte Técnico</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // Initialize Icons and launch subtle monochrome confetti
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // Celebration confetti with white/silver/gray palette
+            setTimeout(() => {
+                triggerMonochromeConfetti();
+            }, 300);
+        });
+
+        // Redirect to Android App via Deep Linking / Intent
+        function openAndroidApp() {
+            showToast('Redirigiendo a la aplicación eSocial...', 'info');
+            
+            // Android Intent / App Scheme logic
+            const appIntent = 'intent://open#Intent;scheme=esocial;package=com.esocial.app;end;';
+            const appScheme = 'esocial://';
+            
+            setTimeout(() => {
+                // Try launching the native app
+                window.location.href = appIntent;
+                
+                // Fallback scheme attempt
+                setTimeout(() => {
+                    window.location.href = appScheme;
+                }, 500);
+            }, 500);
+        }
+
+        // Silver / Monochrome confetti trigger
+        function triggerMonochromeConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 70,
+                    spread: 60,
+                    origin: { y: 0.6 },
+                    colors: ['#ffffff', '#d4d4d8', '#71717a', '#27272a']
+                });
+            }
+        }
+
+        // Custom Toast System
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let iconName = 'info';
+            let borderClass = 'border-zinc-800';
+            
+            if (type === 'success') {
+                iconName = 'check-circle-2';
+                borderClass = 'border-zinc-700';
+            } else if (type === 'error') {
+                iconName = 'alert-circle';
+                borderClass = 'border-red-900';
+            }
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-900 text-white border ${borderClass} shadow-2xl transition-all duration-300 transform translate-y-5 opacity-0 text-xs font-semibold`;
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" class="w-4 h-4 text-zinc-300 flex-shrink-0"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-5', 'opacity-0');
+            });
+
+            // Remove after 3.5s
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
