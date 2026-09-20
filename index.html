@@ -116,8 +116,8 @@
             </svg>
         </div>
 
-        <h1 class="text-2xl font-semibold mb-2 tracking-tight">Verificación de Seguridad</h1>
-        <p class="text-gray-400 text-sm mb-8">Por favor, completa el siguiente desafío para confirmar que eres humano antes de acceder al sitio.</p>
+        <h1 id="pageTitle" class="text-2xl font-semibold mb-2 tracking-tight">Verificación de Seguridad</h1>
+        <p id="pageDesc" class="text-gray-400 text-sm mb-8">Por favor, completa el siguiente desafío para confirmar que eres humano antes de acceder al sitio.</p>
 
         <div id="captchaContainer" class="w-full bg-black/40 rounded-xl p-6 border border-white/5 mb-6">
             <p class="text-sm font-medium mb-4 text-gray-300">Selecciona el número mayor:</p>
@@ -131,7 +131,7 @@
 
         <div id="verificationStatus" class="hidden w-full flex flex-col items-center justify-center py-6">
             <div class="loader mb-4"></div>
-            <p class="text-sm text-gray-300">Verificando y redirigiendo de forma segura...</p>
+            <p id="verificationText" class="text-sm text-gray-300">Verificando y redirigiendo de forma segura...</p>
         </div>
 
         <div class="mt-8 text-xs text-gray-600 flex items-center justify-center gap-2">
@@ -146,8 +146,34 @@
             const errorMsg = document.getElementById('errorMessage');
             const captchaContainer = document.getElementById('captchaContainer');
             const verificationStatus = document.getElementById('verificationStatus');
+            const pageTitle = document.getElementById('pageTitle');
+            const pageDesc = document.getElementById('pageDesc');
+            const verificationText = document.getElementById('verificationText');
             
             let correctValue;
+
+            // 1. Comprobar si el dispositivo ya fue verificado previamente
+            const isDeviceVerified = localStorage.getItem('device_verified_v1');
+
+            if (isDeviceVerified === 'true') {
+                // Modo auto-verificación (usuario que ya pasó el captcha antes)
+                pageTitle.textContent = "Verificando dispositivo";
+                pageDesc.classList.add('hidden'); // Ocultar descripción
+                captchaContainer.classList.add('hidden'); // Ocultar captcha
+                
+                // Mostrar animación de carga
+                verificationStatus.classList.remove('hidden');
+                verificationStatus.classList.add('flex');
+                verificationText.textContent = "Comprobando conexión segura...";
+
+                // Redirigir automáticamente después de una breve pausa
+                setTimeout(() => {
+                    window.location.href = './Home/index.html';
+                }, 1500);
+            } else {
+                // Iniciar CAPTCHA por primera vez (usuario nuevo o dispositivo nuevo)
+                initCaptcha();
+            }
 
             // Función para generar números aleatorios
             function getRandomNumbers(count, max) {
@@ -185,16 +211,18 @@
                     btnElement.classList.remove('bg-white/5', 'hover:bg-white/15');
                     btnElement.classList.add('bg-green-500/30', 'border-green-500/50', 'text-green-300');
                     
+                    // 2. GUARDAR VERIFICACIÓN EN LOCALSTORAGE
+                    localStorage.setItem('device_verified_v1', 'true');
+                    
                     // Ocultar captcha y mostrar carga
                     setTimeout(() => {
                         captchaContainer.classList.add('hidden');
                         verificationStatus.classList.remove('hidden');
                         verificationStatus.classList.add('flex');
+                        verificationText.textContent = "Verificando y redirigiendo de forma segura...";
                         
                         setTimeout(() => {
-                            // REDIRECCIÓN AJUSTADA PARA GITHUB PAGES
-                            // Usamos una ruta relativa en lugar de absoluta
-                            // Asumiendo que security.html está en la raíz y Home es una carpeta al lado
+                            // REDIRECCIÓN A GITHUB PAGES
                             window.location.href = './Home/index.html';
                         }, 2000);
                     }, 500);
@@ -210,9 +238,6 @@
                     }, 1000);
                 }
             }
-
-            // Iniciar por primera vez
-            initCaptcha();
         });
     </script>
 </body>
