@@ -22,13 +22,6 @@
                     colors: {
                         dark: '#050505',
                         surface: '#0a0a0a',
-                        onyx: {
-                            50: '#eef1ff',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                        },
-                        ember: '#f59e0b',
                     },
                     animation: {
                         'blob': 'blob 20s infinite',
@@ -124,7 +117,7 @@
         .delay-300 { transition-delay: 300ms; }
 
         .text-gradient {
-            background: linear-gradient(to right, #ffffff 20%, #818cf8 40%, #c084fc 60%, #ffffff 80%);
+            background: linear-gradient(to right, #ffffff 20%, #9a9a9a 40%, #d4d4d4 60%, #ffffff 80%);
             background-size: 200% auto;
             color: transparent;
             -webkit-background-clip: text;
@@ -132,7 +125,7 @@
         }
 
         .text-gold-gradient {
-            background: linear-gradient(to right, #fcd34d 20%, #fbbf24 40%, #f59e0b 60%, #fcd34d 80%);
+            background: linear-gradient(to right, #ffffff 20%, #a3a3a3 40%, #e5e5e5 60%, #ffffff 80%);
             background-size: 200% auto;
             color: transparent;
             -webkit-background-clip: text;
@@ -158,10 +151,10 @@
             top: 0; left: 0;
             height: 3px;
             width: 0%;
-            background: linear-gradient(to right, #6366f1, #c084fc, #22d3ee);
+            background: linear-gradient(to right, #ffffff, #888888, #ffffff);
             z-index: 70;
             transition: width 0.1s ease-out;
-            box-shadow: 0 0 10px rgba(129,140,248,0.6);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
 
         .spotlight {
@@ -173,7 +166,7 @@
             position: absolute;
             inset: 0;
             border-radius: inherit;
-            background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%), rgba(129,140,248,0.15), transparent 60%);
+            background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.12), transparent 60%);
             opacity: 0;
             transition: opacity 0.4s ease;
             pointer-events: none;
@@ -214,8 +207,8 @@
             cursor: pointer;
         }
         #back-to-top:hover {
-            background: rgba(99,102,241,0.2);
-            border-color: rgba(129,140,248,0.4);
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.3);
             transform: translateY(-4px) scale(1.05);
         }
         #back-to-top.visible {
@@ -264,7 +257,7 @@
             position: relative;
             z-index: 160 !important;
             transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 50px rgba(129, 140, 248, 0.8);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 50px rgba(255, 255, 255, 0.6);
             border-radius: 1.5rem;
             transform: scale(1.05);
         }
@@ -278,7 +271,7 @@
             margin-left: -250px;
             margin-top: -250px;
             border-radius: 9999px;
-            background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
             pointer-events: none;
             z-index: 5;
             will-change: transform;
@@ -298,8 +291,8 @@
             position: absolute;
             width: 8px; height: 8px;
             border-radius: 9999px;
-            background: #818cf8;
-            box-shadow: 0 0 12px 2px rgba(129,140,248,0.8);
+            background: #ffffff;
+            box-shadow: 0 0 12px 2px rgba(255,255,255,0.6);
         }
 
         /* Contador animado */
@@ -326,7 +319,7 @@
             inset: -1px;
             border-radius: inherit;
             padding: 1px;
-            background: conic-gradient(from var(--angle, 0deg), transparent 0%, rgba(129,140,248,0.9) 15%, transparent 30%);
+            background: conic-gradient(from var(--angle, 0deg), transparent 0%, rgba(255,255,255,0.85) 15%, transparent 30%);
             -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -355,7 +348,7 @@
             position: absolute;
             border-radius: 9999px;
             transform: scale(0);
-            background: rgba(255,255,255,0.5);
+            background: rgba(0,0,0,0.18);
             pointer-events: none;
             animation: ripple-anim 0.6s ease-out;
         }
@@ -387,7 +380,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen antialiased selection:bg-indigo-500/30 selection:text-white overflow-x-hidden relative">
+<body class="min-h-screen antialiased selection:bg-white/20 selection:text-white overflow-x-hidden relative">
 
     <!-- Elemento de Audio Oculto -->
     <audio id="bg-music" src="Music/Thunder.mp3" preload="auto" loop></audio>
@@ -400,13 +393,13 @@
 
     <!-- DIÁLOGO DE BIENVENIDA -->
     <div id="welcome-dialog" class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 transition-opacity duration-500">
-        <div class="bg-surface border border-white/10 rounded-[2rem] p-8 md:p-12 max-w-xl w-full text-center relative shadow-[0_0_80px_rgba(79,70,229,0.15)] transform scale-100 transition-transform duration-500" id="welcome-dialog-content">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div class="bg-surface border border-white/10 rounded-[2rem] p-8 md:p-12 max-w-xl w-full text-center relative shadow-[0_0_80px_rgba(255,255,255,0.08)] transform scale-100 transition-transform duration-500" id="welcome-dialog-content">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
             
             <div class="relative z-10">
                 <div class="relative inline-flex items-center justify-center w-20 h-20 mb-6">
-                    <span class="absolute inset-0 rounded-full bg-indigo-500/10 border border-indigo-500/20 animate-ping"></span>
-                    <div class="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                    <span class="absolute inset-0 rounded-full bg-white/[0.06] border border-white/15 animate-ping"></span>
+                    <div class="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/[0.06] border border-white/15 text-white">
                         <i data-lucide="sparkles" class="w-10 h-10"></i>
                     </div>
                 </div>
@@ -430,9 +423,9 @@
     <!-- Fondo Ambient -->
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div class="absolute inset-0 bg-grid opacity-60"></div>
-        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-indigo-900/30 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform"></div>
-        <div class="absolute top-[20%] right-[-10%] w-[40vw] h-[40vw] bg-purple-900/20 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform" style="animation-delay: 2s;"></div>
-        <div class="absolute bottom-[-10%] left-[20%] w-[60vw] h-[60vw] bg-cyan-900/20 rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform" style="animation-delay: 4s;"></div>
+        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-white/[0.07] rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[40vw] h-[40vw] bg-white/[0.05] rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-[-10%] left-[20%] w-[60vw] h-[60vw] bg-white/[0.04] rounded-full blur-[120px] mix-blend-screen animate-blob will-change-transform" style="animation-delay: 4s;"></div>
     </div>
 
     <!-- Navegación Flotante -->
@@ -447,7 +440,7 @@
                         class="h-7 w-auto object-contain rounded-md ring-1 ring-white/10 group-hover:ring-white/30 transition-all"
                         onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50/030303/ffffff?text=e-Onyx';"
                     >
-                    <span class="font-display font-bold text-lg tracking-tight text-white group-hover:text-indigo-400 transition-colors">
+                    <span class="font-display font-bold text-lg tracking-tight text-white group-hover:text-white transition-colors">
                         e-Onyx
                     </span>
                 </a>
@@ -492,14 +485,6 @@
             </div>
 
             <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-
-                <div class="reveal inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-xs font-medium text-gray-300 mb-8">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
-                    </span>
-                    6 plataformas activas · soporte técnico en vivo
-                </div>
 
                 <h1 class="reveal delay-100 font-display text-4xl sm:text-6xl lg:text-[5.5rem] font-bold tracking-tight mb-6 leading-[1.08]">
                     Software propio para <br class="hidden sm:block">
@@ -585,15 +570,15 @@
                     <!-- 1. eCV Generador AI -->
                     <div class="reveal delay-100 group">
                         <a href="https://e-onyx.com/eCV%20Generador%20AI/" class="glass-card glow-border spotlight tilt-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden flex flex-col">
-                            <div class="absolute -inset-px bg-gradient-to-br from-indigo-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
-                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/30 group-hover:-translate-y-1 transition-all duration-500">
+                            <div class="absolute -inset-px bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-white group-hover:bg-white/[0.06] group-hover:border-white/25 group-hover:-translate-y-1 transition-all duration-500">
                                 <i data-lucide="file-text" class="w-6 h-6"></i>
                             </div>
                             <h3 class="font-display text-xl font-bold mb-3 text-white">eCV Generador AI</h3>
                             <p class="text-gray-400 text-sm leading-relaxed font-light flex-grow">
                                 Currículums que pasan el primer filtro. La IA ordena tu experiencia y ajusta el tono según el puesto al que aplicas.
                             </p>
-                            <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                            <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-white opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                                 Ver plataforma <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                             </span>
                         </a>
@@ -602,15 +587,15 @@
                     <!-- 2. eCoodex -->
                     <div class="reveal delay-200 group">
                         <a href="https://e-onyx.com/eCoodex/" class="glass-card glow-border spotlight tilt-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden flex flex-col">
-                            <div class="absolute -inset-px bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
-                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-purple-400 group-hover:bg-purple-500/10 group-hover:border-purple-500/30 group-hover:-translate-y-1 transition-all duration-500">
+                            <div class="absolute -inset-px bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-white group-hover:bg-white/10 group-hover:border-white/25 group-hover:-translate-y-1 transition-all duration-500">
                                 <i data-lucide="code" class="w-6 h-6"></i>
                             </div>
                             <h3 class="font-display text-xl font-bold mb-3 text-white">eCoodex</h3>
                             <p class="text-gray-400 text-sm leading-relaxed font-light flex-grow">
                                 Desarrollo de software a medida, con arquitecturas pensadas para crecer sin reescribirse desde cero cada dos años.
                             </p>
-                            <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-purple-400 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                            <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-white opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                                 Ver plataforma <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                             </span>
                         </a>
@@ -619,18 +604,18 @@
                     <!-- 3. eOnyxCraft -->
                     <div class="reveal delay-300 group">
                         <div class="glass-card rounded-3xl p-8 lg:p-10 h-full transition-all duration-500 relative overflow-hidden flex flex-col cursor-default select-none">
-                            <div class="absolute -inset-px bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
-                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-green-400 group-hover:bg-green-500/10 group-hover:border-green-500/30 transition-all duration-500">
+                            <div class="absolute -inset-px bg-gradient-to-br from-white/[0.06] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-white group-hover:bg-white/10 group-hover:border-white/25 transition-all duration-500">
                                 <i data-lucide="box" class="w-6 h-6"></i>
                             </div>
                             <h3 class="font-display text-xl font-bold mb-3 text-white flex items-center gap-2">
-                                eOnyxCraft <span class="text-[10px] bg-green-500/20 text-green-300 px-2 py-0.5 rounded-full border border-green-500/30 uppercase tracking-wider">Próximamente</span>
+                                eOnyxCraft <span class="text-[10px] bg-white/10 text-gray-200 px-2 py-0.5 rounded-full border border-white/20 uppercase tracking-wider">Próximamente</span>
                             </h3>
                             <p class="text-gray-400 text-sm leading-relaxed font-light flex-grow">
                                 Infraestructura dedicada y herramientas de gestión para quienes administran servidores y mundos de alto tráfico en comunidades gaming.
                             </p>
                             <div class="mt-6 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-green-500/60 to-green-400/60 rounded-full" style="width: 65%"></div>
+                                <div class="h-full bg-gradient-to-r from-white/60 to-white/25 rounded-full" style="width: 65%"></div>
                             </div>
                             <p class="mt-2 text-[11px] text-gray-500">Desarrollo en curso · 65%</p>
                         </div>
@@ -639,15 +624,15 @@
                     <!-- 4. eTranslator -->
                     <div class="reveal delay-100 group">
                         <a href="https://e-onyx.com/eTranslator/" class="glass-card glow-border spotlight tilt-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden flex flex-col">
-                            <div class="absolute -inset-px bg-gradient-to-br from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
-                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-cyan-400 group-hover:bg-cyan-500/10 group-hover:border-cyan-500/30 group-hover:-translate-y-1 transition-all duration-500">
+                            <div class="absolute -inset-px bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-white group-hover:bg-white/10 group-hover:border-white/25 group-hover:-translate-y-1 transition-all duration-500">
                                 <i data-lucide="languages" class="w-6 h-6"></i>
                             </div>
                             <h3 class="font-display text-xl font-bold mb-3 text-white">eTranslator</h3>
                             <p class="text-gray-400 text-sm leading-relaxed font-light flex-grow">
                                 Traducción que respeta el contexto y el tono, no solo la palabra. Pensada para documentos técnicos y contenido de marca.
                             </p>
-                            <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-400 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                            <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-white opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                                 Ver plataforma <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                             </span>
                         </a>
@@ -656,18 +641,18 @@
                     <!-- 5. eStock -->
                     <div class="reveal delay-200 group">
                         <div class="glass-card rounded-3xl p-8 lg:p-10 h-full transition-all duration-500 relative overflow-hidden flex flex-col cursor-default select-none">
-                            <div class="absolute -inset-px bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
-                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-blue-400 group-hover:bg-blue-500/10 group-hover:border-blue-500/30 transition-all duration-500">
+                            <div class="absolute -inset-px bg-gradient-to-br from-white/[0.06] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-white group-hover:bg-white/10 group-hover:border-white/25 transition-all duration-500">
                                 <i data-lucide="line-chart" class="w-6 h-6"></i>
                             </div>
                             <h3 class="font-display text-xl font-bold mb-3 text-white flex items-center gap-2">
-                                eStock <span class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30 uppercase tracking-wider">Próximamente</span>
+                                eStock <span class="text-[10px] bg-white/10 text-gray-200 px-2 py-0.5 rounded-full border border-white/20 uppercase tracking-wider">Próximamente</span>
                             </h3>
                             <p class="text-gray-400 text-sm leading-relaxed font-light flex-grow">
                                 Gestión de inventarios con datos en tiempo real, para saber exactamente qué tienes y qué necesitas reponer.
                             </p>
                             <div class="mt-6 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-blue-500/60 to-blue-400/60 rounded-full" style="width: 40%"></div>
+                                <div class="h-full bg-gradient-to-r from-white/60 to-white/25 rounded-full" style="width: 40%"></div>
                             </div>
                             <p class="mt-2 text-[11px] text-gray-500">Desarrollo en curso · 40%</p>
                         </div>
@@ -676,17 +661,17 @@
                     <!-- 6. eMusic Beta -->
                     <div class="reveal delay-300 group">
                         <a href="https://e-onyx.com/eMusic%20Download/" class="glass-card glow-border spotlight tilt-card rounded-3xl p-8 lg:p-10 h-full hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden flex flex-col">
-                            <div class="absolute -inset-px bg-gradient-to-br from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
-                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-pink-400 group-hover:bg-pink-500/10 group-hover:border-pink-500/30 group-hover:-translate-y-1 transition-all duration-500">
+                            <div class="absolute -inset-px bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-gray-300 mb-8 group-hover:text-white group-hover:bg-white/10 group-hover:border-white/25 group-hover:-translate-y-1 transition-all duration-500">
                                 <i data-lucide="music" class="w-6 h-6"></i>
                             </div>
                             <h3 class="font-display text-xl font-bold mb-3 text-white flex items-center gap-2">
-                                eMusic <span class="text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full border border-pink-500/30 uppercase tracking-wider">Beta</span>
+                                eMusic <span class="text-[10px] bg-white/10 text-gray-200 px-2 py-0.5 rounded-full border border-white/20 uppercase tracking-wider">Beta</span>
                             </h3>
                             <p class="text-gray-400 text-sm leading-relaxed font-light flex-grow">
                                 Reproductor de música en línea, sin instalaciones. Aún en beta: prueba y cuéntanos qué falta.
                             </p>
-                            <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-pink-400 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                            <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-white opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                                 Ver plataforma <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                             </span>
                         </a>
@@ -701,8 +686,8 @@
                 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16 reveal">
                     <div>
-                        <div class="inline-flex items-center gap-2 text-indigo-400 font-semibold text-sm tracking-wider uppercase mb-6">
-                            <span class="w-8 h-px bg-indigo-400/50"></span> Misión
+                        <div class="inline-flex items-center gap-2 text-white font-semibold text-sm tracking-wider uppercase mb-6">
+                            <span class="w-8 h-px bg-white/40"></span> Misión
                         </div>
                         <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
                             Que cada organización tenga control total sobre su propia infraestructura.
@@ -734,14 +719,14 @@
                 <!-- Panel de Compromiso -->
                 <div class="reveal">
                     <div class="glass-card spotlight rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden group">
-                        <div class="absolute -right-20 -top-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none transition-all duration-1000 group-hover:bg-indigo-600/20"></div>
-                        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-600/10 rounded-full blur-[100px] pointer-events-none transition-all duration-1000 group-hover:bg-cyan-600/20"></div>
+                        <div class="absolute -right-20 -top-20 w-96 h-96 bg-white/[0.04] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 group-hover:bg-white/10"></div>
+                        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-white/[0.03] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 group-hover:bg-white/[0.07]"></div>
 
                         <div class="flex flex-col lg:flex-row gap-10 items-start lg:items-center relative z-10">
                             <div class="flex-shrink-0">
                                 <div class="w-20 h-20 rounded-3xl bg-white/[0.05] border border-white/20 flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.05)] backdrop-blur-xl">
                                     <svg viewBox="0 0 100 100" class="w-11 h-11" fill="none">
-                                        <path class="draw-path" d="M50 6 L88 22 V50 C88 74 72 90 50 96 C28 90 12 74 12 50 V22 Z" stroke="#818cf8" stroke-width="5" stroke-linejoin="round"/>
+                                        <path class="draw-path" d="M50 6 L88 22 V50 C88 74 72 90 50 96 C28 90 12 74 12 50 V22 Z" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" stroke-opacity="0.85"/>
                                         <path class="draw-path" style="animation-delay: 0.3s;" d="M34 51 L45 62 L67 38" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                 </div>
@@ -749,7 +734,7 @@
                             <div>
                                 <h3 class="font-display text-2xl md:text-3xl font-bold text-white mb-4">Compromiso corporativo</h3>
                                 <p class="text-gray-300 text-lg leading-relaxed font-light">
-                                    Entregamos <span class="text-white font-medium border-b border-indigo-400/50 pb-0.5">certidumbre operativa</span>: cada plataforma pasa por revisión de seguridad antes de salir a producción, y cada incidente reportado se atiende con trazabilidad completa. Así es como construimos con clientes que no se pueden dar el lujo de sorpresas.
+                                    Entregamos <span class="text-white font-medium border-b border-white/30 pb-0.5">certidumbre operativa</span>: cada plataforma pasa por revisión de seguridad antes de salir a producción, y cada incidente reportado se atiende con trazabilidad completa. Así es como construimos con clientes que no se pueden dar el lujo de sorpresas.
                                 </p>
                             </div>
                         </div>
@@ -778,19 +763,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Nombre</label>
-                                <input type="text" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:bg-black/60 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all outline-none" placeholder="Opcional">
+                                <input type="text" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:bg-black/60 focus:border-white/40 focus:ring-1 focus:ring-white/30 transition-all outline-none" placeholder="Opcional">
                             </div>
                             
                             <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Email <span class="text-indigo-400">*</span></label>
-                                <input type="email" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:bg-black/60 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all outline-none" placeholder="tu@empresa.com">
+                                <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Email <span class="text-white">*</span></label>
+                                <input type="email" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:bg-black/60 focus:border-white/40 focus:ring-1 focus:ring-white/30 transition-all outline-none" placeholder="tu@empresa.com">
                             </div>
                         </div>
                         
                         <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Tipo de Consulta <span class="text-indigo-400">*</span></label>
+                            <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Tipo de Consulta <span class="text-white">*</span></label>
                             <div class="relative">
-                                <select required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:bg-black/60 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all appearance-none outline-none cursor-pointer">
+                                <select required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:bg-black/60 focus:border-white/40 focus:ring-1 focus:ring-white/30 transition-all appearance-none outline-none cursor-pointer">
                                     <option value="" disabled selected class="bg-surface text-gray-400">Seleccionar categoría...</option>
                                     <option value="mejora" class="bg-surface">Sugerencia de mejora arquitectónica</option>
                                     <option value="bug" class="bg-surface">Reporte de error (Bug)</option>
@@ -804,8 +789,8 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Mensaje <span class="text-indigo-400">*</span></label>
-                            <textarea required rows="4" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:bg-black/60 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all outline-none resize-none" placeholder="Describe los detalles de tu solicitud..."></textarea>
+                            <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Mensaje <span class="text-white">*</span></label>
+                            <textarea required rows="4" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:bg-black/60 focus:border-white/40 focus:ring-1 focus:ring-white/30 transition-all outline-none resize-none" placeholder="Describe los detalles de tu solicitud..."></textarea>
                         </div>
 
                         <div class="pt-4 flex justify-end">
@@ -817,14 +802,14 @@
                     </form>
                     
                     <div id="form-success-msg" class="hidden opacity-0 scale-95 absolute inset-0 z-20 bg-surface/95 backdrop-blur-md flex flex-col items-center justify-center text-center p-8 transition-all duration-400">
-                        <div class="w-16 h-16 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-white/10 text-white flex items-center justify-center mb-4 border border-white/20">
                             <svg viewBox="0 0 100 100" class="w-8 h-8" fill="none">
                                 <path class="draw-path" style="animation: draw 0.6s ease-out forwards;" d="M20 52 L40 72 L80 28" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
                         <h3 class="text-2xl font-bold text-white mb-2">Mensaje recibido</h3>
                         <p class="text-gray-400">El equipo de ingeniería revisará tu reporte en breve.</p>
-                        <button onclick="hideFormSuccess()" class="mt-6 text-sm text-indigo-400 hover:text-white transition-colors">Volver al formulario</button>
+                        <button onclick="hideFormSuccess()" class="mt-6 text-sm text-white hover:text-white transition-colors">Volver al formulario</button>
                     </div>
                 </div>
             </div>
@@ -868,11 +853,11 @@
     <div id="tutorial-backdrop" class="tutorial-backdrop"></div>
     <div id="tutorial-popup" class="hidden fixed z-[170] max-w-sm bg-surface/95 backdrop-blur-2xl border border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-500">
         <div class="flex items-center gap-3 mb-3">
-            <div id="tutorial-icon" class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+            <div id="tutorial-icon" class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center shrink-0">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
             </div>
             <div>
-                <span class="text-[10px] uppercase tracking-widest text-indigo-400 font-semibold">Tutorial Interactivo</span>
+                <span class="text-[10px] uppercase tracking-widest text-white font-semibold">Tutorial Interactivo</span>
                 <h4 id="tutorial-title" class="text-white font-bold text-lg">Bienvenido</h4>
             </div>
         </div>
@@ -881,7 +866,7 @@
             <span id="tutorial-step-indicator" class="text-xs text-gray-500">Paso 1 de 3</span>
             <div class="flex gap-2">
                 <button onclick="skipTutorial()" class="px-3 py-2 text-xs text-gray-400 hover:text-white transition-colors">Omitir</button>
-                <button onclick="nextTutorialStep()" id="tutorial-next-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all">Siguiente</button>
+                <button onclick="nextTutorialStep()" id="tutorial-next-btn" class="px-4 py-2 bg-white hover:bg-gray-200 text-black rounded-xl text-xs font-semibold shadow-lg shadow-white/10 transition-all">Siguiente</button>
             </div>
         </div>
     </div>
