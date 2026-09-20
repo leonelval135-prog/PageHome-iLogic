@@ -191,21 +191,11 @@
                         verificationStatus.classList.remove('hidden');
                         verificationStatus.classList.add('flex');
                         
-                        // Simular redirección
                         setTimeout(() => {
-                            // Aquí se realizaría la redirección real
-                            // window.location.href = '/Home/index.html';
-                            
-                            // Para propósitos de demostración en este entorno, mostramos un mensaje
-                            verificationStatus.innerHTML = `
-                                <div class="w-12 h-12 mb-4 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
-                                <p class="text-sm text-green-400 font-medium">Verificación exitosa</p>
-                                <p class="text-xs text-gray-400 mt-2">Redirigiendo a /Home/index.html...</p>
-                            `;
-                            
-                            // Si estuvieras en un servidor real, descomentarías la línea de window.location.href
+                            // REDIRECCIÓN AJUSTADA PARA GITHUB PAGES
+                            // Usamos una ruta relativa en lugar de absoluta
+                            // Asumiendo que security.html está en la raíz y Home es una carpeta al lado
+                            window.location.href = './Home/index.html';
                         }, 2000);
                     }, 500);
 
