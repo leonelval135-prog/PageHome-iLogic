@@ -148,12 +148,44 @@
   <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <button class="modal__close" data-action="close-auth" aria-label="Cerrar">✕</button>
     <h2 id="authTitle">Inicia sesión</h2>
+    <div class="auth-tabs" id="authTabs" role="tablist">
+      <button type="button" role="tab" class="is-active" aria-selected="true" data-action="auth-mode" data-id="login">Iniciar sesión</button>
+      <button type="button" role="tab" aria-selected="false" data-action="auth-mode" data-id="register">Crear cuenta</button>
+    </div>
     <form id="authForm" novalidate>
-      <label>Correo electrónico<input type="email" id="authEmail" required placeholder="tu@correo.com"></label>
-      <label>Contraseña<input type="password" id="authPass" required minlength="6" placeholder="Mínimo 6 caracteres"></label>
-      <button class="btn btn--primary" type="submit">Continuar</button>
+      <label class="reg-only" hidden>Nombre<input id="authName" autocomplete="name" placeholder="Tu nombre"></label>
+      <label>Correo electrónico<input type="email" id="authEmail" required placeholder="tu@correo.com" autocomplete="email"></label>
+      <label>Contraseña<input type="password" id="authPass" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="current-password"></label>
+      <div class="pw reg-only" id="pwMeter" aria-live="polite" hidden>
+        <div class="pw__bars"><i></i><i></i><i></i><i></i><i></i></div>
+        <small id="pwLabel">Seguridad de la contraseña</small>
+      </div>
+      <label class="reg-only" hidden>Repite la contraseña<input type="password" id="authPass2" autocomplete="new-password" placeholder="Vuelve a escribirla"></label>
+      <details class="terms reg-only" hidden>
+        <summary>Leer términos y condiciones</summary>
+        <div>
+          <p><b>1. Uso de la cuenta.</b> Eres responsable de la actividad de tu cuenta y de mantener tu contraseña en secreto.</p>
+          <p><b>2. Conducta.</b> No se permite el fraude, el uso de datos de terceros ni el abuso de la plataforma.</p>
+          <p><b>3. Medidas.</b> Ante incumplimientos podemos suspender temporalmente, desactivar o banear tu cuenta.</p>
+          <p><b>4. Datos personales.</b> Guardamos tu correo, perfil, direcciones y pedidos para operar la tienda.</p>
+          <p class="muted">Texto de demostración: reemplázalo por tus términos legales.</p>
+        </div>
+      </details>
+      <label class="check reg-only" hidden><input type="checkbox" id="authTerms"><span>Acepto los términos y condiciones y la política de privacidad</span></label>
+      <button class="btn btn--primary" type="submit" id="authSubmit">Iniciar sesión</button>
     </form>
-    <p class="muted">¿Primera vez? Usa cualquier correo y contraseña: se crea tu cuenta de prueba.</p>
+    <p class="muted" id="authHint"></p>
+  </div>
+</div>
+
+<!-- ============ DIÁLOGO DE ESTADO DE CUENTA (suspendida / baneada / desactivada) ============ -->
+<div class="modal modal--status" id="statusModal" hidden>
+  <div class="modal__box status" role="alertdialog" aria-modal="true" aria-labelledby="stTitle" aria-describedby="stMsg">
+    <div class="status__ico" id="stIco" aria-hidden="true"></div>
+    <h2 id="stTitle"></h2>
+    <p id="stMsg"></p>
+    <dl class="status__meta" id="stMeta" hidden></dl>
+    <div class="status__actions" id="stActions"></div>
   </div>
 </div>
 
@@ -175,6 +207,12 @@
 </footer>
 
 <!-- Scripts clásicos (sin módulos) para funcionar abriendo el archivo directamente -->
+<!-- Firebase (SDK compat, scripts clásicos). Si no cargan o no hay config, la tienda sigue en modo demo -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
