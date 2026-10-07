@@ -11,6 +11,7 @@
   const money = n => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n);
   const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const { products, categories, banners, coupons } = window.mockData;
+  const Fb = window.Fb || { enabled: false }; // servicio Firebase (firebase.js)
   const byId = id => products.find(p => p.id === Number(id));
   const discount = p => Math.round((1 - p.price / p.oldPrice) * 100);
   const stars = r => '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
@@ -24,6 +25,7 @@
     },
     save() {
       try { localStorage.setItem(this.key, JSON.stringify(this.state)); } catch (e) { /* almacenamiento no disponible */ }
+      Fb.enabled && Fb.push(this.state);
       UI.renderBadges();
     }
   };
@@ -249,7 +251,7 @@
     'save-profile': () => Account.saveProfile(),
     'save-addr': () => Account.saveAddr(),
     'del-addr': id => { Store.state.addresses.splice(Number(id), 1); Store.save(); Account.render(); },
-    'logout': () => { Store.state.user = null; Store.save(); UI.toast('Sesión cerrada'); Account.render(); },
+    'logout': () => { if (Fb.enabled) return Fb.logout(); Store.state.user = null; Store.save(); UI.toast('Sesión cerrada'); Account.render(); },
     'reorder': id => Account.reorder(id),
     'co-next': () => Checkout.next(),
     'co-back': () => { Checkout.step--; Checkout.render(); },
@@ -282,8 +284,11 @@
       if (zip && /^\d{5}$/.test(zip)) { Store.state.zip = zip; Store.save(); UI.toast('Ubicación actualizada'); }
       else if (zip) UI.toast('Código postal no válido', 'err');
     },
-    'open-auth': () => { if (Store.state.user) return Account.open(); $('#authModal').hidden = false; $('#authEmail').focus(); },
-    'close-auth': () => { $('#authModal').hidden = true; }
+    'open-auth': () => { if (Store.state.user) return Account.open(); Cloud.setMode(false); $('#authModal').hidden = false; $('#authEmail').focus(); },
+    'close-auth': () => { $('#authModal').hidden = true; },
+    'auth-mode': id => Cloud.setMode(id === 'register'),
+    'deactivate': () => { if (confirm('¿Desactivar tu cuenta? No podrás usarla hasta que la reactives.')) Fb.deactivate().catch(() => UI.toast('No se pudo desactivar la cuenta', 'err')); },
+    'reactivate': () => Fb.reactivate().then(() => UI.toast('Cuenta reactivada')).catch(() => UI.toast('No se pudo reactivar la cuenta', 'err'))
   };
   function setView(v) {
     Catalog.f.view = v;
@@ -320,11 +325,29 @@
     $('#sortSel').addEventListener('change', e => { f.sort = e.target.value; refresh(); });
 
     // Login/registro simulado
-    $('#authForm').addEventListener('submit', e => {
+    $('#authPass').addEventListener('input', e => Cloud.meter(e.target.value));
+    $('#authForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const email = $('#authEmail').value.trim(), pass = $('#authPass').value;
+      const email = $('#authEmail').value.trim(), pass = $('#authPass').value, name = $('#authName').value.trim();
       if (!/^\S+@\S+\.\S+$/.test(email) || pass.length < 6) return UI.toast('Revisa el correo y usa al menos 6 caracteres', 'err');
-      Account.login(email); actions['close-auth'](); UI.toast(`Sesión iniciada: ${email}`); Account.open();
+      if (Cloud.reg) { // validaciones del registro
+        if (name.length < 2) return UI.toast('Escribe tu nombre', 'err');
+        if (pass.length < 8 || Cloud.score(pass) < 2) return UI.toast('Elige una contraseña más segura (mínimo "Aceptable")', 'err');
+        if (pass !== $('#authPass2').value) return UI.toast('Las contraseñas no coinciden', 'err');
+        if (!$('#authTerms').checked) return UI.toast('Debes aceptar los términos y condiciones', 'err');
+      }
+      const done = () => { $('#authForm').reset(); Cloud.meter(''); actions['close-auth'](); Account.open(); };
+      if (!Fb.enabled) { // modo demo
+        Account.login(email); if (Cloud.reg) { Store.state.profile.name = name; Store.save(); }
+        UI.toast(Cloud.reg ? 'Cuenta creada' : `Sesión iniciada: ${email}`); return done();
+      }
+      const btn = e.submitter; if (btn) btn.disabled = true;
+      try {
+        Cloud.name = Cloud.reg ? name : '';
+        await (Cloud.reg ? Fb.register : Fb.login)(email, pass);
+        UI.toast(Cloud.reg ? 'Cuenta creada' : `Sesión iniciada: ${email}`); done();
+      } catch (err) { UI.toast(Fb.errMsg(err), 'err'); }
+      if (btn) btn.disabled = false;
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { UI.openCart(false); actions['close-auth'](); } });
   }
@@ -410,7 +433,8 @@
         <label>Nombre<input id="pName" value="${esc(p.name)}"></label><label>Nombre de usuario<input id="pUser" value="${esc(p.username)}"></label>
         <label class="span2">Correo<input id="pMail" type="email" value="${esc(p.email)}"></label></div>
         <div class="row"><button class="btn btn--primary" data-action="save-profile">Guardar cambios</button>
-        ${Store.state.user ? '<button class="btn btn--ghost" data-action="logout">Cerrar sesión</button>' : '<button class="btn btn--ghost" data-action="open-auth">Iniciar sesión</button>'}</div></div>`;
+        ${Store.state.user ? '<button class="btn btn--ghost" data-action="logout">Cerrar sesión</button>' : '<button class="btn btn--ghost" data-action="open-auth">Iniciar sesión</button>'}
+        ${Fb.enabled && Store.state.user ? '<button class="btn btn--ghost" data-action="deactivate">Desactivar mi cuenta</button>' : ''}</div></div>`;
     },
     saveProfile() {
       const name = val('pName'), user = val('pUser'), mail = val('pMail');
@@ -589,6 +613,85 @@
     }
   };
 
+  /* ---------- Firebase: sesión y sincronización de datos ---------- */
+  const Cloud = {
+    reg: false, had: false, name: '',
+    setMode(reg) { // alterna entre "Iniciar sesión" y "Crear cuenta"
+      this.reg = reg;
+      $('#authTitle').textContent = reg ? 'Crea tu cuenta' : 'Inicia sesión';
+      $$('#authTabs button').forEach(b => { const on = (b.dataset.id === 'register') === reg; b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on); });
+      $$('.reg-only').forEach(el => (el.hidden = !reg));
+      $('#authPass').autocomplete = reg ? 'new-password' : 'current-password';
+      $('#authPass').placeholder = reg ? 'Mínimo 8 caracteres' : 'Tu contraseña';
+      $('#authSubmit').textContent = reg ? 'Crear cuenta' : 'Iniciar sesión';
+      $('#authHint').textContent = reg ? 'Usa 8 o más caracteres y mezcla mayúsculas, minúsculas, números y símbolos.'
+        : Fb.enabled ? 'Tu cuenta y tus compras se guardan de forma segura en la nube.' : 'Modo demo: usa cualquier correo y contraseña.';
+    },
+    score(p) { // 0 muy débil · 1 débil · 2 aceptable · 3 fuerte · 4 muy fuerte
+      if (!p || /^(.)\1*$/.test(p)) return 0;
+      const v = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter(r => r.test(p)).length;
+      if (p.length < 8) return v >= 3 ? 1 : 0;
+      const raw = v + (p.length >= 12 ? 2 : 1);
+      return raw <= 3 ? 1 : raw === 4 ? 2 : raw === 5 ? 3 : 4;
+    },
+    meter(p) {
+      const n = this.score(p), L = ['Muy débil', 'Débil', 'Aceptable', 'Fuerte', 'Muy fuerte'];
+      $('#pwMeter').dataset.lvl = p ? n : '';
+      $$('#pwMeter i').forEach((b, i) => b.classList.toggle('on', !!p && i <= n));
+      $('#pwLabel').textContent = p ? `Seguridad: ${L[n]}` : 'Seguridad de la contraseña';
+    },
+    init() {
+      this.setMode(false);
+      if (!Fb.enabled) return;
+      Fb.onAccount = a => Gate.show(a);
+      Fb.onUser = async u => {
+        const s = Store.state, guest = { username: 'invitado', name: 'Invitado', email: '', avatar: null };
+        s.user = u ? { email: u.email } : null;
+        if (u) {
+          let d; try { d = await Fb.pull(); } catch (e) { return UI.toast('No pudimos sincronizar tus datos', 'err'); }
+          if (d) {
+            ['cart', 'wishlist', 'addresses', 'orders'].forEach(k => (s[k] = d[k] || []));
+            Object.assign(s, { coupon: d.coupon || null, zip: d.zip || s.zip, profile: Object.assign({}, guest, d.profile) });
+          } else { s.orders = []; if (this.name) s.profile.name = this.name; } // cuenta nueva: sin pedidos de ejemplo
+          this.name = '';
+          Account.login(u.email); Fb.synced = true;
+        } else if (this.had) Object.assign(s, { cart: [], wishlist: [], coupon: null, addresses: [], orders: [], profile: guest }); // no dejar datos en equipos compartidos
+        this.had = !!u; Store.save(); UI.renderCart(); if (UI.view === 'profile') Account.render();
+      };
+      Fb.start();
+    }
+  };
+
+  /* ---------- Cartel de estado de cuenta (bloquea la tienda) ---------- */
+  const Gate = {
+    was: false,
+    copy: {
+      suspended: ['Ⅱ', 'Cuenta suspendida', 'Suspendimos tu cuenta de forma temporal. Mientras dure la suspensión no puedes comprar ni modificar tus datos.'],
+      banned: ['✕', 'Cuenta baneada', 'Tu cuenta fue baneada por incumplir nuestros términos y condiciones. Esta decisión es permanente.'],
+      deactivated: ['☾', 'Cuenta desactivada', 'Tu cuenta está desactivada. Tus datos se conservan, pero no podrás usarla hasta reactivarla.']
+    },
+    show(a) {
+      const c = this.copy[a.status], box = $('#statusModal');
+      $$('.header, #app, .footer, #cartDrawer').forEach(el => (el.inert = !!c));
+      if (!c) {
+        if (this.was) UI.toast('Tu cuenta está activa de nuevo');
+        this.was = false; box.hidden = true; document.body.style.overflow = ''; return;
+      }
+      this.was = true; UI.openCart(false); $('#authModal').hidden = true;
+      $('#stIco').textContent = c[0]; $('#stTitle').textContent = c[1]; $('#stMsg').textContent = c[2];
+      const rows = [];
+      if (a.reason) rows.push(['Motivo', a.reason]);
+      if (a.status === 'suspended' && a.suspendedUntil) rows.push(['Termina', new Date(a.suspendedUntil).toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' })]);
+      $('#stMeta').innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join(''); $('#stMeta').hidden = !rows.length;
+      $('#stActions').innerHTML =
+        (a.status === 'deactivated' && a.deactivatedBy === 'user' ? '<button class="btn btn--primary" data-action="reactivate">Reactivar mi cuenta</button>' : '') +
+        (a.status !== 'deactivated' && Fb.support ? `<a class="btn btn--ghost" href="mailto:${esc(Fb.support)}?subject=${encodeURIComponent(c[1])}">Contactar a soporte</a>` : '') +
+        '<button class="btn btn--ghost" data-action="logout">Cerrar sesión</button>';
+      box.hidden = false; document.body.style.overflow = 'hidden';
+      const first = $('#stActions .btn'); if (first) first.focus();
+    }
+  };
+
   /* ---------- Tema claro / oscuro ---------- */
   const Theme = {
     key: 'eshop_theme',
@@ -607,7 +710,7 @@
 
   /* ---------- Arranque ---------- */
   function init() {
-    Store.load(); Account.seed(); Account.bind(); Checkout.bind(); Theme.init();
+    Store.load(); Account.seed(); Account.bind(); Checkout.bind(); Theme.init(); Cloud.init();
     $('#catNav').innerHTML = `<button data-action="cat" data-cat="">Todo</button>` + categories.map(c => `<button data-action="cat" data-cat="${c}">${c}</button>`).join('');
     bindEvents(); Carousel.init(); startCountdown();
     UI.renderBadges(); UI.renderHome(); UI.renderCart(); UI.show('home');
