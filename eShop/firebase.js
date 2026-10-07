@@ -47,6 +47,8 @@
   Fb.register = async (email, pass) => {
     const { user } = await auth.createUserWithEmailAndPassword(email, pass);
     await acc(user.uid).child('status').set('active');
+    // Registro de aceptación de términos (no bloquea el alta si las reglas aún no incluyen este nodo)
+    db.ref(`users/${user.uid}/terms`).set({ acceptedAt: firebase.database.ServerValue.TIMESTAMP, version: '1' }).catch(() => {});
   };
   Fb.login = (email, pass) => auth.signInWithEmailAndPassword(email, pass);
   Fb.logout = () => auth.signOut();
