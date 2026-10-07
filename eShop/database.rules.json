@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "admins": { ".read": false, ".write": false },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('admins').child(auth.uid).val() === true)",
+        "account": {
+          ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+          ".validate": "newData.hasChild('status')",
+          "status": {
+            ".write": "auth != null && auth.uid === $uid && ((!data.exists() && newData.val() === 'active') || (data.val() === 'active' && newData.val() === 'deactivated') || (data.val() === 'deactivated' && newData.val() === 'active' && data.parent().child('deactivatedBy').val() === 'user'))",
+            ".validate": "newData.val() === 'active' || newData.val() === 'suspended' || newData.val() === 'banned' || newData.val() === 'deactivated'"
+          },
+          "deactivatedBy": {
+            ".write": "auth != null && auth.uid === $uid && ((newData.val() === 'user' && data.parent().child('status').val() === 'active') || (!newData.exists() && data.val() === 'user'))",
+            ".validate": "newData.val() === 'user' || newData.val() === 'admin'"
+          },
+          "reason": { ".validate": "newData.isString() && newData.val().length <= 300" },
+          "suspendedUntil": { ".validate": "newData.isNumber()" },
+          "updatedAt": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        },
+        "data": {
+          ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || (auth.uid === $uid && (root.child('users').child($uid).child('account').child('status').val() === 'active' || (root.child('users').child($uid).child('account').child('status').val() === 'suspended' && root.child('users').child($uid).child('account').child('suspendedUntil').val() < now))))"
+        }
+      }
+    }
+  }
+}
