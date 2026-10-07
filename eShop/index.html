@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eShop — Marketplace</title>
+  <script>/* aplica el tema antes de pintar (evita parpadeo) */try{var t=localStorage.getItem("eshop_theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}</script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.7-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 15.3 12 20 12 20z"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2.5l2 11h10l2-8H7"/><circle cx="9" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></symbol>
+</defs></svg>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <div class="promo">Envío gratis desde $999 · Devoluciones sin costo por 30 días</div>
+  <div class="header__top container">
+    <a href="#" class="logo" data-action="go-home" aria-label="eShop, inicio">e<span>Shop</span></a>
+    <button class="loc" data-action="set-location" title="Cambiar ubicación"><svg class="i"><use href="#i-pin"/></svg><span><small>Enviar a</small><b id="locText">CP 06600</b></span></button>
+    <div class="search">
+      <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más" autocomplete="off" aria-label="Buscar productos">
+      <button id="searchBtn" aria-label="Buscar"><svg class="i"><use href="#i-search"/></svg></button>
+      <ul id="suggest" class="suggest" hidden></ul>
+    </div>
+    <nav class="actions" aria-label="Acciones de usuario">
+      <button class="theme" data-action="toggle-theme" id="themeBtn" aria-label="Cambiar entre tema claro y oscuro" title="Tema claro / oscuro">
+        <svg class="i ico-sun"><use href="#i-sun"/></svg><svg class="i ico-moon"><use href="#i-moon"/></svg>
+      </button>
+      <button data-action="open-auth"><svg class="i"><use href="#i-user"/></svg><span>Cuenta</span></button>
+      <button data-action="show-wishlist"><svg class="i"><use href="#i-heart"/></svg><span>Deseos</span><em id="wishCount" class="count">0</em></button>
+      <button data-action="open-cart" aria-label="Carrito"><svg class="i"><use href="#i-cart"/></svg><em id="cartCount" class="count">0</em></button>
+    </nav>
+  </div>
+  <nav class="cats container" id="catNav" aria-label="Categorías"></nav>
+</header>
+
+<main id="app">
+  <!-- ============ HOME ============ -->
+  <section id="view-home" class="view">
+    <div class="container">
+      <div class="carousel" id="carousel" aria-roledescription="carrusel">
+        <div class="carousel__track" id="carTrack"></div>
+        <button class="carousel__btn prev" data-action="car-prev" aria-label="Anterior">‹</button>
+        <button class="carousel__btn next" data-action="car-next" aria-label="Siguiente">›</button>
+        <div class="carousel__dots" id="carDots"></div>
+      </div>
+
+      <section class="benefits">
+        <div class="benefit"><b>Envío gratis</b><small>En compras desde $999</small></div>
+        <div class="benefit"><b>Pago seguro</b><small>Tarjeta, PayPal, efectivo</small></div>
+        <div class="benefit"><b>Devoluciones</b><small>30 días, sin costo</small></div>
+      </section>
+
+      <section class="panel">
+        <h2>Compra por categoría</h2>
+        <div class="tiles" id="catTiles"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__head">
+          <h2>Ofertas relámpago</h2>
+          <div class="countdown" aria-live="off">Termina en <b id="countdown">--:--:--</b></div>
+        </div>
+        <div class="grid grid--cards" id="flashGrid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Productos destacados</h2>
+        <div class="grid grid--cards" id="featuredGrid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Recomendados para ti</h2>
+        <div class="grid grid--cards" id="recoGrid"></div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ CATÁLOGO (SERP) ============ -->
+  <section id="view-search" class="view" hidden>
+    <div class="container serp">
+      <aside class="filters" id="filters">
+        <h3>Filtros</h3>
+        <fieldset>
+          <legend>Precio</legend>
+          <div class="price-range">
+            <input type="number" id="fMin" placeholder="Mín" min="0" aria-label="Precio mínimo">
+            <input type="number" id="fMax" placeholder="Máx" min="0" aria-label="Precio máximo">
+          </div>
+        </fieldset>
+        <fieldset><legend>Marca</legend><div id="fBrands"></div></fieldset>
+        <fieldset>
+          <legend>Calificación</legend>
+          <label><input type="radio" name="fRating" value="0" checked> Todas</label>
+          <label><input type="radio" name="fRating" value="4"> ★★★★☆ y más</label>
+          <label><input type="radio" name="fRating" value="3"> ★★★☆☆ y más</label>
+        </fieldset>
+        <fieldset>
+          <legend>Envío</legend>
+          <label><input type="checkbox" id="fFree"> Envío gratis</label>
+          <label><input type="checkbox" id="fExpress"> Llega mañana</label>
+        </fieldset>
+        <button class="btn btn--ghost" data-action="clear-filters">Limpiar filtros</button>
+      </aside>
+
+      <div class="results">
+        <div class="toolbar">
+          <div><h1 id="resultsTitle">Resultados</h1><small id="resultsCount"></small></div>
+          <div class="toolbar__ctrl">
+            <button class="btn btn--ghost filters-toggle" data-action="toggle-filters">Filtros</button>
+            <select id="sortSel" aria-label="Ordenar por">
+              <option value="relevance">Más relevantes</option>
+              <option value="sold">Más vendidos</option>
+              <option value="priceAsc">Precio: menor a mayor</option>
+              <option value="priceDesc">Precio: mayor a menor</option>
+            </select>
+            <div class="viewtoggle" role="group" aria-label="Tipo de vista">
+              <button data-action="view-grid" class="is-active" aria-label="Cuadrícula">▦</button>
+              <button data-action="view-list" aria-label="Lista">☰</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid--cards" id="resultsGrid"></div>
+      </div>
+    </div>
+  </section>
+  <section id="view-profile" class="view" hidden></section>
+  <section id="view-checkout" class="view" hidden></section>
+</main>
+
+<!-- ============ CARRITO (drawer) ============ -->
+<div class="overlay" id="cartOverlay" data-action="close-cart" hidden></div>
+<aside class="drawer" id="cartDrawer" aria-label="Carrito de compras" hidden>
+  <div class="drawer__head"><h2>Tu carrito</h2><button data-action="close-cart" aria-label="Cerrar">✕</button></div>
+  <div class="drawer__body" id="cartItems"></div>
+  <div class="drawer__foot" id="cartSummary"></div>
+</aside>
+
+<!-- ============ MODAL LOGIN / REGISTRO ============ -->
+<div class="modal" id="authModal" hidden>
+  <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <button class="modal__close" data-action="close-auth" aria-label="Cerrar">✕</button>
+    <h2 id="authTitle">Inicia sesión</h2>
+    <form id="authForm" novalidate>
+      <label>Correo electrónico<input type="email" id="authEmail" required placeholder="tu@correo.com"></label>
+      <label>Contraseña<input type="password" id="authPass" required minlength="6" placeholder="Mínimo 6 caracteres"></label>
+      <button class="btn btn--primary" type="submit">Continuar</button>
+    </form>
+    <p class="muted">¿Primera vez? Usa cualquier correo y contraseña: se crea tu cuenta de prueba.</p>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container footer__grid">
+    <div><h4>eShop</h4><a href="#">Quiénes somos</a><a href="#">Trabaja con nosotros</a><a href="#">Vende en MercaNova</a></div>
+    <div><h4>Ayuda</h4><a href="#">Centro de ayuda</a><a href="#">Devoluciones</a><a href="#">Rastrear pedido</a></div>
+    <div><h4>Legal</h4><a href="#">Política de privacidad</a><a href="#">Términos y condiciones</a></div>
+    <div>
+      <h4>Pagos aceptados</h4><p class="pay">💳 Tarjetas · PayPal · Transferencia · Efectivo</p>
+      <select aria-label="Idioma"><option>Español</option><option>English</option></select>
+      <select aria-label="Moneda"><option>MXN</option><option>USD</option></select>
+    </div>
+  </div>
+  <p class="footer__copy">© 2026 eShop. Proyecto de demostración.</p>
+</footer>
+
+<!-- Scripts clásicos (sin módulos) para funcionar abriendo el archivo directamente -->
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
