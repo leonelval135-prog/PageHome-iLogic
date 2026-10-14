@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>eGenerate Pass Secure</title>
+<meta name="description" content="Generador de contraseñas seguras y validador de fortaleza que funciona 100 % en tu navegador.">
+<script>
+/* Aplica el tema guardado antes de pintar para evitar parpadeos */
+(function(){var r=document.documentElement,t;r.classList.add("js");
+try{t=localStorage.getItem("egps-theme")}catch(e){}
+if(!t)t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+r.dataset.theme=t})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 6 10v13c0 11 7.5 19 18 22 10.5-3 18-11 18-22V10z' fill='%232848c9'/%3E%3Crect x='16' y='22' width='16' height='12' rx='2.5' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+<header>
+  <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3 6 10v13c0 11 7.5 19 18 22 10.5-3 18-11 18-22V10z" fill="var(--ac)"/><rect x="16" y="22" width="16" height="12" rx="2.5" fill="var(--acx)"/><path d="M19.5 22v-4a4.5 4.5 0 0 1 9 0v4" fill="none" stroke="var(--acx)" stroke-width="3"/></svg>
+  <div><h1>eGenerate Pass Secure</h1><p>Genera contraseñas robustas y comprueba qué tan seguras son.</p></div>
+  <span class="sp"></span>
+  <span class="badge"><i></i>Todo se procesa en tu navegador</span>
+  <button class="tbtn" id="theme" type="button" aria-label="Cambiar a modo oscuro">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <g class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g>
+      <path class="moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+    </svg>
+    <span id="tlabel">Modo oscuro</span>
+  </button>
+</header>
+
+<main class="grid">
+<section class="card enter" style="--d:.1s" aria-labelledby="gt">
+  <h2 id="gt">Generador</h2>
+  <p class="sub">Contraseñas aleatorias creadas con el generador criptográfico del navegador.</p>
+  <div class="out"><div class="pw" id="pw" aria-live="polite"></div></div>
+  <div class="row">
+    <button class="btn" id="gen" type="button">Generar nueva</button>
+    <button class="btn sec" id="copy" type="button">Copiar</button>
+    <button class="btn sec" id="send" type="button">Analizar esta</button>
+  </div>
+  <div class="len"><label for="len">Longitud</label><input type="range" id="len" min="8" max="64" value="20"><output id="lenv" for="len">20</output></div>
+  <div class="opts">
+    <label><input type="checkbox" id="oU" checked>Mayúsculas (A-Z)</label>
+    <label><input type="checkbox" id="oL" checked>Minúsculas (a-z)</label>
+    <label><input type="checkbox" id="oN" checked>Números (0-9)</label>
+    <label><input type="checkbox" id="oS" checked>Símbolos (!@#$…)</label>
+    <label><input type="checkbox" id="oA">Evitar parecidos (I l 1 O 0)</label>
+  </div>
+  <div class="meter" id="gm" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="lvl"><b id="gl"></b><span id="ge" class="mut"></span></div>
+</section>
+
+<section class="card enter" style="--d:.22s" aria-labelledby="vt">
+  <h2 id="vt">Validador</h2>
+  <p class="sub">Escribe o pega una contraseña para evaluarla. No sale de esta página.</p>
+  <div class="inp">
+    <input type="password" id="chk" autocomplete="off" spellcheck="false" placeholder="Contraseña a evaluar" aria-label="Contraseña a evaluar">
+    <button class="ghost" id="eye" type="button" aria-pressed="false">Mostrar</button>
+  </div>
+  <div class="meter" id="vm" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="lvl"><b id="vl">Sin evaluar</b><span id="vs" class="mut" role="status"></span></div>
+  <div class="stats">
+    <div class="stat"><small>Entropía estimada</small><b id="sb">—</b></div>
+    <div class="stat"><small>Ataque offline rápido</small><b id="sc">—</b></div>
+    <div class="stat"><small>Ataque online limitado</small><b id="so">—</b></div>
+  </div>
+  <ul class="chk" id="list"></ul>
+  <div id="tips"></div>
+</section>
+</main>
+
+<section class="card info rv" aria-labelledby="it">
+  <h2 id="it">Para qué sirve</h2>
+  <p class="sub" style="margin:0">Una contraseña débil es la puerta más fácil de abrir. Esta herramienta te ayuda a cerrarla.</p>
+  <div class="cols">
+    <div><h3>Qué hace</h3><ul>
+      <li>Genera contraseñas aleatorias de 8 a 64 caracteres con las familias de caracteres que elijas.</li>
+      <li>Evalúa cualquier contraseña y estima su entropía y el tiempo que tardaría en adivinarse.</li>
+      <li>Detecta contraseñas comunes, secuencias, repeticiones y patrones de teclado.</li></ul></div>
+    <div><h3>Cómo funciona</h3>
+      <p>La generación usa <code>crypto.getRandomValues</code> con muestreo sin sesgo, no <code>Math.random</code>. Cada familia activa aparece al menos una vez y el orden se mezcla con Fisher-Yates.</p>
+      <p>La entropía se calcula como <code>longitud × log₂(alfabeto)</code> y se reduce si hay patrones predecibles. El tiempo asume 10 mil millones de intentos por segundo (hash rápido, sin protección) y 100 por segundo para ataques en línea.</p></div>
+    <div><h3>Buenas prácticas</h3><ul>
+      <li>Usa una contraseña distinta para cada cuenta y guárdalas en un gestor.</li>
+      <li>Prefiere 16 caracteres o más; la longitud pesa más que los símbolos raros.</li>
+      <li>Activa la verificación en dos pasos donde puedas.</li>
+      <li>No reutilices datos personales: nombres, fechas, equipos.</li></ul></div>
+  </div>
+  <footer>La evaluación es una estimación orientativa. Nunca escribas aquí contraseñas reales que uses en producción si compartes tu pantalla.</footer>
+</section>
+</div>
+<div id="toast" role="status"></div>
+<script src="js/app.js"></script>
+</body>
+</html>
