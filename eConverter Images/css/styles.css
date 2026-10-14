@@ -364,3 +364,8 @@ h1, h2, h3, p { margin: 0; }
 .modal__bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
 @keyframes fade { from { opacity: 0; } }
 @media (max-width: 560px) { .modal__imgs { grid-template-columns: 1fr; } }
+
+/* ===== Logo ===== */
+.brand__mark { display: grid; flex: none; }
+.brand__logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 10px; animation: glow 3.5s ease-in-out infinite; transition: transform .4s var(--ease); }
+.brand:hover .brand__logo-img { transform: rotate(-8deg) scale(1.08); }
