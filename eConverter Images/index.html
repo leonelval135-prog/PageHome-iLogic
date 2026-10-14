@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="eConverter Images: convierte, comprime y redimensiona imágenes en lote directamente en tu navegador.">
+  <title>eConverter Images</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__logo" aria-hidden="true">e</span>
+      <div>
+        <h1 class="brand__name">eConverter <span>Images</span></h1>
+        <p class="brand__tag">Convierte, comprime y redimensiona en lote</p>
+      </div>
+    </div>
+    <span class="badge">100% en tu navegador</span>
+  </header>
+
+  <main class="container">
+    <!-- Zona de carga -->
+    <section id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Seleccionar imágenes">
+      <strong>Arrastra tus imágenes aquí</strong>
+      <span>o haz clic para elegirlas · también puedes pegarlas con Ctrl+V</span>
+      <small>PNG, JPG, WebP, GIF, BMP…</small>
+      <input id="fileInput" type="file" accept="image/*" multiple hidden>
+    </section>
+
+    <!-- Opciones -->
+    <section class="card" aria-labelledby="optTitle">
+      <h2 id="optTitle" class="card__title">Opciones</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="format">Formato de salida</label>
+          <select id="format">
+            <option value="image/webp">WebP</option>
+            <option value="image/jpeg">JPG</option>
+            <option value="image/png">PNG</option>
+          </select>
+        </div>
+
+        <div class="field" id="qualityField">
+          <label for="quality">Calidad: <output id="qualityValue">80</output>%</label>
+          <input id="quality" type="range" min="1" max="100" value="80">
+        </div>
+
+        <div class="field">
+          <label for="resizeMode">Redimensionar</label>
+          <select id="resizeMode">
+            <option value="none">Mantener tamaño</option>
+            <option value="max">Ancho / alto máximo</option>
+            <option value="percent">Porcentaje</option>
+          </select>
+        </div>
+
+        <div class="field" data-resize="max">
+          <label for="maxWidth">Ancho máx. (px)</label>
+          <input id="maxWidth" type="number" min="1" value="1920">
+        </div>
+        <div class="field" data-resize="max">
+          <label for="maxHeight">Alto máx. (px)</label>
+          <input id="maxHeight" type="number" min="1" value="1080">
+        </div>
+        <div class="field" data-resize="percent">
+          <label for="percent">Escala (%)</label>
+          <input id="percent" type="number" min="1" max="500" value="50">
+        </div>
+      </div>
+      <p class="hint">La proporción siempre se conserva. PNG no usa calidad: para pesar menos, reduce el tamaño o usa WebP/JPG.</p>
+    </section>
+
+    <!-- Lista de archivos -->
+    <section id="filesCard" class="card" hidden>
+      <div class="toolbar">
+        <button id="convertBtn" class="btn btn--primary">Convertir</button>
+        <button id="zipBtn" class="btn" disabled>Descargar todo (ZIP)</button>
+        <button id="clearBtn" class="btn btn--ghost">Limpiar</button>
+        <span id="summary" class="summary"></span>
+      </div>
+      <div id="progress" class="progress" hidden><div id="progressBar"></div></div>
+      <ul id="fileList" class="file-list"></ul>
+    </section>
+  </main>
+
+  <footer class="footer">eConverter Images · tus archivos nunca salen de tu dispositivo</footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/converter.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
