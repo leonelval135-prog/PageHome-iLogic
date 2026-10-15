@@ -21,25 +21,51 @@
     <style>
         body { background-color:#000; color:#fff; overflow:hidden; position:relative; }
 
-        .bg-shapes { position:absolute; inset:0; z-index:-1; overflow:hidden; filter:blur(80px); opacity:.15; }
-        .shape { position:absolute; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.1) 0%, rgba(255,255,255,0) 70%); animation:float 20s infinite linear; }
-        .shape:nth-child(1){ width:30vw; height:30vw; top:10%; left:10%; animation-duration:25s; }
-        .shape:nth-child(2){ width:40vw; height:40vw; top:60%; left:60%; animation-duration:30s; animation-direction:reverse; }
-        .shape:nth-child(3){ width:25vw; height:25vw; top:50%; left:20%; animation-duration:22s; }
+        .bg-shapes { position:absolute; inset:0; z-index:-1; overflow:hidden; filter:blur(70px); opacity:.55; }
+        .shape { position:absolute; border-radius:50%; animation:float 20s infinite linear; }
+        .shape:nth-child(1){ width:34vw; height:34vw; top:8%;  left:8%;  background:radial-gradient(circle, rgba(124,92,255,.65) 0%, rgba(124,92,255,0) 70%); animation-duration:25s; }
+        .shape:nth-child(2){ width:42vw; height:42vw; top:55%; left:58%; background:radial-gradient(circle, rgba(56,189,248,.55) 0%, rgba(56,189,248,0) 70%); animation-duration:30s; animation-direction:reverse; }
+        .shape:nth-child(3){ width:28vw; height:28vw; top:48%; left:16%; background:radial-gradient(circle, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 70%); animation-duration:22s; }
         @keyframes float {
             0%{transform:translate(0,0) rotate(0)} 33%{transform:translate(30px,-50px) rotate(120deg)}
             66%{transform:translate(-20px,20px) rotate(240deg)} 100%{transform:translate(0,0) rotate(360deg)}
         }
 
-        .glass-card { background:rgba(0,0,0,.85); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,.05); box-shadow:0 25px 50px -12px #000; }
+        /* Glassmorphism */
+        .glass-card {
+            position:relative; overflow:hidden;
+            background:linear-gradient(135deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,.03) 100%);
+            backdrop-filter:blur(28px) saturate(160%);
+            -webkit-backdrop-filter:blur(28px) saturate(160%);
+            border:1px solid rgba(255,255,255,.14);
+            box-shadow:0 25px 60px -15px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -1px 0 rgba(255,255,255,.04);
+        }
+        /* Brillo especular en la esquina */
+        .glass-card::before {
+            content:''; position:absolute; top:-40%; left:-30%; width:80%; height:80%; pointer-events:none;
+            background:radial-gradient(circle, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 65%);
+        }
+        .glass-card > * { position:relative; }
+        .glass-inner {
+            background:rgba(255,255,255,.05);
+            backdrop-filter:blur(14px);
+            -webkit-backdrop-filter:blur(14px);
+            border:1px solid rgba(255,255,255,.10);
+            box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+        }
+        @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+            .glass-card { background:rgba(10,10,14,.92); }
+            .glass-inner { background:rgba(255,255,255,.06); }
+        }
+
         .fade-in { animation:fadeIn .8s cubic-bezier(.4,0,.2,1) forwards; opacity:0; transform:translateY(20px); }
         @keyframes fadeIn { to { opacity:1; transform:translateY(0); } }
 
         .loader { border:3px solid rgba(255,255,255,.1); border-top:3px solid #fff; border-radius:50%; width:24px; height:24px; animation:spin 1s linear infinite; }
         @keyframes spin { to { transform:rotate(360deg); } }
 
-        .opt { width:100%; padding:.75rem .5rem; border-radius:.5rem; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); transition:all .2s; font-weight:500; color:#fff; }
-        .opt:hover:not(:disabled) { background:rgba(255,255,255,.15); }
+        .opt { width:100%; padding:.75rem .5rem; border-radius:.75rem; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:inset 0 1px 0 rgba(255,255,255,.15); transition:all .2s; font-weight:500; color:#fff; }
+        .opt:hover:not(:disabled) { background:rgba(255,255,255,.18); border-color:rgba(255,255,255,.28); transform:translateY(-1px); }
         .opt:focus-visible, .txt:focus-visible { outline:2px solid rgba(255,255,255,.6); outline-offset:2px; }
         .opt:disabled { cursor:default; }
         .opt.ok  { background:rgba(34,197,94,.3); border-color:rgba(34,197,94,.5); color:#86efac; }
@@ -47,13 +73,14 @@
         .opt.picked { background:rgba(255,255,255,.2); border-color:rgba(255,255,255,.4); color:#9ca3af; }
         @keyframes shake { 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
 
-        .txt { width:100%; padding:.75rem 1rem; border-radius:.5rem; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#fff; text-align:center; font-size:1.125rem; }
+        .txt { width:100%; padding:.75rem 1rem; border-radius:.75rem; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:inset 0 2px 6px rgba(0,0,0,.25); color:#fff; text-align:center; font-size:1.125rem; }
         .dot { width:.5rem; height:.5rem; border-radius:9999px; background:rgba(255,255,255,.15); transition:background .3s; }
         .dot.on { background:#fff; }
         .dot.now { background:rgba(255,255,255,.5); }
 
         @media (prefers-reduced-motion: reduce) {
             .shape, .fade-in, .opt.bad { animation:none; }
+            .opt:hover:not(:disabled) { transform:none; }
             .fade-in { opacity:1; transform:none; }
         }
     </style>
@@ -64,22 +91,22 @@
 
     <main class="glass-card w-full max-w-md rounded-2xl p-8 flex flex-col items-center text-center fade-in">
 
-        <div class="w-16 h-16 mb-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+        <div class="glass-inner w-16 h-16 mb-6 rounded-full flex items-center justify-center">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
             </svg>
         </div>
 
-        <h1 id="pageTitle" class="text-2xl font-semibold mb-2 tracking-tight">Verificación de Seguridad</h1>
-        <p id="pageDesc" class="text-gray-400 text-sm mb-8">Soluciones digitales integrales: desde desarrollo de software y aplicaciones móviles hasta protección y optimización de infraestructura.</p>
+        <h1 id="pageTitle" class="text-2xl font-semibold mb-2 tracking-tight">e-Onyx Technologies</h1>
+        <p id="pageDesc" class="text-gray-300 text-sm mb-8">Soluciones digitales integrales: desde desarrollo de software y aplicaciones móviles hasta protección y optimización de infraestructura.</p>
 
-        <div id="captchaContainer" class="w-full bg-black/40 rounded-xl p-6 border border-white/5 mb-6">
+        <div id="captchaContainer" class="glass-inner w-full rounded-2xl p-6 mb-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex gap-2" id="dots" aria-label="Progreso"></div>
                 <span id="timerLabel" class="text-xs text-gray-500 tabular-nums"></span>
             </div>
-            <div class="w-full h-1 rounded bg-white/10 mb-5 overflow-hidden">
-                <div id="timerBar" class="h-full bg-white/60" style="width:100%"></div>
+            <div class="w-full h-1.5 rounded-full bg-white/10 mb-5 overflow-hidden">
+                <div id="timerBar" class="h-full rounded-full bg-white/70" style="width:100%"></div>
             </div>
 
             <p id="prompt" class="text-sm font-medium mb-4 text-gray-300"></p>
@@ -92,7 +119,7 @@
             <p id="errorMessage" role="alert" class="text-red-400 text-xs mt-4 min-h-[1rem] opacity-0 transition-opacity"></p>
         </div>
 
-        <div id="lockout" class="hidden w-full bg-black/40 rounded-xl p-6 border border-red-500/20 mb-6">
+        <div id="lockout" class="glass-inner hidden w-full rounded-2xl p-6 mb-6" style="border-color:rgba(239,68,68,.3)">
             <p class="text-sm text-red-300 mb-1">Demasiados intentos fallidos</p>
             <p class="text-xs text-gray-400">Podrás intentarlo de nuevo en <span id="lockTime" class="tabular-nums text-gray-200">0</span> s</p>
         </div>
@@ -102,7 +129,7 @@
             <p id="verificationText" class="text-sm text-gray-300">Verificando y redirigiendo de forma segura...</p>
         </div>
 
-        <div class="mt-8 text-xs text-gray-600 flex items-center justify-center gap-2">
+        <div class="mt-8 text-xs text-gray-400 flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
             Conexión Segura
         </div>
@@ -112,7 +139,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         // ---------- Configuración ----------
         const REDIRECT_URL   = './Home/index.html';
-        const ROUNDS         = 3;        // retos a superar
+        const ROUNDS         = 1;        // retos a superar (1 = cada usuario resuelve solo uno)
         const MAX_FAILS      = 3;        // fallos antes del bloqueo
         const LOCK_SECONDS   = 30;       // duración del bloqueo
         const TIME_PER_ITEM  = 25;       // segundos por reto
@@ -162,7 +189,17 @@
             ['Siempre está delante de ti, pero no puedes verlo.', 'El futuro', ['El horizonte', 'El aire', 'Tu sombra']],
             ['¿Qué pesa más: un kilo de plumas o un kilo de hierro?', 'Pesan lo mismo', ['Las plumas', 'El hierro', 'Depende del color']],
             ['Soy ligero como una pluma, pero ni la persona más fuerte me aguanta mucho rato.', 'El aliento', ['El humo', 'El viento', 'Un hilo']],
-            ['Tiene ojos pero no ve, tiene agua pero no es mar.', 'La papa', ['El pez', 'La nube', 'El ciego']]
+            ['Tiene ojos pero no ve, tiene agua pero no es mar.', 'La papa', ['El pez', 'La nube', 'El ciego']],
+            ['Tengo agujas pero no coso, tengo números pero no sé contar. ¿Qué soy?', 'Un reloj', ['Un erizo', 'Una calculadora', 'Un pino']],
+            ['Subo y bajo sin moverme del sitio. ¿Qué soy?', 'Una escalera', ['Un ascensor', 'Una montaña', 'Un pájaro']],
+            ['Cuanto más grande soy, menos se ve. ¿Qué soy?', 'La oscuridad', ['La luz', 'Un edificio', 'El mar']],
+            ['Es tuyo, pero lo usan más los demás. ¿Qué es?', 'Tu nombre', ['Tu dinero', 'Tu casa', 'Tu teléfono']],
+            ['Tiene hojas pero no es un árbol, y cuenta historias.', 'Un libro', ['Una lechuga', 'Un bosque', 'Una nube']],
+            ['Si me nombras, desaparezco. ¿Qué soy?', 'El silencio', ['El eco', 'La sombra', 'El humo']],
+            ['Tiene un ojo pero no puede ver. ¿Qué es?', 'Una aguja', ['Una piedra', 'Una mesa', 'Un zapato']],
+            ['Corre pero no tiene piernas, tiene boca pero no habla.', 'Un río', ['Un coche', 'Un perro', 'Un reloj de arena']],
+            ['¿Qué sube cuando la lluvia baja?', 'El paraguas', ['La nube', 'El río', 'El sol']],
+            ['Siempre viene, pero nunca llega. ¿Qué es?', 'El mañana', ['El tren', 'El lunes', 'El correo']]
         ];
         const SECURITY = [
             ['¿Cuál de estas contraseñas es la más segura?', 'Qw8$vL2#nP9zR!', ['123456', 'password', 'miNombre2024']],
@@ -172,7 +209,11 @@
             ['¿Qué añade la verificación en dos pasos (2FA)?', 'Una segunda prueba de identidad', ['Más velocidad al iniciar sesión', 'Un antivirus gratis', 'Una contraseña más corta']],
             ['¿Qué candado/icono indica una conexión cifrada en el navegador?', 'Un candado cerrado', ['Una bandera', 'Una lupa', 'Una estrella']],
             ['¿Qué es un firewall?', 'Un filtro que controla el tráfico de red', ['Un tipo de virus', 'Un editor de fotos', 'Una red social']],
-            ['¿Con qué frecuencia conviene reutilizar la misma contraseña en varios sitios?', 'Nunca', ['Siempre', 'Solo en redes sociales', 'Solo en correos']]
+            ['¿Con qué frecuencia conviene reutilizar la misma contraseña en varios sitios?', 'Nunca', ['Siempre', 'Solo en redes sociales', 'Solo en correos']],
+            ['¿Qué ataque prueba muchas contraseñas hasta acertar?', 'Fuerza bruta', ['Phishing', 'Spam', 'Actualización de software']],
+            ['¿Para qué sirve una VPN?', 'Cifrar tu conexión y ocultar tu IP', ['Subir la velocidad del procesador', 'Borrar cookies automáticamente', 'Editar videos']],
+            ['¿Qué debes hacer con las actualizaciones de seguridad?', 'Instalarlas lo antes posible', ['Ignorarlas siempre', 'Desinstalarlas', 'Instalarlas solo una vez al año']],
+            ['¿Qué es el malware?', 'Software malicioso', ['Un tipo de procesador', 'Un cable de red', 'Un buscador web']]
         ];
         const ODD = [
             [['Manzana', 'Pera', 'Uva'], 'Silla'], [['Perro', 'Gato', 'Conejo'], 'Mesa'],
@@ -286,6 +327,7 @@
 
         function renderDots() {
             dotsEl.innerHTML = '';
+            if (ROUNDS === 1) { dotsEl.textContent = 'Un solo reto rápido'; dotsEl.className = 'text-xs text-gray-500'; return; }
             for (let i = 0; i < ROUNDS; i++) {
                 const d = document.createElement('span');
                 d.className = 'dot' + (i < round ? ' on' : i === round ? ' now' : '');
