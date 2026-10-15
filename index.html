@@ -9,7 +9,14 @@
     <link rel="shortcut icon" type="image/png" href="https://i.ibb.co/3YTjDBXc/Secound-Logo.png">
     <link rel="apple-touch-icon" href="https://i.ibb.co/3YTjDBXc/Secound-Logo.png">
 
-    <meta property="og:title" content="Verificación de Seguridad">
+    <meta name="description" content="Soluciones digitales integrales: desde desarrollo de software y aplicaciones móviles hasta protección y optimización de infraestructura.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="e-Onyx Technologies">
+    <meta property="og:title" content="e-Onyx Technologies">
+    <meta property="og:description" content="Soluciones digitales integrales: desde desarrollo de software y aplicaciones móviles hasta protección y optimización de infraestructura.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="e-Onyx Technologies">
+    <meta name="twitter:description" content="Soluciones digitales integrales: desde desarrollo de software y aplicaciones móviles hasta protección y optimización de infraestructura.">
     <meta property="og:image" content="https://i.ibb.co/3YTjDBXc/Secound-Logo.png">
     <meta property="og:image:type" content="image/png">
 
@@ -108,7 +115,14 @@
         <h1 id="pageTitle" class="text-2xl font-semibold mb-2 tracking-tight">e-Onyx Technologies</h1>
         <p id="pageDesc" class="text-gray-300 text-sm mb-8">Soluciones digitales integrales: desde desarrollo de software y aplicaciones móviles hasta protección y optimización de infraestructura.</p>
 
-        <div id="captchaContainer" class="glass-inner w-full rounded-2xl p-6 mb-6">
+        <div id="captchaContainer" data-nosnippet class="glass-inner w-full rounded-2xl p-6 mb-6">
+            <div role="note" class="flex items-start gap-3 text-left pb-4 mb-4 border-b border-white/10">
+                <svg class="w-5 h-5 mt-0.5 shrink-0 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-xs leading-relaxed text-gray-300">Antes de acceder al sitio, necesitas realizar una pequeña prueba para confirmar que eres un humano.</p>
+            </div>
+
             <div class="flex items-center justify-between mb-3">
                 <div class="flex gap-2" id="dots" aria-label="Progreso"></div>
                 <span id="timerLabel" class="text-xs text-gray-500 tabular-nums"></span>
@@ -127,12 +141,12 @@
             <p id="errorMessage" role="alert" class="text-red-400 text-xs mt-3 min-h-[1rem] opacity-0 transition-opacity"></p>
         </div>
 
-        <div id="lockout" class="glass-inner hidden w-full rounded-2xl p-6 mb-6" style="border-color:rgba(239,68,68,.3)">
+        <div id="lockout" data-nosnippet class="glass-inner hidden w-full rounded-2xl p-6 mb-6" style="border-color:rgba(239,68,68,.3)">
             <p class="text-sm text-red-300 mb-1">Demasiados intentos fallidos</p>
             <p class="text-xs text-gray-400">Podrás intentarlo de nuevo en <span id="lockTime" class="tabular-nums text-gray-200">0</span> s</p>
         </div>
 
-        <div id="verificationStatus" class="hidden w-full flex flex-col items-center justify-center py-6">
+        <div id="verificationStatus" data-nosnippet class="hidden w-full flex flex-col items-center justify-center py-6">
             <div class="loader mb-4"></div>
             <p id="verificationText" class="text-sm text-gray-300">Verificando y redirigiendo de forma segura...</p>
         </div>
