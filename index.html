@@ -19,9 +19,10 @@
         tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
     </script>
     <style>
-        body { background-color:#000; color:#fff; overflow:hidden; position:relative; }
+        html { min-height:100%; }
+        body { background-color:#000; color:#fff; overflow-x:hidden; overflow-y:auto; position:relative; }
 
-        .bg-shapes { position:absolute; inset:0; z-index:-1; overflow:hidden; filter:blur(70px); opacity:.55; }
+        .bg-shapes { position:fixed; inset:0; z-index:-1; overflow:hidden; filter:blur(70px); opacity:.55; }
         .shape { position:absolute; border-radius:50%; animation:float 20s infinite linear; }
         .shape:nth-child(1){ width:34vw; height:34vw; top:8%;  left:8%;  background:radial-gradient(circle, rgba(124,92,255,.65) 0%, rgba(124,92,255,0) 70%); animation-duration:25s; }
         .shape:nth-child(2){ width:42vw; height:42vw; top:55%; left:58%; background:radial-gradient(circle, rgba(56,189,248,.55) 0%, rgba(56,189,248,0) 70%); animation-duration:30s; animation-direction:reverse; }
@@ -78,6 +79,13 @@
         .dot.on { background:#fff; }
         .dot.now { background:rgba(255,255,255,.5); }
 
+        @media (max-height: 720px) {
+            .glass-card { padding:1.25rem !important; }
+            .glass-card > .glass-inner:first-child { width:3rem !important; height:3rem !important; margin-bottom:.75rem !important; }
+            #pageDesc { margin-bottom:1rem !important; }
+            #captchaContainer, #lockout { padding:1rem !important; margin-bottom:.5rem !important; }
+            .glass-card > div:last-child { margin-top:.75rem !important; }
+        }
         @media (prefers-reduced-motion: reduce) {
             .shape, .fade-in, .opt.bad { animation:none; }
             .opt:hover:not(:disabled) { transform:none; }
@@ -85,11 +93,11 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex p-4">
 
     <div class="bg-shapes"><div class="shape"></div><div class="shape"></div><div class="shape"></div></div>
 
-    <main class="glass-card w-full max-w-md rounded-2xl p-8 flex flex-col items-center text-center fade-in">
+    <main class="glass-card w-full max-w-md rounded-2xl p-8 flex flex-col items-center text-center fade-in" style="margin:auto">
 
         <div class="glass-inner w-16 h-16 mb-6 rounded-full flex items-center justify-center">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -116,7 +124,7 @@
             <!-- Honeypot: los usuarios no lo ven, los bots suelen rellenarlo -->
             <input type="text" id="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
 
-            <p id="errorMessage" role="alert" class="text-red-400 text-xs mt-4 min-h-[1rem] opacity-0 transition-opacity"></p>
+            <p id="errorMessage" role="alert" class="text-red-400 text-xs mt-3 min-h-[1rem] opacity-0 transition-opacity"></p>
         </div>
 
         <div id="lockout" class="glass-inner hidden w-full rounded-2xl p-6 mb-6" style="border-color:rgba(239,68,68,.3)">
