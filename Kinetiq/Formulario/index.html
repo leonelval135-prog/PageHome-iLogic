@@ -1,690 +1,343 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formularios de e-Onyx</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f9fafb',
-                            100: '#f3f4f6',
-                            200: '#e5e7eb',
-                            500: '#000000', 
-                            600: '#000000',
-                            900: '#000000',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .dynamic-section, .sub-dynamic-section {
-            display: none;
-            opacity: 0;
-            transition: all 0.4s ease-in-out;
-        }
-        .dynamic-section.active, .sub-dynamic-section.active {
-            display: block;
-            opacity: 1;
-            animation: fadeInDown 0.4s ease-out forwards;
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .project-card {
-            transition: all 0.3s ease;
-            border: 2px solid #e5e7eb;
-        }
-        .project-card:hover { border-color: #000000; }
-        .project-card.selected {
-            border-color: #000000;
-            background-color: #fafafa;
-            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        .project-card.selected .icon-container {
-            color: #ffffff;
-            background-color: #000000;
-        }
-
-        /* FIX: Se añadieron !important para sobreescribir el reseteo de Tailwind que los hacía invisibles */
-        .form-input, .form-textarea, .form-select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            border: 1px solid #d1d5db !important; 
-            background-color: #ffffff !important;
-            color: #111827;
-            font-size: 0.875rem;
-            outline: none;
-            transition: all 0.2s;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            border-color: #000000 !important;
-            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
-        }
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 0.375rem;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: #374151;
-            cursor: pointer;
-        }
-        .checkbox-input {
-            margin-top: 0.2rem;
-            width: 1rem;
-            height: 1rem;
-            accent-color: #000000;
-            cursor: pointer;
-            border: 1px solid #d1d5db !important;
-        }
-
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out, padding 0.4s ease;
-        }
-        .accordion-content.expanded {
-            max-height: 5000px;
-            padding-bottom: 1.5rem;
-        }
-        .accordion-icon { transition: transform 0.3s ease; }
-        .expanded + .accordion-header .accordion-icon,
-        .accordion-content.expanded ~ * .accordion-icon { transform: rotate(180deg); }
-
-        .file-upload-area {
-            border: 2px dashed #d1d5db;
-            transition: all 0.3s ease;
-        }
-        .file-upload-area:hover, .file-upload-area.dragover {
-            border-color: #000000;
-            background-color: #f9fafb;
-        }
-        
-        /* Estilos para el Toast de Notificaciones */
-        .toast-notification {
-            transform: translateX(100%);
-            transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.4s ease-in-out;
-            opacity: 0;
-        }
-        .toast-notification.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formularios de e-Onyx</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.469.0"></script>
+<style>
+body{font-family:Inter,sans-serif;background:#f3f4f6;color:#111}
+.in{width:100%;padding:.7rem .9rem;border:1.5px solid #e1e3e6!important;border-radius:12px;background:#fff!important;font-size:.9rem;outline:0;transition:.2s}
+.in:focus{border-color:#000!important;box-shadow:0 0 0 4px rgba(0,0,0,.08)}
+.lb{display:block;font-size:.82rem;font-weight:600;margin-bottom:.4rem;color:#222}
+.panel{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:1.5rem}
+.step{display:none}.step.on{display:block}
+.card{border:1.5px solid #e1e3e6;border-radius:16px;padding:1rem .75rem;background:#fff;cursor:pointer;transition:.2s;font-weight:600;font-size:.85rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;text-align:center}
+.card:hover{border-color:#000}
+.card .ic{width:44px;height:44px;border-radius:50%;background:#f1f2f4;display:grid;place-items:center;color:#111}
+.card.on{background:#000;color:#fff;border-color:#000}
+.card.on .ic{background:#fff}
+.pill{position:relative;cursor:pointer}
+.pill input{position:absolute;opacity:0;pointer-events:none}
+.pill span{display:inline-block;padding:.45rem .85rem;border:1.5px solid #e1e3e6;border-radius:999px;font-size:.82rem;background:#fff;transition:.15s}
+.pill input:checked+span{background:#000;color:#fff;border-color:#000}
+.pill input:focus-visible+span{outline:2px solid #000;outline-offset:2px}
+.dot{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:700;background:#e5e7eb;color:#6b7280;transition:.3s}
+.dot.on{background:#000;color:#fff}.dot.done{background:#000;color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:14px;font-weight:700;transition:.2s}
+.btn:focus-visible{outline:3px solid #999;outline-offset:2px}
+.drop{border:2px dashed #cfd2d6;border-radius:14px;padding:1.5rem;text-align:center;cursor:pointer;transition:.2s}
+.drop:hover{border-color:#000}
+.fade{animation:f .35s ease-out}
+@keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans antialiased min-h-screen">
+<body class="min-h-screen antialiased">
+<div id="toasts" class="fixed top-20 right-4 z-[60] flex flex-col gap-2"></div>
 
-    <!-- Contenedor de Notificaciones (Reemplaza a los alerts) -->
-    <div id="toast-container" class="fixed top-20 right-4 z-[60] flex flex-col gap-3 pointer-events-none"></div>
+<header class="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-50">
+  <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+    <span class="font-extrabold text-2xl tracking-tighter">e-Onyx</span>
+    <div class="flex items-center gap-2" id="dots"></div>
+  </div>
+  <div class="h-1 bg-gray-100"><div id="bar" class="h-1 bg-black transition-all duration-500" style="width:20%"></div></div>
+</header>
 
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="font-extrabold text-2xl tracking-tighter text-black">e-Onyx</span>
-            </div>
-            <div class="text-sm font-semibold text-gray-500 hidden sm:block uppercase tracking-widest">
-                Formularios
-            </div>
-        </div>
-    </header>
+<main class="max-w-4xl mx-auto px-4 py-10">
+  <div id="intro" class="mb-8">
+    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">Cuéntanos sobre tu proyecto</h1>
+    <p class="text-gray-500 text-lg max-w-2xl">Elige qué quieres crear y a qué se dedica tu negocio: las preguntas se adaptan a tu caso. Al final, el resumen llega directo a nuestro WhatsApp.</p>
+  </div>
 
-    <main class="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-        
-        <div class="text-center mb-12">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-black mb-4 tracking-tight">Cuéntanos sobre tu visión</h1>
-            <p class="text-gray-500 max-w-2xl mx-auto text-lg">Para ofrecerte la mejor solución digital, necesitamos conocer los detalles. Este formulario de <b>e-Onyx</b> se adaptará según lo que necesites crear con nosotros.</p>
-        </div>
+  <form id="f" novalidate>
+    <section class="step panel on" data-t="Datos de contacto"><h2 class="text-xl font-bold mb-1">¿Quién eres?</h2><p class="text-gray-500 text-sm mb-5">Para saber a quién responderle.</p><div id="s1" class="grid md:grid-cols-2 gap-4"></div></section>
 
-        <form id="massiveForm" class="space-y-8" enctype="multipart/form-data">
-            
-            <input type="hidden" name="_subject" value="Nuevo Briefing de Proyecto - e-Onyx">
-            <input type="hidden" name="_template" value="table">
-            <input type="hidden" name="_captcha" value="false">
+    <section class="step panel" data-t="Proyecto"><h2 class="text-xl font-bold mb-1">¿Qué quieres crear?</h2><p class="text-gray-500 text-sm mb-5">Selecciona una opción.</p>
+      <div id="types" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"></div><div id="s2" class="grid md:grid-cols-2 gap-4"></div></section>
 
-            <!-- SECCIÓN 1: DATOS DEL CLIENTE / EMPRESA -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="bg-black px-6 py-4 flex items-center gap-3">
-                    <i data-lucide="user" class="w-5 h-5 text-white"></i>
-                    <h2 class="text-lg font-bold text-white tracking-wide">1. Datos del Cliente / Empresa</h2>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div><label class="form-label">Nombre completo del cliente *</label><input type="text" name="Nombre_Cliente" required class="form-input" placeholder="Ej. Juan Pérez"></div>
-                    <div><label class="form-label">Empresa / Negocio *</label><input type="text" name="Empresa" required class="form-input" placeholder="Ej. Empresa Corp"></div>
-                    <div><label class="form-label">Nombre comercial (si es diferente)</label><input type="text" name="Nombre_Comercial" class="form-input"></div>
-                    <div><label class="form-label">Puesto o rol dentro de la empresa</label><input type="text" name="Puesto" class="form-input" placeholder="Ej. Director General"></div>
-                    <div><label class="form-label">Número de teléfono</label><input type="tel" name="Telefono" class="form-input" placeholder="+52 ..."></div>
-                    <div><label class="form-label">WhatsApp *</label><input type="tel" name="WhatsApp" required class="form-input" placeholder="+52 ..."></div>
-                    <div><label class="form-label">Correo electrónico *</label><input type="email" name="Email_Cliente" required class="form-input" placeholder="correo@empresa.com"></div>
-                    <div><label class="form-label">Ciudad / País *</label><input type="text" name="Ubicacion" required class="form-input" placeholder="Ej. CDMX, México"></div>
-                    <div class="md:col-span-2"><label class="form-label">Página web actual (si existe)</label><input type="url" name="Web_Actual" class="form-input" placeholder="https://www.tuweb.com"></div>
-                    
-                    <div class="md:col-span-2">
-                        <label class="form-label mb-2">Redes sociales actuales (URLs):</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            <input type="text" name="RS_Facebook" class="form-input text-sm" placeholder="Facebook">
-                            <input type="text" name="RS_Instagram" class="form-input text-sm" placeholder="Instagram">
-                            <input type="text" name="RS_TikTok" class="form-input text-sm" placeholder="TikTok">
-                            <input type="text" name="RS_LinkedIn" class="form-input text-sm" placeholder="LinkedIn">
-                            <input type="text" name="RS_YouTube" class="form-input text-sm" placeholder="YouTube">
-                            <input type="text" name="RS_Otra" class="form-input text-sm" placeholder="Otra">
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <section class="step panel" data-t="Negocio / evento"><h2 id="h3" class="text-xl font-bold mb-1"></h2><p id="p3" class="text-gray-500 text-sm mb-5">Según tu elección te haremos preguntas específicas.</p>
+      <div id="giros" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+      <div id="qs" class="mt-6 pt-6 border-t border-gray-200 hidden fade"></div></section>
 
-            <!-- SECCIÓN 2: OBJETIVO DEL PROYECTO DIGITAL -->
-            <div class="bg-white rounded-xl shadow-md border-2 border-black overflow-hidden relative">
-                <div class="absolute top-0 left-0 w-full h-1 bg-black"></div>
-                <div class="bg-gray-50 px-6 py-5 border-b border-gray-200 flex items-center gap-3">
-                    <div class="bg-black p-2 rounded-md text-white"><i data-lucide="target" class="w-5 h-5"></i></div>
-                    <h2 class="text-lg font-bold text-black tracking-wide">2. ¿Qué deseas crear? *</h2>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Página Web">
-                            <div class="icon-container w-14 h-14 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-800 transition-colors"><i data-lucide="globe" class="w-7 h-7"></i></div>
-                            <h3 class="font-bold text-gray-900">Página Web</h3>
-                        </div>
-                        <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="App Móvil">
-                            <div class="icon-container w-14 h-14 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-800 transition-colors"><i data-lucide="smartphone" class="w-7 h-7"></i></div>
-                            <h3 class="font-bold text-gray-900">App Móvil</h3>
-                        </div>
-                        <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Invitación Digital">
-                            <div class="icon-container w-14 h-14 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-800 transition-colors"><i data-lucide="mail-open" class="w-7 h-7"></i></div>
-                            <h3 class="font-bold text-gray-900">Invitación Digital</h3>
-                        </div>
-                        <div class="project-card rounded-lg p-5 cursor-pointer text-center" data-type="Sistema a Medida">
-                            <div class="icon-container w-14 h-14 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-800 transition-colors"><i data-lucide="server" class="w-7 h-7"></i></div>
-                            <h3 class="font-bold text-gray-900">Sistema / Otro</h3>
-                        </div>
-                    </div>
-                    <input type="hidden" name="Tipo_De_Proyecto_Seleccionado" id="selectedType" required>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-gray-200">
-                        <div>
-                            <label class="form-label">¿Cuál es el objetivo principal del proyecto?</label>
-                            <select name="Objetivo_Principal" class="form-select font-medium text-gray-700">
-                                <option value="Conseguir clientes / Leads">Conseguir clientes / Leads</option>
-                                <option value="Vender productos (Ecommerce)">Vender productos (Ecommerce)</option>
-                                <option value="Automatizar procesos internos">Automatizar procesos internos</option>
-                                <option value="Mejorar imagen profesional">Mejorar imagen profesional</option>
-                                <option value="Informar sobre servicios">Informar sobre servicios</option>
-                                <option value="Crear comunidad">Crear comunidad</option>
-                                <option value="Para un evento social (Invitación)">Para un evento social (Invitación)</option>
-                                <option value="Otro">Otro</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="form-label">¿Qué resultado espera obtener a corto plazo?</label>
-                            <input type="text" name="Resultado_Esperado" class="form-input" placeholder="Ej. Aumentar ventas un 20%">
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <section class="step panel" data-t="Detalles del proyecto y marca"><h2 class="text-xl font-bold mb-1">Detalles y marca</h2><p class="text-gray-500 text-sm mb-5">Cuanto más nos cuentes, más precisa será la cotización.</p><div id="s4"></div></section>
 
-            <!-- BLOQUE DINÁMICO A: NEGOCIOS -->
-            <div id="block-business" class="dynamic-section space-y-6">
-                <!-- Información del Negocio -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button type="button" class="accordion-btn w-full px-6 py-5 bg-white flex items-center justify-between border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-black p-2 rounded-md text-white"><i data-lucide="briefcase" class="w-4 h-4"></i></div>
-                            <h2 class="text-lg font-bold text-black text-left">Información del Negocio</h2>
-                        </div>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 accordion-icon"></i>
-                    </button>
-                    <div class="accordion-content">
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="md:col-span-2"><h3 class="font-bold text-black border-b border-gray-200 pb-2 mb-2 uppercase text-xs tracking-widest">Historia y Naturaleza</h3></div>
-                            <div><label class="form-label">¿Qué significa el nombre de la empresa?</label><input type="text" name="Significado_Nombre_Empresa" class="form-input"></div>
-                            <div><label class="form-label">¿Cuándo inició el negocio?</label><input type="text" name="Fecha_Inicio_Negocio" class="form-input"></div>
-                            <div class="md:col-span-2"><label class="form-label">Historia de la empresa / ¿Cómo nació la idea?</label><textarea name="Historia_Empresa" class="form-textarea" rows="2"></textarea></div>
-                            <div><label class="form-label">¿A qué se dedica exactamente?</label><textarea name="A_Que_Se_Dedica" class="form-textarea" rows="2"></textarea></div>
-                            <div><label class="form-label">Industria o Categoría</label><input type="text" name="Industria_Categoria" class="form-input" placeholder="Ej. Salud, Tecnología, Alimentos"></div>
-                            
-                            <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black border-b border-gray-200 pb-2 mb-2 uppercase text-xs tracking-widest">Productos y Mercado</h3></div>
-                            <div><label class="form-label">¿Qué productos/servicios ofrece? (General)</label><textarea name="Productos_Ofrecidos" class="form-textarea" rows="2"></textarea></div>
-                            <div><label class="form-label">Producto/Servicio principal o estrella</label><input type="text" name="Producto_Estrella" class="form-input"></div>
-                            <div><label class="form-label">¿Qué problema resuelve su negocio?</label><textarea name="Problema_Que_Resuelve" class="form-textarea" rows="2"></textarea></div>
-                            <div><label class="form-label">¿Qué hace diferente a su empresa de las demás?</label><textarea name="Diferenciador_De_Competencia" class="form-textarea" rows="2"></textarea></div>
-                        </div>
-                    </div>
-                </div>
+    <section class="step panel" data-t="Tiempos y presupuesto"><h2 class="text-xl font-bold mb-1">Tiempos y presupuesto</h2><p class="text-gray-500 text-sm mb-5">Último paso.</p>
+      <div id="s5" class="grid md:grid-cols-2 gap-4"></div>
+      <div class="mt-5 p-4 rounded-xl bg-gray-50 border border-gray-200 space-y-3 text-sm">
+        <label class="flex gap-2 cursor-pointer"><input type="checkbox" required class="mt-1 accent-black"> Confirmo que la información es correcta para generar la cotización.</label>
+        <label class="flex gap-2 cursor-pointer"><input type="checkbox" required class="mt-1 accent-black"> Autorizo a e-Onyx a usar estos datos solo para analizar mi proyecto.</label>
+      </div></section>
 
-                <!-- Identidad Visual -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button type="button" class="accordion-btn w-full px-6 py-5 bg-white flex items-center justify-between border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-black p-2 rounded-md text-white"><i data-lucide="palette" class="w-4 h-4"></i></div>
-                            <h2 class="text-lg font-bold text-black text-left">Identidad de Marca y Diseño Visual</h2>
-                        </div>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 accordion-icon"></i>
-                    </button>
-                    <div class="accordion-content">
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="md:col-span-2">
-                                <label class="form-label text-base font-bold text-black">Sube tu Logotipo (y/o Manual de Marca)</label>
-                                <div class="mt-2 flex justify-center px-6 pt-8 pb-8 file-upload-area rounded-lg bg-white relative">
-                                    <div class="space-y-2 text-center">
-                                        <i data-lucide="upload-cloud" class="mx-auto h-12 w-12 text-black"></i>
-                                        <div class="flex text-sm text-gray-600 justify-center">
-                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-bold text-black hover:text-gray-700 focus-within:outline-none focus-within:underline">
-                                                <span>Selecciona un archivo</span>
-                                                <input id="file-upload" name="Archivo_Logotipo" type="file" class="sr-only" accept=".png, .jpg, .jpeg, .svg, .pdf, .ai">
-                                            </label>
-                                            <p class="pl-1">o arrástralo y suéltalo aquí</p>
-                                        </div>
-                                        <p class="text-xs text-gray-500 font-medium">Formatos aceptados: PNG, JPG, SVG, AI, PDF (Máx. 20MB)</p>
-                                        <p id="file-name-display" class="text-sm font-bold text-black mt-2 hidden"></p>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="flex items-center justify-between mt-6">
+      <button type="button" id="bk" class="btn bg-white border border-gray-300 hover:border-black invisible"><i data-lucide="arrow-left" class="w-4 h-4"></i> Atrás</button>
+      <button type="submit" id="nx" class="btn bg-black text-white hover:bg-gray-800 shadow-lg"></button>
+    </div>
+  </form>
 
-                            <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black border-b border-gray-200 pb-2 mb-2 uppercase text-xs tracking-widest">Concepto de Marca</h3></div>
-                            <div><label class="form-label">Eslogan de la empresa</label><input type="text" name="Eslogan" class="form-input"></div>
-                            <div><label class="form-label">Valores principales</label><input type="text" name="Valores_Principales" class="form-input"></div>
-                            <div class="md:col-span-2"><label class="form-label">Misión y Visión</label><textarea name="Mision_Vision" class="form-textarea" rows="2"></textarea></div>
-                            
-                            <div><label class="form-label">Tres palabras que DESCRIBEN su negocio</label><input type="text" name="Palabras_Describen" class="form-input" placeholder="Ej. Minimalista, Profesional, Seguro"></div>
-                            <div><label class="form-label">Tres palabras que NO quiere que lo representen</label><input type="text" name="Palabras_No_Describen" class="form-input" placeholder="Ej. Barato, Colorido, Infantil"></div>
-                            
-                            <div class="md:col-span-2 mt-4"><h3 class="font-bold text-black border-b border-gray-200 pb-2 mb-2 uppercase text-xs tracking-widest">Estética Visual</h3></div>
-                            <div><label class="form-label">Colores oficiales (Además del logo)</label><input type="text" name="Colores_Oficiales" class="form-input" placeholder="Ej. Blanco, Negro y toques de Gris"></div>
-                            <div>
-                                <label class="form-label">Estilo visual deseado</label>
-                                <div class="grid grid-cols-2 gap-3 mt-2">
-                                    <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Minimalista" class="checkbox-input"> Minimalista</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Elegante" class="checkbox-input"> Elegante / Lujo</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Moderno" class="checkbox-input"> Moderno</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="Estilo_Visual" value="Corporativo" class="checkbox-input"> Corporativo</label>
-                                </div>
-                            </div>
-                            <div class="md:col-span-2"><label class="form-label">Ejemplos de diseños web/apps que le gustan (URLs)</label><textarea name="Ejemplos_Diseño" class="form-textarea" rows="2" placeholder="Nos ayuda mucho ver referencias visuales..."></textarea></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div id="ok" class="hidden panel text-center py-12 fade">
+    <div class="w-20 h-20 bg-black text-white rounded-full grid place-items-center mx-auto mb-5"><i data-lucide="check" class="w-10 h-10"></i></div>
+    <h2 id="okh" class="text-3xl font-extrabold tracking-tight mb-3">Último paso: envía el mensaje</h2>
+    <p id="okp" class="text-gray-600 max-w-lg mx-auto mb-7">Abrimos WhatsApp con tu resumen ya escrito. Solo presiona <b>Enviar</b> en el chat para que lo recibamos. Si no se abrió, usa el botón.</p>
+    <div class="flex flex-wrap gap-3 justify-center">
+      <a id="wa" target="_blank" rel="noopener" class="btn text-black hover:brightness-95" style="background:#25D366"><i data-lucide="message-circle" class="w-5 h-5"></i> Abrir WhatsApp</a>
+      <button type="button" id="cp" class="btn bg-white border border-gray-300 hover:border-black"><i data-lucide="copy" class="w-4 h-4"></i> Copiar resumen</button>
+      <button type="button" onclick="location.reload()" class="btn bg-white border border-gray-300 hover:border-black">Nuevo proyecto</button>
+    </div>
+    <p id="okn" class="text-xs text-gray-500 mt-6">¿Tienes logo o fotos? Mándalos en el mismo chat de WhatsApp.</p>
+  </div>
+</main>
+<footer class="text-center text-sm text-gray-500 py-10">&copy; 2026 e-Onyx. Desarrollo y diseño de alto nivel.</footer>
 
-            <!-- BLOQUE: PÁGINA WEB -->
-            <div id="block-web" class="dynamic-section space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="bg-black px-6 py-4 flex items-center gap-3">
-                        <i data-lucide="layout" class="w-5 h-5 text-white"></i>
-                        <h2 class="text-lg font-bold text-white">Estructura de la Página Web</h2>
-                    </div>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="form-label">Tipo de página</label>
-                            <select id="webTypeSelector" name="WEB_Tipo_Pagina" class="form-select">
-                                <option value="Informativa">Informativa / Corporativa</option>
-                                <option value="Landing Page">Landing Page (Página única)</option>
-                                <option value="ecommerce">Tienda Online (Ecommerce)</option>
-                                <option value="Portafolio">Portafolio</option>
-                                <option value="Blog">Blog</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="form-label">Secciones necesarias</label>
-                            <div class="grid grid-cols-2 gap-3 mt-2 h-32 overflow-y-auto border border-gray-200 p-3 rounded-md bg-gray-50">
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Inicio" class="checkbox-input"> Inicio</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Nosotros" class="checkbox-input"> Nosotros</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Servicios" class="checkbox-input"> Servicios</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Productos" class="checkbox-input"> Productos</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Galeria" class="checkbox-input"> Galería</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Clientes" class="checkbox-input"> Clientes</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Secciones" value="Contacto" class="checkbox-input"> Contacto</label>
-                            </div>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="form-label">Funciones Especiales Requeridas</label>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3">
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Formulario" class="checkbox-input"> Formulario avanzado</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="WhatsApp" class="checkbox-input"> Botón WhatsApp</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Reservas" class="checkbox-input"> Sistema de Reservas</label>
-                                <label class="checkbox-label"><input type="checkbox" name="WEB_Funciones" value="Multi-idioma" class="checkbox-input"> Múltiples Idiomas</label>
-                            </div>
-                        </div>
+<script>
+// ===== CONFIGURACIÓN =====
+const WA = '525561730731';                    // WhatsApp que recibe el briefing
+const EMAIL = 'codeex.soporte@hotmail.com';   // respaldo por correo (incluye logo). Pon '' para desactivar
+const TELEGRAM_TOKEN = '8967490721:AAGkWm7SggMaNoUIVImcJw6G13BsdSJmxPo';                    // opcional: token del bot de Telegram (@BotFather)
+const TELEGRAM_CHAT = '8859225584';                     // opcional: tu chat id de Telegram
+const CALLMEBOT_KEY = '';                     // pega aquí tu apikey de CallMeBot para envío DIRECTO (si está vacía, abre WhatsApp)
 
-                        <!-- Sub-bloque Ecommerce -->
-                        <div id="sub-ecommerce" class="sub-dynamic-section md:col-span-2 bg-gray-50 p-5 rounded-lg border border-gray-200 mt-2">
-                            <h3 class="font-bold text-black mb-4 flex items-center gap-2"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Detalles de Tienda Online</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div><label class="form-label">Cantidad aprox. de productos</label><input type="number" name="ECOMMERCE_Cantidad_Productos" class="form-input"></div>
-                                <div><label class="form-label">Número de Categorías</label><input type="number" name="ECOMMERCE_Categorias" class="form-input"></div>
-                                <div>
-                                    <label class="form-label">Pasarelas de pago</label>
-                                    <select name="ECOMMERCE_Metodo_Pago" class="form-select"><option value="Stripe/PayPal/Tarjeta">Stripe / PayPal / Tarjeta</option><option value="Solo Transferencia">Solo Transferencia</option></select>
-                                </div>
-                            </div>
-                        </div>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const STEPS = ['Contacto','Proyecto','Giro','Detalles','Cierre'];
+let cur = 0, type = '', giro = '', grp = '', r4 = '';
 
-                        <!-- Tecnología y Dominio -->
-                        <div class="md:col-span-2 mt-4 border-t border-gray-200 pt-6">
-                            <h3 class="font-bold text-black mb-4 uppercase text-xs tracking-widest">Dominio y Hosting</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="form-label">¿Ya tiene Dominio?</label>
-                                    <select name="DOMINIO_Posee" class="form-select"><option value="No, comprar">No, necesito comprarlo</option><option value="Sí, lo tengo">Sí, ya lo tengo</option></select>
-                                </div>
-                                <div><label class="form-label">Nombre del dominio deseado</label><input type="text" name="DOMINIO_Nombre" class="form-input" placeholder="www.miempresa.com"></div>
-                                <div>
-                                    <label class="form-label">Correos empresariales</label>
-                                    <select name="DOMINIO_Correos" class="form-select"><option value="Sí">Sí necesito</option><option value="No">No por el momento</option></select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+// ===== Generador de campos: [tipo, etiqueta, opciones|placeholder, requerido] =====
+// t texto · n número · d fecha · a párrafo · s lista · c casillas múltiples
+const fld = ([k, l, o, r]) => {
+  const q = r ? ' required' : '', L = l + (r ? ' *' : '');
+  let h;
+  if (k === 't' || k === 'n' || k === 'd')
+    h = `<input class="in" name="${l}" type="${{t:'text',n:'number',d:'date'}[k]}"${k==='t'&&o?` placeholder="${o}"`:''}${k==='n'?' min="0"':''}${q}>`;
+  else if (k === 'a') h = `<textarea class="in" rows="2" name="${l}" placeholder="${o||''}"${q}></textarea>`;
+  else if (k === 's') h = `<select class="in" name="${l}"${q}><option value="">Selecciona…</option>${o.map(x=>`<option>${x}</option>`).join('')}</select>`;
+  else h = `<div class="flex flex-wrap gap-2 items-center" data-n="${l}">${o.map(x=>`<label class="pill"><input type="checkbox" name="${l}" value="${x}"><span>${x}</span></label>`).join('')}<span class="inline-flex items-center gap-1"><input class="add-in in" placeholder="Agregar otra opción" style="width:11rem;padding:.4rem .8rem;border-radius:999px;font-size:.82rem"><button type="button" class="add-btn w-8 h-8 rounded-full bg-black text-white font-bold" aria-label="Agregar opción">+</button></span></div>`;
+  return `<div class="${k==='a'||k==='c'?'md:col-span-2':''}"><label class="lb">${L}</label>${h}</div>`;
+};
+const grid = a => `<div class="grid md:grid-cols-2 gap-4">${a.map(fld).join('')}</div>`;
+const sub = t => `<h3 class="font-bold mt-7 mb-3 pt-5 border-t border-gray-200">${t}</h3>`;
 
-            <!-- BLOQUE: APP MÓVIL -->
-            <div id="block-app" class="dynamic-section space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="bg-black px-6 py-4 flex items-center gap-3">
-                        <i data-lucide="smartphone" class="w-5 h-5 text-white"></i>
-                        <h2 class="text-lg font-bold text-white">Desarrollo de Aplicación Móvil</h2>
-                    </div>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><label class="form-label">Nombre propuesto de la app</label><input type="text" name="APP_Nombre" class="form-input"></div>
-                        <div><label class="form-label">Función principal de la app</label><input type="text" name="APP_Funcion_Principal" class="form-input"></div>
-                        <div>
-                            <label class="form-label">Plataformas requeridas</label>
-                            <div class="flex gap-4 mt-3">
-                                <label class="checkbox-label"><input type="checkbox" name="APP_Plataformas" value="Android" class="checkbox-input"> Android</label>
-                                <label class="checkbox-label"><input type="checkbox" name="APP_Plataformas" value="iOS" class="checkbox-input"> iOS (Apple)</label>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="form-label">Métodos de Inicio de Sesión</label>
-                            <div class="flex flex-wrap gap-4 mt-3">
-                                <label class="checkbox-label"><input type="checkbox" name="APP_Login" value="Email" class="checkbox-input"> Email</label>
-                                <label class="checkbox-label"><input type="checkbox" name="APP_Login" value="Google/Apple" class="checkbox-input"> Google / Apple ID</label>
-                            </div>
-                        </div>
-                        <div class="md:col-span-2"><label class="form-label">Lista de funciones principales</label><textarea name="APP_Funciones_Detalle" class="form-textarea" rows="3" placeholder="Ej. Mapa interactivo, chat en tiempo real, notificaciones push..."></textarea></div>
-                    </div>
-                </div>
-            </div>
+// ===== Catálogo de negocios =====
+const CITAS = ['Agenda en línea con horarios','Solo botón de WhatsApp','Por llamada','No necesito por ahora'];
+const NG = {
+  ecommerce:{n:'Comercio electrónico',i:'shopping-bag',q:[
+    ['s','Tipo de productos',['Físicos','Digitales','Físicos y digitales','Servicios']],
+    ['n','Cantidad aproximada de productos'],['n','Número de categorías'],
+    ['s','Manejo de inventario',['Excel o manual','Sistema propio','Necesito sincronizarlo','Dropshipping']],
+    ['c','Dónde vendes hoy',['Instagram','Facebook','Mercado Libre','Amazon','Tienda física','Aún no vendo en línea']],
+    ['c','Métodos de pago',['Tarjeta','PayPal','Transferencia / SPEI','OXXO / efectivo','Contra entrega']],
+    ['c','Envíos',['Paquetería nacional','Envíos internacionales','Recolección en tienda','Entrega local propia']],
+    ['c','Funciones deseadas',['Cupones y descuentos','Reseñas de clientes','Lista de deseos','Cuentas de cliente','Facturación CFDI','Panel de administración','Carrito abandonado','Venta mayoreo']]]},
+  barberia:{n:'Barbería',i:'scissors',q:[
+    ['n','Número de barberos / sillas'],['t','Precio promedio de un corte'],['t','Horario de atención'],
+    ['s','¿Atienden sin cita?',['Solo con cita','Sin cita','Ambos']],['s','Sistema de citas',CITAS],
+    ['c','Servicios',['Corte clásico','Fade / degradado','Barba','Afeitado con toalla caliente','Corte infantil','Color','Combos']],
+    ['c','Funciones deseadas',['Reserva por barbero','Recordatorios por WhatsApp','Anticipo en línea','Membresías','Programa de lealtad','Galería de cortes','Venta de productos','Reseñas']]]},
+  estetica:{n:'Estética / Spa',i:'sparkles',q:[
+    ['n','Número de especialistas'],['t','Horario de atención'],['s','Sistema de citas',CITAS],
+    ['s','¿Atienden a domicilio?',['No','Sí','Ambos']],
+    ['c','Servicios',['Corte y peinado','Color','Uñas','Pestañas y cejas','Maquillaje','Faciales','Masajes / spa','Depilación','Tratamientos capilares','Novias']],
+    ['c','Funciones deseadas',['Reserva por especialista','Catálogo con precios','Paquetes y promociones','Anticipo en línea','Tarjetas de regalo','Galería antes y después','Recordatorios','Programa de lealtad','Venta de productos']]]},
+  restaurante:{n:'Restaurante / Cafetería',i:'utensils',q:[
+    ['s','Tipo de establecimiento',['Restaurante','Cafetería','Taquería / fonda','Bar','Dark kitchen','Food truck','Panadería / pastelería']],
+    ['t','Tipo de cocina'],['n','Número de sucursales'],['n','Cantidad aproximada de platillos'],['t','Horario de atención'],
+    ['s','Menú digital',['Menú con QR','Menú web con fotos','Menú con pedidos en línea','PDF sencillo']],
+    ['c','Servicio',['Comer en sitio','Para llevar','Entrega a domicilio','Eventos privados','Catering']],
+    ['c','Funciones deseadas',['Pedidos en línea','Reservación de mesas','Pago en línea','Integración Uber Eats / Rappi / DiDi','Panel de pedidos','Promociones y cupones','Programa de lealtad','Galería','Reseñas']]]},
+  clinica:{n:'Clínica / Salud',i:'stethoscope',q:[
+    ['s','Especialidad',['Medicina general','Dental','Psicología','Nutrición','Fisioterapia','Veterinaria','Estética médica','Otra']],
+    ['n','Número de especialistas'],['t','Horario de atención'],
+    ['c','Funciones deseadas',['Agenda de citas','Perfil de cada especialista','Expediente o historial','Teleconsulta','Recordatorios','Pagos en línea','Portal de pacientes','Consentimientos y aviso de privacidad','Blog de salud']]]},
+  gimnasio:{n:'Gimnasio / Fitness',i:'dumbbell',q:[
+    ['s','Tipo',['Gimnasio','CrossFit / box','Yoga / pilates','Danza','Artes marciales','Entrenador personal']],
+    ['n','Número aproximado de socios'],['n','Número de sucursales'],
+    ['c','Funciones deseadas',['Membresías y cobro recurrente','Reserva de clases','Horarios de clases','Acceso con QR','Rutinas personalizadas','Seguimiento de progreso','Tienda','Clase de prueba gratis']]]},
+  inmobiliaria:{n:'Inmobiliaria',i:'house',q:[
+    ['s','Giro',['Venta','Renta','Venta y renta','Desarrolladora']],['n','Propiedades a publicar'],
+    ['c','Funciones deseadas',['Catálogo con filtros','Mapa','Tour virtual 360°','Calculadora de hipoteca','Panel de agentes','Contacto por propiedad','Favoritos','Integración con portales']]]},
+  educacion:{n:'Educación / Cursos',i:'graduation-cap',q:[
+    ['s','Modalidad',['Presencial','En línea','Híbrida']],['n','Cantidad de cursos'],
+    ['c','Funciones deseadas',['Cursos en video','Pagos y suscripciones','Certificados','Comunidad o foro','Evaluaciones','Calendario','Portal de alumnos','Panel de maestros']]]},
+  taller:{n:'Taller automotriz',i:'wrench',q:[
+    ['c','Servicios',['Mecánica general','Afinación','Frenos','Hojalatería y pintura','Eléctrico','Llantas','Lavado y detallado','A domicilio']],
+    ['c','Funciones deseadas',['Cotizador en línea','Citas','Seguimiento del vehículo','Historial de servicios','Recordatorios de mantenimiento','Catálogo de refacciones','Pagos']]]},
+  servicios:{n:'Servicios profesionales',i:'briefcase',q:[
+    ['t','Área de especialidad'],['s','Tamaño del equipo',['Independiente','2 a 10','11 a 50','Más de 50']],
+    ['c','Funciones deseadas',['Agenda de asesorías','Portafolio de casos','Blog','Portal de clientes','Cotizador','Pagos en línea','Descarga de documentos','Testimonios']]]},
+  otro:{n:'Otro giro',i:'ellipsis',q:[['t','¿A qué se dedica tu negocio?','',1],['a','¿Qué necesitas resolver?']]}
+};
+const EL = ['RSVP','Mesa de regalos','Mapa','Cuenta regresiva','Galería','Música de fondo','Itinerario','Código de vestimenta','Pases con QR'];
+const EV = {
+  boda:{n:'Boda',i:'heart',q:[['t','Nombres de los novios'],['d','Fecha'],['t','Ceremonia: lugar y hora'],['t','Recepción: lugar y hora'],['n','Invitados aproximados'],['t','Paleta o temática'],['c','Elementos',[...EL,'Hospedaje sugerido','Libro de visitas']]]},
+  xv:{n:'XV años',i:'crown',q:[['t','Nombre de la quinceañera'],['d','Fecha'],['t','Lugar y hora'],['n','Invitados aproximados'],['t','Temática o colores'],['c','Elementos',[...EL,'Padrinos']]]},
+  cumple:{n:'Cumpleaños',i:'cake',q:[['t','Nombre del festejado'],['t','Edad'],['d','Fecha'],['t','Lugar y hora'],['t','Temática'],['c','Elementos',EL]]},
+  baby:{n:'Baby shower',i:'baby',q:[['t','Nombres de los papás'],['s','¿Revelación de sexo?',['Sí','No']],['d','Fecha'],['t','Lugar y hora'],['t','Temática'],['c','Elementos',EL]]},
+  grad:{n:'Graduación',i:'graduation-cap',q:[['t','Nombre del graduado o generación'],['d','Fecha'],['t','Lugar y hora'],['n','Invitados aproximados'],['c','Elementos',EL]]},
+  corp:{n:'Evento corporativo',i:'building-2',q:[['t','Nombre del evento'],['d','Fecha'],['t','Lugar y hora'],['n','Asistentes aproximados'],['c','Elementos',['Registro de asistentes','Agenda y ponentes','Mapa','Patrocinadores','Transmisión en vivo','Pases con QR','Encuesta posterior']]]}
+};
+const PT = [['Página Web','globe'],['App Móvil','smartphone'],['Invitación Digital','mail-open'],['Sistema a medida','server']];
 
-            <!-- BLOQUE: INVITACIONES DIGITALES -->
-            <div id="block-invitation" class="dynamic-section space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="bg-black px-6 py-4 flex items-center gap-3">
-                        <i data-lucide="mail" class="w-5 h-5 text-white"></i>
-                        <h2 class="text-lg font-bold text-white">Invitación Digital Premium</h2>
-                    </div>
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="form-label">Tipo de Evento</label>
-                            <select name="INVITACION_Tipo" class="form-select">
-                                <option value="Boda">Boda</option><option value="XV Años">XV Años</option><option value="Evento Corporativo">Evento Corporativo / Gala</option><option value="Otro">Otro</option>
-                            </select>
-                        </div>
-                        <div><label class="form-label">Nombre del Evento / Festejados</label><input type="text" name="INVITACION_Nombres" class="form-input"></div>
-                        <div><label class="form-label">Fecha del evento</label><input type="date" name="INVITACION_Fecha" class="form-input"></div>
-                        <div><label class="form-label">Hora y Lugar</label><input type="text" name="INVITACION_Hora_Lugar" class="form-input"></div>
-                        
-                        <div class="md:col-span-2 border-t border-gray-200 pt-6 mt-2">
-                            <label class="form-label mb-4">Elementos interactivos a incluir:</label>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="RSVP" class="checkbox-input"> Confirmación asistencia (RSVP)</label>
-                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Mesa Regalos" class="checkbox-input"> Mesa de Regalos / Cuenta</label>
-                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Dress Code" class="checkbox-input"> Código de vestimenta</label>
-                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Galeria" class="checkbox-input"> Galería Fotográfica</label>
-                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Mapa" class="checkbox-input"> Enlace a Google Maps</label>
-                                <label class="checkbox-label"><input type="checkbox" name="INVITACION_Elementos" value="Cuenta Regresiva" class="checkbox-input"> Cuenta regresiva animada</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+// ===== Detalles por tipo de proyecto =====
+const DET = {
+  'Página Web':[['s','Tipo de página',['Informativa / corporativa','Landing page','Tienda en línea','Portafolio','Blog']],
+    ['s','¿Tienes contenido (textos y fotos)?',['Sí, completo','Parcial','No, necesito que lo creen']],
+    ['c','Secciones',['Inicio','Nosotros','Servicios','Productos','Galería','Testimonios','Preguntas frecuentes','Blog','Contacto','Ubicación']],
+    ['c','Funciones especiales',['Botón de WhatsApp','Formulario de contacto','Reservas o citas','Chat en vivo','Varios idiomas','SEO avanzado','Google Maps','Panel para editar contenido','Analítica']],
+    ['s','¿Ya tienes dominio?',['Sí, ya lo tengo','No, necesito comprarlo']],['t','Dominio deseado','www.tuempresa.com'],
+    ['s','¿Necesitas correos empresariales?',['Sí','No por ahora']]],
+  'App Móvil':[['t','Nombre propuesto de la app'],['t','Función principal'],
+    ['c','Plataformas',['Android','iOS','Web (PWA)']],['c','Inicio de sesión',['Email','Google','Apple','Teléfono / SMS','Sin registro']],
+    ['c','Funciones',['Notificaciones push','Mapa y geolocalización','Chat','Pagos dentro de la app','Panel de administración','Reservas','Catálogo','Modo oscuro','Funciona sin internet']],
+    ['a','Describe las funciones principales']],
+  'Invitación Digital':[['s','Formato',['Solo invitación web','Web + versión para WhatsApp (imagen o video)','Con panel de confirmaciones']]],
+  'Sistema a medida':[['s','Tipo de sistema',['CRM / clientes','Inventario / ERP','Punto de venta','Reservas y citas','Dashboard y reportes','Chatbot / automatización','Otro']],
+    ['n','Usuarios que lo usarán'],['c','Integraciones',['WhatsApp','Pagos','Facturación CFDI','Google Workspace','Excel','API externa']],
+    ['a','Describe el proceso que quieres resolver']]
+};
+const BRAND = [['t','Eslogan'],['t','Colores preferidos','Ej. negro, blanco y dorado'],
+  ['c','Estilo visual',['Minimalista','Elegante / lujo','Moderno','Corporativo','Divertido','Rústico / artesanal','Oscuro / premium']],
+  ['t','Tres palabras que describan tu marca'],['t','Tres palabras que NO quieres que te representen'],
+  ['a','Referencias que te gusten (enlaces)','Webs, apps o cuentas de Instagram']];
 
-            <!-- FINAL: TIEMPOS Y CIERRE -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-8">
-                <div class="bg-gray-50 px-6 py-5 border-b border-gray-200 flex items-center gap-3">
-                    <i data-lucide="clock" class="w-5 h-5 text-black"></i>
-                    <h2 class="text-lg font-bold text-black">Tiempos, Presupuesto y Autorización</h2>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="form-label">Presupuesto aproximado</label>
-                        <select name="Presupuesto" class="form-select font-medium text-gray-700">
-                            <option value="No definido">Definir rango...</option>
-                            <option value="$500 - $1,500 USD">$500 - $1,500 USD</option>
-                            <option value="$1,500 - $3,000 USD">$1,500 - $3,000 USD</option>
-                            <option value="$3,000 - $6,000 USD">$3,000 - $6,000 USD</option>
-                            <option value="+$6,000 USD">Proyectos de Alto Nivel (+$6,000 USD)</option>
-                        </select>
-                    </div>
-                    <div><label class="form-label">Fecha ideal de entrega / Deadline</label><input type="date" name="Fecha_Entrega" class="form-input"></div>
+// ===== Render de pasos =====
+$('#s1').innerHTML = [['t','Nombre completo','Ej. Juan Pérez',1],['t','Empresa o negocio','',1],['t','WhatsApp','+52 ...',1],['t','Correo electrónico','',1],
+  ['t','Ciudad y país','Ej. CDMX, México',1],['t','Puesto o rol'],['t','Sitio web actual','https://'],['t','Instagram'],['t','Facebook'],['t','TikTok'],
+  ['s','¿Cómo nos conociste?',['Instagram','Facebook','Recomendación','Google','WhatsApp','Otro']]].map(fld).join('');
+$('#s5').innerHTML = [['s','Presupuesto aproximado',['Aún no lo defino','$500 - $1,500 USD','$1,500 - $3,000 USD','$3,000 - $6,000 USD','Más de $6,000 USD']],
+  ['d','Fecha ideal de entrega'],['s','Urgencia',['Sin prisa','En 1 a 2 meses','Lo antes posible']],
+  ['s','Mejor medio para contactarte',['WhatsApp','Llamada','Correo']],['t','Mejor horario para contactarte'],['a','Comentarios adicionales']].map(fld).join('');
+$('#s2').innerHTML = [['s','Objetivo principal',['Conseguir clientes','Vender productos','Automatizar procesos','Mejorar mi imagen','Informar sobre servicios','Crear comunidad','Evento social','Otro']],['t','¿Qué resultado esperas a corto plazo?','Ej. aumentar ventas 20%']].map(fld).join('');
+$('#dots').innerHTML = STEPS.map((s,i)=>`<div class="dot" title="${s}">${i+1}</div>`).join('');
 
-                    <div class="md:col-span-2 border-t border-gray-200 pt-6">
-                        <div class="space-y-4 bg-gray-50 p-5 rounded-lg border border-gray-200">
-                            <label class="checkbox-label font-medium"><input type="checkbox" class="checkbox-input" required> Confirmo que la información proporcionada es correcta para generar la cotización técnica.</label>
-                            <label class="checkbox-label font-medium"><input type="checkbox" class="checkbox-input" checked> Autorizo a e-Onyx a utilizar esta información con fines exclusivos de análisis de proyecto.</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+const cards = (obj, sel) => Object.entries(obj).map(([k,v]) =>
+  `<button type="button" class="card" data-k="${k}"><span class="ic"><i data-lucide="${v.i}" class="w-5 h-5"></i></span>${v.n}</button>`).join('');
 
-            <div class="flex items-center justify-end pt-8 pb-10 sticky bottom-0 z-40 bg-gray-50/90 backdrop-blur-sm border-t border-gray-200/50 mt-4 px-4 sm:px-0">
-                <button type="submit" id="submitBtn" class="bg-black hover:bg-gray-800 text-white font-bold py-4 px-10 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-3 w-full sm:w-auto justify-center">
-                    <span class="text-lg">Enviar Formulario</span>
-                    <i data-lucide="arrow-right" class="w-6 h-6"></i>
-                </button>
-            </div>
+$('#types').innerHTML = PT.map(([n,i])=>`<button type="button" class="card" data-k="${n}"><span class="ic"><i data-lucide="${i}" class="w-5 h-5"></i></span>${n}</button>`).join('');
+$('#types').onclick = e => { const c = e.target.closest('.card'); if (!c) return;
+  type = c.dataset.k; $$('#types .card').forEach(x => x.classList.toggle('on', x === c)); };
 
-        </form>
+function render3() {
+  const ev = type === 'Invitación Digital'; grp = ev ? 'ev' : 'ng'; giro = '';
+  $('#h3').textContent = ev ? '¿Qué tipo de evento es?' : '¿Qué tipo de negocio tienes?';
+  $('#giros').innerHTML = cards(ev ? EV : NG); $('#qs').classList.add('hidden'); $('#qs').innerHTML = '';
+  lucide.createIcons();
+}
+$('#giros').onclick = e => { const c = e.target.closest('.card'); if (!c) return;
+  giro = c.dataset.k; $$('#giros .card').forEach(x => x.classList.toggle('on', x === c));
+  const d = (grp === 'ev' ? EV : NG)[giro];
+  $('#qs').innerHTML = `<h3 class="font-bold mb-4">Cuéntanos más: ${d.n}</h3>` + grid(d.q) +
+    (grp === 'ng' ? sub('Sobre tu negocio') + grid([['a','¿Qué te hace diferente de tu competencia?'],['t','Negocios que admiras como referencia']]) : '');
+  $('#qs').classList.remove('hidden'); };
 
-        <!-- Mensaje de Éxito -->
-        <div id="successMessage" class="hidden mt-8 bg-white border-2 border-black rounded-xl p-10 text-center shadow-2xl">
-            <div class="w-20 h-20 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="check" class="w-10 h-10"></i></div>
-            <h2 class="text-3xl font-extrabold text-black mb-4 tracking-tight">¡Briefing Recibido Exitosamente!</h2>
-            <p class="text-lg text-gray-600 mb-8 max-w-lg mx-auto">Hemos capturado la visión de tu proyecto. El equipo técnico de <b>e-Onyx</b> revisará tus requerimientos y nos pondremos en contacto contigo en un plazo de 24 a 48 horas.</p>
-            <button onclick="window.location.reload()" class="bg-black hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-md transition-colors">Nuevo Proyecto</button>
-        </div>
+function render4() {
+  r4 = type;
+  $('#s4').innerHTML = grid(DET[type]) + sub('Identidad visual') +
+    `<label class="drop block mb-5"><i data-lucide="upload-cloud" class="mx-auto w-9 h-9 mb-2"></i><b>Sube tu logo o manual de marca</b><p class="text-xs text-gray-500 mt-1">PNG, JPG, SVG, PDF (máx. 20 MB). Se envía junto con tu formulario.</p><p id="fn" class="text-sm font-bold mt-2"></p><input type="file" name="Logo" class="sr-only" accept=".png,.jpg,.jpeg,.svg,.pdf,.ai"></label>` + grid(BRAND);
+  $('#s4 input[type=file]').onchange = e => { const f = e.target.files[0];
+    if (f && f.size > 20 * 1024 * 1024) { e.target.value = ''; $('#fn').textContent = ''; return toast('El archivo pesa más de 20 MB. Elige uno más ligero.'); }
+    $('#fn').textContent = f ? 'Adjunto: ' + f.name : ''; };
+  lucide.createIcons();
+}
 
-    </main>
+// ===== Navegación =====
+function toast(m) { const t = document.createElement('div');
+  t.className = 'bg-white border border-red-200 text-red-800 text-sm font-medium px-4 py-3 rounded-xl shadow-lg fade'; t.textContent = m;
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), 3800); }
+function go(n) {
+  if (n === 2 && grp !== (type === 'Invitación Digital' ? 'ev' : 'ng')) render3();
+  if (n === 3 && r4 !== type) render4();
+  cur = n; $$('.step').forEach((s,i) => { s.classList.toggle('on', i === n); if (i === n) s.classList.add('fade'); });
+  $$('.dot').forEach((d,i) => { d.className = 'dot' + (i < n ? ' done' : i === n ? ' on' : ''); d.innerHTML = i < n ? '✓' : i + 1; });
+  $('#bar').style.width = (n + 1) * 20 + '%';
+  $('#bk').classList.toggle('invisible', n === 0);
+  $('#nx').innerHTML = n === 4 ? '<i data-lucide="send" class="w-5 h-5"></i> Enviar ' : 'Continuar <i data-lucide="arrow-right" class="w-4 h-4"></i>';
+  $('#nx').style.background = n === 4 ? '#25D366' : ''; $('#nx').style.color = n === 4 ? '#000' : '';
+  lucide.createIcons(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function valid() {
+  for (const e of $$('.step.on [required]')) if (!e.checkValidity()) { e.reportValidity(); return false; }
+  if (cur === 1 && !type) { toast('Selecciona qué quieres crear.'); return false; }
+  if (cur === 2 && !giro) { toast('Selecciona una opción para continuar.'); return false; }
+  return true;
+}
+$('#bk').onclick = () => go(cur - 1);
 
-    <footer class="bg-white border-t border-gray-200 py-10 mt-12">
-        <div class="max-w-5xl mx-auto px-4 text-center text-sm font-medium text-gray-500">
-            <p class="text-black font-bold text-lg mb-2 tracking-tighter">Formularios de e-Onyx</p>
-            <p>&copy; 2026 e-Onyx. Desarrollo y Diseño de Alto Nivel.</p>
-        </div>
-    </footer>
+// ===== Resumen y envío =====
+function collect() { const out = [];
+  $$('.step').forEach(s => { const m = new Map();
+    s.querySelectorAll('[name]').forEach(e => {
+      if (e.type === 'file' || (e.type === 'checkbox' && !e.checked)) return;
+      const v = e.value.trim(); if (v) m.set(e.name, [...(m.get(e.name) || []), v]); });
+    if (m.size) out.push([s.dataset.t, [...m]]); });
+  return out; }
+function build(cut) {
+  const g = giro ? (grp === 'ev' ? EV : NG)[giro].n : '';
+  let m = `*NUEVO BRIEFING e-Onyx*\n*Proyecto:* ${type}\n*${grp === 'ev' ? 'Evento' : 'Giro'}:* ${g}\n`;
+  collect().forEach(([sec, fs]) => { m += `\n*${sec}*\n`;
+    fs.forEach(([k, v]) => { let s = v.join(', '); if (cut && s.length > cut) s = s.slice(0, cut) + '…'; m += `• ${k}: ${s}\n`; }); });
+  return m; }
 
-    <script>
-        lucide.createIcons();
+// Envío directo a tu WhatsApp vía CallMeBot (en partes cortas para evitar límites de longitud)
+async function sendDirect(m) {
+  const parts = []; let b = '';
+  m.split('\n').forEach(l => { if ((b + l).length > 900) { parts.push(b); b = ''; } b += l + '\n'; });
+  parts.push(b);
+  for (const p of parts) {
+    const u = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent('+' + WA)}&apikey=${encodeURIComponent(CALLMEBOT_KEY)}&text=${encodeURIComponent(p.trim())}`;
+    try { await fetch(u, { mode: 'no-cors' }); } catch (err) {}
+    await new Promise(r => setTimeout(r, 1500));
+  }
+}
 
-        // --- SISTEMA DE NOTIFICACIONES (Reemplaza a los alerts) ---
-        function showNotification(message, type = 'error') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            const bgColor = type === 'error' ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200';
-            const textColor = type === 'error' ? 'text-red-800' : 'text-green-800';
-            const iconColor = type === 'error' ? 'text-red-500' : 'text-green-500';
-            const iconName = type === 'error' ? 'alert-circle' : 'check-circle';
+$('#f').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!valid()) return;
+  if (cur < 4) return go(cur + 1);
+  let msg = build(0);
+  if (encodeURIComponent(msg).length > 5500) msg = build(120); // evita URLs demasiado largas
+  const url = `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
+  if (EMAIL) { const fd = new FormData($('#f')); fd.append('Resumen', msg); fd.append('_subject', 'Nuevo briefing e-Onyx'); fd.append('_template', 'table'); fd.append('_captcha', 'false');
+    fetch('https://formsubmit.co/ajax/' + EMAIL, { method: 'POST', body: fd, headers: { Accept: 'application/json' } }).catch(() => {}); }
+  $('#wa').href = url;
+  const tg = TELEGRAM_TOKEN && TELEGRAM_CHAT;
+  if (tg) { const plain = msg.replace(/\*/g, '');
+    for (let i = 0; i < plain.length; i += 4000)
+      fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT, text: plain.slice(i, i + 4000) }) }).catch(() => {}); }
+  const lf = $('#f input[type=file]') && $('#f input[type=file]').files[0];
+  if (tg && lf) { const d = new FormData();
+    d.append('chat_id', TELEGRAM_CHAT); d.append('document', lf);
+    d.append('caption', 'Logo de ' + ($('#f [name="Empresa o negocio"]').value || 'cliente'));
+    fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendDocument`, { method: 'POST', body: d }).catch(() => {}); }
+  if (CALLMEBOT_KEY || tg) {
+    if (CALLMEBOT_KEY) sendDirect(msg);
+    $('#okh').textContent = '¡Briefing enviado!';
+    $('#okp').textContent = 'Recibimos tu información y nos pondremos en contacto contigo muy pronto.';
+    ['#wa', '#cp', '#okn'].forEach(s => $(s).classList.add('hidden'));
+  } else window.open(url, '_blank');
+  $('#cp').onclick = () => navigator.clipboard.writeText(msg).then(() => { $('#cp').lastChild.textContent = ' ¡Copiado!'; }).catch(() => toast('No se pudo copiar.'));
+  $('#f').classList.add('hidden'); $('#intro').classList.add('hidden'); $('#ok').classList.remove('hidden');
+  lucide.createIcons(); window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 
-            toast.className = `toast-notification flex items-center p-4 mb-4 border rounded-lg shadow-lg pointer-events-auto w-80 max-w-full ${bgColor}`;
-            toast.innerHTML = `
-                <i data-lucide="${iconName}" class="w-5 h-5 mr-3 ${iconColor}"></i>
-                <div class="text-sm font-medium ${textColor}">${message}</div>
-                <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 focus:ring-2 focus:outline-none focus:ring-gray-300 hover:bg-gray-200 transition-colors ${textColor}" aria-label="Close" onclick="this.parentElement.remove()">
-                    <span class="sr-only">Close</span>
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            `;
-            
-            container.appendChild(toast);
-            lucide.createIcons({ root: toast }); // Inicializar iconos en el nuevo elemento
+// ===== Agregar opciones propias a las casillas múltiples =====
+function addOpt(box) {
+  const inp = box.querySelector('.add-in'), v = inp.value.trim();
+  if (!v) return;
+  const dup = [...box.querySelectorAll('input[type=checkbox]')].find(c => c.value.toLowerCase() === v.toLowerCase());
+  if (dup) dup.checked = true;
+  else {
+    const lb = document.createElement('label'), cb = document.createElement('input'), sp = document.createElement('span');
+    lb.className = 'pill fade'; cb.type = 'checkbox'; cb.name = box.dataset.n; cb.value = v; cb.checked = true; sp.textContent = v;
+    lb.append(cb, sp); box.insertBefore(lb, inp.parentElement);
+  }
+  inp.value = ''; inp.focus();
+}
+document.addEventListener('click', e => { const b = e.target.closest('.add-btn'); if (b) addOpt(b.closest('[data-n]')); });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList.contains('add-in')) { e.preventDefault(); addOpt(e.target.closest('[data-n]')); } });
 
-            // Animación de entrada
-            setTimeout(() => { toast.classList.add('show'); }, 10);
-
-            // Auto-cerrar después de 4 segundos
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => { toast.remove(); }, 400); // Esperar a que termine la animación
-            }, 4000);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Acordeones
-            const accordions = document.querySelectorAll('.accordion-btn');
-            accordions.forEach(acc => {
-                acc.addEventListener('click', function() {
-                    const content = this.nextElementSibling;
-                    content.classList.toggle('expanded');
-                });
-            });
-            document.querySelectorAll('.accordion-content').forEach(content => content.classList.add('expanded'));
-
-            // Subida de archivo visual
-            const fileUploadArea = document.querySelector('.file-upload-area');
-            const fileInput = document.getElementById('file-upload');
-            const fileNameDisplay = document.getElementById('file-name-display');
-
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                fileUploadArea.addEventListener(eventName, preventDefaults, false);
-            });
-            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-
-            ['dragenter', 'dragover'].forEach(eventName => { fileUploadArea.addEventListener(eventName, highlight, false); });
-            ['dragleave', 'drop'].forEach(eventName => { fileUploadArea.addEventListener(eventName, unhighlight, false); });
-            function highlight(e) { fileUploadArea.classList.add('dragover', 'border-black'); }
-            function unhighlight(e) { fileUploadArea.classList.remove('dragover', 'border-black'); }
-
-            fileUploadArea.addEventListener('drop', handleDrop, false);
-            function handleDrop(e) { handleFiles(e.dataTransfer.files); }
-            fileInput.addEventListener('change', function() { handleFiles(this.files); });
-            function handleFiles(files) {
-                if(files.length > 0) {
-                    fileNameDisplay.textContent = `Archivo adjuntado: ${files[0].name}`;
-                    fileNameDisplay.classList.remove('hidden');
-                    fileNameDisplay.classList.add('block');
-                }
-            }
-
-            // Selección de Proyecto
-            const projectCards = document.querySelectorAll('.project-card');
-            const hiddenTypeInput = document.getElementById('selectedType');
-            const blockBusiness = document.getElementById('block-business');
-            const blockWeb = document.getElementById('block-web');
-            const blockApp = document.getElementById('block-app');
-            const blockInvitation = document.getElementById('block-invitation');
-            
-            const webTypeSelector = document.getElementById('webTypeSelector');
-            const subEcommerce = document.getElementById('sub-ecommerce');
-
-            webTypeSelector.addEventListener('change', (e) => {
-                if(e.target.value === 'ecommerce') subEcommerce.classList.add('active');
-                else subEcommerce.classList.remove('active');
-            });
-
-            projectCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    const type = card.getAttribute('data-type');
-                    
-                    projectCards.forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    hiddenTypeInput.value = type; // Asigna el valor para enviar por correo
-
-                    [blockBusiness, blockWeb, blockApp, blockInvitation].forEach(block => {
-                        if(block) block.classList.remove('active');
-                    });
-
-                    setTimeout(() => {
-                        if (type === 'Invitación Digital') {
-                            if(blockInvitation) blockInvitation.classList.add('active');
-                        } else {
-                            if(blockBusiness) blockBusiness.classList.add('active');
-                            if (type === 'Página Web' && blockWeb) blockWeb.classList.add('active');
-                            if (type === 'App Móvil' && blockApp) blockApp.classList.add('active');
-                        }
-                    }, 100);
-                });
-            });
-
-            // --- LÓGICA DE ENVÍO DE CORREO (AJAX FormSubmit) ---
-            const form = document.getElementById('massiveForm');
-            const submitBtn = document.getElementById('submitBtn');
-            const successMessage = document.getElementById('successMessage');
-
-            form.addEventListener('submit', (e) => {
-                e.preventDefault(); // Evita que la página recargue
-                
-                if (!hiddenTypeInput.value) {
-                    showNotification("Por favor, selecciona qué tipo de proyecto deseas crear (Paso 2).");
-                    window.scrollTo({ top: 300, behavior: 'smooth' });
-                    return;
-                }
-
-                // UI de Carga
-                const originalBtnContent = submitBtn.innerHTML;
-                submitBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Enviando Formulario...`;
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
-
-                // Recopilar todos los datos del formulario (incluyendo el logo)
-                const formData = new FormData(form);
-
-                // Enviar datos vía Fetch a FormSubmit
-                fetch("https://formsubmit.co/ajax/codeex.soporte@hotmail.com", {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Ocultar formulario y mostrar éxito
-                    form.classList.add('hidden');
-                    document.querySelector('.text-center.mb-12').classList.add('hidden');
-                    successMessage.classList.remove('hidden');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    showNotification("Hubo un error al enviar tu formulario. Por favor, revisa tu conexión o intenta más tarde.");
-                    submitBtn.innerHTML = originalBtnContent;
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
-                });
-            });
-        });
-    </script>
+go(0);
+</script>
 </body>
 </html>
