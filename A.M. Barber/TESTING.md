@@ -1,9 +1,0 @@
-# Pruebas ejecutadas
-`node tests/check.js` re-ejecutado en v1.2 (sintaxis, archivos, imágenes referenciadas). Navegador, Supabase y animaciones NO verificados visualmente.
-NO ejecutadas: pruebas visuales en navegador/móvil, envío real a WhatsApp, GA4, lealtad en varios dispositivos.
-`node tests/check.js` re-ejecutado en v1.2 (sintaxis, archivos, imágenes referenciadas). Navegador, Supabase y animaciones NO verificados visualmente.
-v1.3: `node tests/check.js` y sintaxis JS. Audio, glass y animaciones NO verificados en navegador; Music/Music.mp3 no está incluido (lo aporta el cliente).
-v1.4: check.js y sintaxis JS. Reseñas, login y SQL NO probados contra el Supabase real (sin red en este entorno).
-v1.5: check.js y sintaxis JS. Diseño móvil NO verificado en dispositivo real/emulador (sin navegador en este entorno).
-v1.6: check.js y sintaxis JS. Citas/SQL NO probados contra el Supabase real (sin red); revisar tras ejecutar citas.sql.
-v1.7: check.js, sintaxis JS y comparación del SVG contra el logo original. 3D/animaciones/SQL no verificados en navegador ni en Supabase real.
