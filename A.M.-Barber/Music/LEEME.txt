@@ -1,2 +1,0 @@
-Coloca aquí tus 4 canciones: Por que la demora, Orula, King of Watches y Thanos (mp3, m4a, wav u ogg; la extensión se detecta sola).
-Se reproducen en orden aleatorio al pulsar 'Entrar' en la intro. Si cambias nombres, edita "musica" en js/config.js. Usa solo música de la que tengas derechos de uso.
