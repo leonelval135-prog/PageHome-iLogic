@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Página no encontrada | e-Onyx Technologies</title>
+<link rel="icon" type="image/png" href="Home/Sources/Logo/SecoundLogo.png">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#050505;color:#f4f4f5;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center}
+  .box{max-width:420px}
+  h1{font-size:64px;margin:0;letter-spacing:-.04em}
+  p{color:#a1a1aa;margin:8px 0 24px}
+  a{display:inline-block;padding:12px 22px;border-radius:12px;background:#fff;color:#000;font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>404</h1>
+    <p>La página que buscas no existe o cambió de lugar.</p>
+    <!-- Ruta relativa a esta página: funciona en github.io/<repo>/ y en dominio propio -->
+    <a id="home" href="Home/index.html">Ir al inicio</a>
+  </div>
+  <script>
+    // En GitHub Pages, esta página se sirve desde cualquier ruta inexistente: calculamos la raíz del repositorio
+    (function () {
+      var parts = location.pathname.split('/').filter(Boolean);
+      var isProject = location.hostname.endsWith('.github.io') && parts.length > 0;
+      var base = isProject ? '/' + parts[0] + '/' : '/';
+      document.getElementById('home').href = base + 'Home/index.html';
+      document.querySelector('link[rel=icon]').href = base + 'Home/Sources/Logo/SecoundLogo.png';
+    })();
+  </script>
+</body>
+</html>
