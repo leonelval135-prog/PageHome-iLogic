@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#050607">
+<title>A.M. Ball · A.M. Barber</title>
+<link rel="icon" href="assets/logo.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=1.17">
+</head><body>
+<section id="intro">
+  <div class="ib"></div>
+  <img class="lg" src="assets/logo-white.png" alt="A.M. Barber">
+  <h1>A.M. BALL</h1>
+  <p class="sl">Corte fino, trabajo firme.</p>
+  <input id="nm" maxlength="14" placeholder="Tu nombre" autocomplete="off" readonly title="Tu nombre es el de tu cuenta de A.M. Barber">
+  <div id="lnote" class="ln" hidden><b>Inicia sesión primero</b>
+    <span>Tu nombre en el juego es el de tu cuenta de A.M. Barber. Entra con el mismo correo y contraseña de la página, o <a href="../index.html?login=1">regístrate aquí</a>.</span>
+    <div class="row"><input id="gem" type="email" placeholder="Correo" autocomplete="email"><input id="gpw" type="password" placeholder="Contraseña" autocomplete="current-password"><button id="glog" type="button">Entrar a mi cuenta</button></div>
+    <small id="gms" role="status"></small></div>
+  <button id="go">Entrar</button>
+  <a class="bk" href="../index.html">&larr; Volver a A.M. Barber</a>
+  <p class="lgl"><a href="../terminos.html#ball">Términos y condiciones</a> · <a href="../cookies.html">Cookies</a></p>
+</section>
+<main id="app" hidden>
+  <header>
+    <button id="menu" class="mb" aria-label="Menú">&#9776;</button>
+    <div id="pl" class="card"></div><div id="clock">05:00</div><div id="bt" class="card"></div>
+    <button id="mu" class="cb" aria-label="Sonido"></button>
+  </header>
+  <aside id="left"><div id="pwr" title="Potencia"><div id="fill"></div></div></aside>
+  <div id="wrap"><canvas id="cv"></canvas></div>
+  <aside id="right"><div id="tray"></div></aside>
+  <div id="shot" hidden></div>
+  <div id="msg"></div>
+</main>
+<div id="rot"><div>&#128241;</div><p>Gira tu teléfono en horizontal para jugar</p></div>
+<div id="modal" hidden></div>
+<div id="ckb" role="dialog" aria-label="Aviso de cookies" hidden><p><b>🍪 Cookies y datos.</b> A.M. Ball usa almacenamiento local <b>necesario</b> (tu sesión y tu progreso) y, solo al canjear un premio, una huella cifrada de tu IP para permitir un canje cada 30 días. No usamos cookies publicitarias. Más en <a href="../cookies.html">Cookies</a> y <a href="../terminos.html#ball">Términos</a>.</p><button id="ckok" type="button">Entendido</button></div>
+<script src="js/config.js?v=1.17"></script>
+<script src="js/game.js?v=1.17"></script>
+<script>(function(){try{if(localStorage.getItem("amb_ball_ok")||localStorage.getItem("amb_consent")!==null)return}catch(e){}var b=document.getElementById("ckb");b.hidden=false;document.getElementById("ckok").onclick=function(){try{localStorage.setItem("amb_ball_ok","1")}catch(e){}b.hidden=true}})()</script>
+</body></html>

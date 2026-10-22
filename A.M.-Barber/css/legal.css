@@ -1,0 +1,26 @@
+/* v1.17 — cartel de cookies y páginas legales (cookies.html, terminos.html) */
+#consent{left:12px;right:12px;margin-inline:auto;transform:none;bottom:calc(76px + env(safe-area-inset-bottom));width:min(560px,calc(100vw - 24px));max-height:80dvh;overflow:auto;padding:22px;border-radius:var(--r);z-index:60;background:var(--bg);background:color-mix(in srgb,var(--bg) 95%,transparent);font-size:14px;line-height:1.5;display:grid;gap:12px;animation:rise .45s both}
+#consent h3{font-size:19px;margin:0}
+#consent p{margin:0;color:var(--mut)}
+#consent a{color:var(--link);text-decoration:underline}
+#consent .ck-rows{display:grid;gap:8px}
+#consent .ck-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(127,127,140,.12);border:1px solid var(--line)}
+#consent .ck-row b{display:block;font-size:14px}#consent .ck-row small{color:var(--mut);font-size:12px;line-height:1.4}
+#consent .ck-row input{width:20px;height:20px;accent-color:var(--tx);margin:0}
+#consent .ck-btns{display:flex;gap:8px;flex-wrap:wrap}#consent .ck-btns .btn{flex:1 1 130px;text-align:center;cursor:pointer}
+#consent[hidden]{display:none}
+#ckprefs{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer;text-align:left}
+/* páginas legales */
+.legal{max-width:820px;margin:0 auto;padding:110px 22px 80px}
+.legal h1{font-size:clamp(32px,6vw,48px);line-height:1.1;margin:0 0 .3em}
+.legal h2{font-size:clamp(22px,4vw,28px);margin:1.8em 0 .5em}.legal h2::after{display:none}
+.legal p,.legal li{color:var(--mut)}.legal li{margin:.35em 0}.legal strong{color:var(--tx)}
+.legal .upd{font-size:14px;color:var(--steel)}
+.legal .back{display:inline-block;margin-bottom:18px;color:var(--link);text-decoration:none}
+.legal .tw{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:16px}
+.legal table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.legal th,.legal td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.legal th{color:var(--tx);font-weight:600;background:rgba(127,127,140,.1)}.legal tr:last-child td{border-bottom:0}
+.legal .box{background:rgba(127,127,140,.1);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:14px 0}
+.legal .box p{margin:0}
+.lfoot{border-top:1px solid var(--line);padding:26px 22px 60px;text-align:center;font-size:13px;color:var(--mut)}.lfoot a{margin:0 8px}
