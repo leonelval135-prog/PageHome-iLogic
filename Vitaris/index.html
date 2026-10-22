@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="../assets/auth/guard.js" data-service="vitaris"></script>
+    <title>Vitaris | e-Onyx Technologies</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/logos/Vitaris/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../assets/logos/Vitaris/icon-192.png">
+<link rel="apple-touch-icon" href="../assets/logos/Vitaris/icon-180.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Config de Tailwind + lógica (se carga aquí para que la config exista antes de renderizar) -->
+    <script src="script.js"></script>
+
+
+</head>
+<body class="min-h-screen flex flex-col md:h-screen md:overflow-hidden bg-gray-50 text-slate-700">
+
+    <!-- COMPONENTE TOAST -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[70] hidden items-center gap-2 px-4 py-3 rounded-lg shadow-xl text-sm font-medium text-white transition-all duration-300 no-print">
+        <i id="toast-icon" class="ph text-lg"></i>
+        <span id="toast-message">Mensaje</span>
+        <button onclick="hideToast()" class="ml-3 opacity-80 hover:opacity-100 transition-opacity">
+            <i class="ph ph-x"></i>
+        </button>
+    </div>
+
+    <!-- MODAL API KEY (Opcional, ahora la key está quemada en el código) -->
+    <div id="api-modal" class="fixed inset-0 z-[60] bg-black/50 hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-reveal">
+            <div class="bg-gray-50 border-b border-gray-100 p-4 flex justify-between items-center">
+                <h3 class="font-bold text-brand-black flex items-center gap-2">
+                    <i class="ph-fill ph-key text-brand-blue text-xl"></i> Configuración IA
+                </h3>
+                <button onclick="closeApiModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-gray-500">
+                    Para usar las funciones de Inteligencia Artificial necesitas una clave de API de Gemini. 
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-brand-blue hover:underline font-semibold">Consíguela gratis aquí.</a>
+                </p>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Tu API Key de Gemini</label>
+                    <input type="password" id="input-api-key" class="input-pro" placeholder="AIzaSy..." />
+                </div>
+            </div>
+            <div class="bg-gray-50 border-t border-gray-100 p-4 flex justify-end gap-2">
+                <button onclick="closeApiModal()" class="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 text-sm font-bold bg-brand-black text-white hover:bg-brand-blue rounded-lg transition-colors">Guardar Clave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 0: LANDING PAGE -->
+    <div id="landing-screen" class="fixed inset-0 z-50 bg-white overflow-y-auto no-print">
+        <!-- Navbar -->
+        <nav class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center animate-reveal">
+            <div class="flex items-center gap-3">
+                <img src="../assets/logos/Vitaris/icon-192.png" alt="Logo Vitaris" width="48" height="48" class="h-10 md:h-12 w-auto object-contain rounded-xl shadow-sm" onerror="this.style.display='none'">
+                <div>
+                    <span class="text-xl font-bold text-brand-black tracking-tight block leading-none">Vitaris</span>
+                    <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">by e-Onyx</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Botón de configuración (Aún disponible por si alguien quiere cambiar la key local) -->
+                <button onclick="openApiModal()" class="text-gray-400 hover:text-brand-blue transition-colors p-2" title="Configurar API Key">
+                    <i class="ph-bold ph-key text-xl"></i>
+                </button>
+                <button onclick="goToAreaSelection()" class="text-sm font-semibold text-brand-black hover:text-brand-blue transition-colors flex items-center gap-1">
+                    Comenzar <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <main class="max-w-7xl mx-auto px-6 pt-12 pb-24 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/80 border border-blue-100 text-brand-blue text-xs font-bold uppercase tracking-wider mb-8 animate-reveal delay-100">
+                <i class="ph-fill ph-sparkle"></i> Impulsado por Inteligencia Artificial
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-brand-black mb-6 animate-reveal delay-200 leading-[1.1]">
+                El currículum que <br/>
+                <span class="text-gradient-animated">conseguirá la entrevista.</span>
+            </h1>
+            
+            <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 animate-reveal delay-300">
+                Deja de pelear con el formato y las palabras. Vitaris utiliza algoritmos avanzados para redactar, estructurar y optimizar tu perfil profesional según tu industria.
+            </p>
+            
+            <button onclick="goToAreaSelection()" class="bg-brand-black text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-brand-blue hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 animate-reveal delay-400 flex items-center justify-center gap-2 mx-auto">
+                Crear mi CV ahora
+                <i class="ph-bold ph-arrow-right"></i>
+            </button>
+
+            <div class="mt-8 animate-reveal delay-400">
+                <a href="https://e-onyx.com" target="_blank" class="text-sm text-gray-400 hover:text-brand-blue transition-colors inline-flex items-center gap-1">
+                    Un servicio oficial de <span class="font-bold">e-Onyx Technologies</span> <i class="ph-bold ph-arrow-square-out"></i>
+                </a>
+            </div>
+
+            <!-- Features -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 text-left border-t border-gray-100 pt-16 animate-reveal delay-400">
+                <div class="space-y-4 p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-blue-50 text-brand-blue rounded-xl flex items-center justify-center text-2xl">
+                        <i class="ph-fill ph-brain"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-black">Redacción Inteligente</h3>
+                    <p class="text-gray-500 text-sm">Nuestra IA redactará un perfil profesional impactante basado en tu puesto, adaptando el tono a tu sector.</p>
+                </div>
+                <div class="space-y-4 p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-blue-50 text-brand-blue rounded-xl flex items-center justify-center text-2xl">
+                        <i class="ph-fill ph-briefcase"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-black">Experiencia de Impacto</h3>
+                    <p class="text-gray-500 text-sm">Transformamos tus tareas cotidianas en viñetas corporativas orientadas a logros y resultados tangibles.</p>
+                </div>
+                <div class="space-y-4 p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-blue-50 text-brand-blue rounded-xl flex items-center justify-center text-2xl">
+                        <i class="ph-fill ph-export"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-black">Exportación Universal</h3>
+                    <p class="text-gray-500 text-sm">Descarga tu CV en PDF con un diseño impecable, o en texto plano optimizado para sistemas (ATS).</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- PANTALLA 1: SELECCIÓN DE ÁREA -->
+    <div id="area-selection-screen" class="fixed inset-0 z-40 bg-gray-50 overflow-y-auto no-print hidden">
+        <!-- BOTÓN VOLVER ATRÁS -->
+        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-50">
+            <button onclick="goBackToLanding()" class="flex items-center gap-2 text-gray-500 hover:text-brand-black transition-colors font-semibold bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
+                <i class="ph-bold ph-arrow-left"></i> Volver al inicio
+            </button>
+        </div>
+        
+        <div class="min-h-full flex flex-col items-center justify-center p-6 py-20">
+            <div class="max-w-3xl w-full text-center space-y-8 animate-reveal">
+                <h2 class="text-3xl md:text-4xl font-black text-brand-black tracking-tight">Selecciona tu industria</h2>
+                <p class="text-gray-500 text-lg max-w-xl mx-auto">Personalizaremos los campos del formulario y el comportamiento de la IA basándonos en tu área profesional.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8 text-left">
+                    <button onclick="selectArea('tecnologia')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-desktop text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Tecnología & IT</h3>
+                        <p class="text-xs text-gray-500 mt-1">Software, Datos, Sistemas</p>
+                    </button>
+                    <button onclick="selectArea('salud')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-heartbeat text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Salud & Medicina</h3>
+                        <p class="text-xs text-gray-500 mt-1">Médicos, Enfermería</p>
+                    </button>
+                    <button onclick="selectArea('diseno')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-bezier-curve text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Diseño & Arte</h3>
+                        <p class="text-xs text-gray-500 mt-1">UX/UI, Gráfico, Creativos</p>
+                    </button>
+                    <button onclick="selectArea('negocios')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-chart-line-up text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Negocios</h3>
+                        <p class="text-xs text-gray-500 mt-1">Ventas, Marketing, RRHH</p>
+                    </button>
+                    <button onclick="selectArea('educacion')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-books text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">Educación</h3>
+                        <p class="text-xs text-gray-500 mt-1">Docencia, Academia</p>
+                    </button>
+                    <button onclick="selectArea('general')" class="p-6 border border-gray-200 rounded-2xl hover:border-brand-blue hover:shadow-lg transition-all group bg-white">
+                        <i class="ph-fill ph-briefcase text-3xl text-brand-blue mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="font-bold text-brand-black">General / Otro</h3>
+                        <p class="text-xs text-gray-500 mt-1">Ingeniería, Legal, etc.</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2: EDITOR PRINCIPAL -->
+    <div id="main-editor-screen" class="hidden flex-1 flex flex-col w-full h-full min-h-screen md:min-h-0">
+        <!-- HEADER NAVBAR (Sticky en móvil) -->
+        <header class="bg-brand-black text-white p-3 md:p-4 flex justify-between items-center z-30 sticky top-0 md:relative shrink-0 border-b border-gray-800">
+            <div class="flex items-center gap-3">
+                <!-- BOTÓN VOLVER ATRÁS (Editor) -->
+                <button onclick="goBackFromEditor()" class="text-gray-400 hover:text-white transition-colors mr-1" title="Volver atrás">
+                    <i class="ph-bold ph-arrow-left text-xl"></i>
+                </button>
+                
+                <div class="bg-white p-1 rounded-lg shadow-sm">
+                    <img src="../assets/logos/Vitaris/icon-64.png" alt="Logo Vitaris" width="24" height="24" class="h-6 w-auto object-contain rounded-md" onerror="this.style.display='none'">
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-sm font-bold tracking-wide uppercase flex items-center gap-2">
+                        Vitaris
+                    </h1>
+                    <a href="https://e-onyx.com" target="_blank" class="text-[10px] text-gray-400 font-medium hover:text-brand-blueLight transition-colors">
+                        by e-Onyx
+                    </a>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 md:gap-4">
+                <span id="header-area-label" class="hidden lg:inline-block text-xs font-semibold bg-gray-800 text-gray-300 px-3 py-1 rounded-full border border-gray-700">
+                    Sector: General
+                </span>
+                
+                <!-- MENÚ DE EXPORTACIÓN -->
+                <div class="relative" id="export-menu-container">
+                    <button onclick="toggleExportMenu()" class="flex items-center gap-2 bg-white text-brand-black px-3 md:px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors text-sm shadow-sm">
+                        <i class="ph-bold ph-download-simple"></i>
+                        <span class="hidden sm:inline">Exportar CV</span>
+                        <span class="sm:hidden">Exportar</span>
+                        <i class="ph-bold ph-caret-down transition-transform" id="export-caret"></i>
+                    </button>
+
+                    <div id="export-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 hidden overflow-hidden">
+                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            Opciones de formato
+                        </div>
+                        <button onclick="exportToPDF()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-brand-blueLight hover:text-brand-blue flex items-center gap-3 transition-colors">
+                            <i class="ph ph-printer text-lg"></i> 
+                            <div>
+                                <div class="font-bold">Documento PDF</div>
+                                <div class="text-[11px] text-gray-500">Diseño listo para imprimir</div>
+                            </div>
+                        </button>
+                        <button onclick="exportToTXT()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-brand-blueLight hover:text-brand-blue flex items-center gap-3 transition-colors">
+                            <i class="ph ph-file-text text-lg"></i>
+                            <div>
+                                <div class="font-bold">Texto Plano (.txt)</div>
+                                <div class="text-[11px] text-gray-500">Optimizado para ATS</div>
+                            </div>
+                        </button>
+                        <button onclick="exportToJSON()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-brand-blueLight hover:text-brand-blue flex items-center gap-3 transition-colors">
+                            <i class="ph ph-file-code text-lg"></i>
+                            <div>
+                                <div class="font-bold">Archivo de Datos (.json)</div>
+                                <div class="text-[11px] text-gray-500">Respaldo de información</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="flex-1 flex flex-col md:flex-row w-full relative z-10 min-h-0 bg-white">
+            
+            <!-- LADO IZQUIERDO: EDITOR -->
+            <section class="w-full md:w-1/2 lg:w-[45%] md:overflow-y-auto custom-scrollbar border-b md:border-b-0 md:border-r border-gray-200 no-print p-4 md:p-8 bg-white">
+                <div class="max-w-2xl mx-auto space-y-8 pb-10">
+                    
+                    <!-- SECCIÓN: INFORMACIÓN PERSONAL -->
+                    <div class="editor-section-card space-y-5">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-user-circle text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Info Personal</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2 input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Nombre Completo</label>
+                                <input type="text" id="input-fullName" oninput="updateData('personal', 'fullName', this.value)" class="input-pro" placeholder="Ej. Juan Pérez" />
+                            </div>
+                            <div class="md:col-span-2 input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Puesto / Profesión</label>
+                                <input type="text" id="input-jobTitle" oninput="updateData('personal', 'jobTitle', this.value)" class="input-pro" placeholder="Ej. Ingeniero de Software Senior" />
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Email</label>
+                                <input type="email" id="input-email" oninput="updateData('personal', 'email', this.value)" class="input-pro" placeholder="correo@ejemplo.com" />
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Teléfono</label>
+                                <input type="text" id="input-phone" oninput="updateData('personal', 'phone', this.value)" class="input-pro" placeholder="+34 600 000 000" />
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Ubicación</label>
+                                <input type="text" id="input-location" oninput="updateData('personal', 'location', this.value)" class="input-pro" placeholder="Madrid, España" />
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">LinkedIn / Web</label>
+                                <input type="text" id="input-website" oninput="updateData('personal', 'website', this.value)" class="input-pro" placeholder="linkedin.com/in/usuario" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: CAMPOS DINÁMICOS POR INDUSTRIA -->
+                    <div id="dynamic-fields-container" class="editor-section-card space-y-5 hidden">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-sliders-horizontal text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Info de Sector (<span id="dynamic-sector-name"></span>)</h2>
+                        </div>
+                        <div id="dynamic-fields-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: RESUMEN (CON IA) -->
+                    <div class="editor-section-card space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-3 gap-3">
+                            <div class="flex items-center gap-2">
+                                <i class="ph-fill ph-text-align-left text-xl text-brand-blue"></i>
+                                <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Perfil Profesional</h2>
+                            </div>
+                            <button id="btn-generate-summary" onclick="generateSummary()" class="flex items-center justify-center gap-1.5 text-xs bg-brand-black text-white px-3 py-2 rounded-lg hover:bg-brand-blue transition-colors font-bold disabled:opacity-50 shadow-sm w-full sm:w-auto">
+                                <i id="icon-summary-ai" class="ph-bold ph-sparkle"></i>
+                                <span id="text-summary-ai">Redactar con IA</span>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-gray-500 font-medium">Un buen resumen destaca tu propuesta de valor en 3-4 líneas. La IA usará tu puesto y sector para redactarlo.</p>
+                        <textarea id="input-summary" oninput="updateData('summary', null, this.value)" rows="5" class="input-pro resize-none" placeholder="Escribe un breve resumen de tu trayectoria..."></textarea>
+                    </div>
+
+                    <!-- SECCIÓN: HABILIDADES -->
+                    <div class="editor-section-card space-y-4">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-star text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Habilidades Clave</h2>
+                        </div>
+                        <div class="input-group">
+                            <label class="block text-[11px] text-gray-500 font-medium mb-2">Separa las habilidades con comas.</label>
+                            <input type="text" id="input-skills" oninput="updateData('skills', null, this.value)" class="input-pro" placeholder="Cargando sugerencias..." />
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: EXPERIENCIA -->
+                    <div class="editor-section-card space-y-4">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-briefcase text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Experiencia</h2>
+                        </div>
+                        
+                        <div id="experience-list" class="space-y-4">
+                            <!-- Dinámico -->
+                        </div>
+                        
+                        <button onclick="addExperience()" class="w-full py-3 border border-dashed border-gray-300 rounded-xl text-sm font-bold text-gray-500 hover:border-brand-blue hover:text-brand-blue hover:bg-blue-50 transition-all flex items-center justify-center gap-2 mt-4">
+                            <i class="ph-bold ph-plus"></i> Añadir Experiencia
+                        </button>
+                    </div>
+
+                    <!-- SECCIÓN: EDUCACIÓN -->
+                    <div class="editor-section-card space-y-4">
+                        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                            <i class="ph-fill ph-graduation-cap text-xl text-brand-blue"></i>
+                            <h2 class="text-sm font-bold text-brand-black uppercase tracking-widest">Educación</h2>
+                        </div>
+                        
+                        <div id="education-list" class="space-y-4">
+                            <!-- Dinámico -->
+                        </div>
+                        
+                        <button onclick="addEducation()" class="w-full py-3 border border-dashed border-gray-300 rounded-xl text-sm font-bold text-gray-500 hover:border-brand-blue hover:text-brand-blue hover:bg-blue-50 transition-all flex items-center justify-center gap-2 mt-4">
+                            <i class="ph-bold ph-plus"></i> Añadir Educación
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- LADO DERECHO: VISTA PREVIA DEL CV -->
+            <section class="w-full md:w-1/2 lg:w-[55%] md:overflow-y-auto bg-gray-100 custom-scrollbar p-4 md:p-8 flex justify-center items-start">
+                
+                <!-- DOCUMENTO TIPO A4 -->
+                <div id="cv-preview-container" class="bg-white w-full max-w-[210mm] shadow-2xl relative break-words" style="min-height: 297mm; padding: 40px md:padding: 50px;">
+                    <!-- Inyectado por JS -->
+                </div>
+                
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Acceso | e-Onyx Technologies</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#050505">
+<link id="favicon" rel="icon" type="image/png" href="../Home/Sources/Logo/SecoundLogo.png">
+<link rel="stylesheet" href="auth.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<main class="card" id="card">
+  <header class="brand">
+    <img id="brandLogo" src="../Home/Sources/Logo/SecoundLogo.png" alt="e-Onyx" width="160" height="56">
+    <p id="brandSub">Una sola cuenta para todos los servicios de e-Onyx</p>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Acceso">
+    <button type="button" role="tab" data-go="login" aria-selected="true">Iniciar sesión</button>
+    <button type="button" role="tab" data-go="register" aria-selected="false">Crear cuenta</button>
+  </nav>
+
+  <div id="alert" class="alert" role="alert" aria-live="polite" hidden></div>
+
+  <!-- ===== INICIAR SESIÓN ===== -->
+  <section data-view="login">
+    <form id="loginForm" novalidate autocomplete="on">
+      <div class="field">
+        <label for="liEmail">Correo electrónico</label>
+        <input id="liEmail" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" required placeholder="tucorreo@ejemplo.com">
+      </div>
+      <div class="field">
+        <label for="liPass">Contraseña</label>
+        <div class="pw">
+          <input id="liPass" name="password" type="password" autocomplete="current-password" required placeholder="Tu contraseña">
+          <button type="button" class="eye" data-eye="liPass" aria-label="Mostrar contraseña"></button>
+        </div>
+      </div>
+      <div class="row-end"><button type="button" class="link" data-go="forgot">¿Olvidaste tu contraseña?</button></div>
+      <button class="primary" type="submit"><span class="lbl">Iniciar sesión</span><span class="spin" aria-hidden="true"></span></button>
+      <p class="switch">¿Aún no tienes cuenta? <button type="button" class="link" data-go="register">Crear cuenta</button></p>
+    </form>
+  </section>
+
+  <!-- ===== REGISTRO ===== -->
+  <section data-view="register" hidden>
+    <form id="regForm" novalidate autocomplete="on">
+      <div class="avatar-pick">
+        <button type="button" class="avatar" id="avatarBtn" aria-label="Elegir foto de perfil">
+          <img id="avatarImg" alt="Vista previa de tu foto" hidden>
+          <svg id="avatarPh" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h1.5l1.2-1.6A1 1 0 0 1 9.5 4h5a1 1 0 0 1 .8.4L16.5 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.2"/></svg>
+        </button>
+        <div class="avatar-txt">
+          <b>Foto de perfil <em>*</em></b>
+          <small>JPG, PNG o WebP. Se recorta a un cuadrado.</small>
+          <button type="button" class="link" id="avatarRemove" hidden>Quitar foto</button>
+        </div>
+        <input id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      </div>
+      <p class="hint" id="avatarMsg" aria-live="polite"></p>
+
+      <div class="field">
+        <label for="rgName">Nombre <em>*</em></label>
+        <input id="rgName" name="name" type="text" autocomplete="name" maxlength="60" required placeholder="Tu nombre completo">
+        <p class="hint" id="nameMsg" aria-live="polite"></p>
+      </div>
+
+      <div class="field">
+        <label for="rgEmail">Correo electrónico <em>*</em></label>
+        <input id="rgEmail" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" required placeholder="tucorreo@ejemplo.com">
+        <p class="hint" id="emailMsg" aria-live="polite"></p>
+      </div>
+
+      <div class="field">
+        <label for="rgPass">Contraseña <em>*</em></label>
+        <div class="pw">
+          <input id="rgPass" name="password" type="password" autocomplete="new-password" required placeholder="Mínimo 10 caracteres" aria-describedby="rgMeter rgChecks">
+          <button type="button" class="eye" data-eye="rgPass" aria-label="Mostrar contraseña"></button>
+        </div>
+        <div class="meter" id="rgMeter" aria-live="polite"><div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="mlabel" id="rgMeterLabel"></span></div>
+        <ul class="checks" id="rgChecks"></ul>
+        <p class="hint" id="pwnedMsg" aria-live="polite"></p>
+      </div>
+
+      <div class="field">
+        <label for="rgPass2">Confirmar contraseña <em>*</em></label>
+        <div class="pw">
+          <input id="rgPass2" name="password2" type="password" autocomplete="new-password" required placeholder="Repite tu contraseña">
+          <button type="button" class="eye" data-eye="rgPass2" aria-label="Mostrar contraseña"></button>
+        </div>
+        <p class="hint" id="matchMsg" aria-live="polite"></p>
+      </div>
+
+      <button class="primary" type="submit" id="regSubmit"><span class="lbl">Crear cuenta</span><span class="spin" aria-hidden="true"></span></button>
+      <p class="switch">¿Ya tienes cuenta? <button type="button" class="link" data-go="login">Iniciar sesión</button></p>
+    </form>
+  </section>
+
+  <!-- ===== RECUPERAR CONTRASEÑA ===== -->
+  <section data-view="forgot" hidden>
+    <h2>Recuperar contraseña</h2>
+    <p class="muted">Escribe el correo de tu cuenta y te enviaremos un enlace para crear una contraseña nueva.</p>
+    <form id="forgotForm" novalidate>
+      <div class="field">
+        <label for="fgEmail">Correo electrónico</label>
+        <input id="fgEmail" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" required placeholder="tucorreo@ejemplo.com">
+        <p class="hint" id="fgMsg" aria-live="polite"></p>
+      </div>
+      <button class="primary" type="submit"><span class="lbl">Enviar enlace</span><span class="spin" aria-hidden="true"></span></button>
+      <p class="switch"><button type="button" class="link" data-go="login">← Volver a iniciar sesión</button></p>
+    </form>
+  </section>
+
+  <!-- ===== NUEVA CONTRASEÑA ===== -->
+  <section data-view="reset" hidden>
+    <h2>Crea tu nueva contraseña</h2>
+    <p class="muted">Elige una contraseña segura que no uses en otros sitios.</p>
+    <form id="resetForm" novalidate>
+      <div class="field">
+        <label for="rsPass">Nueva contraseña</label>
+        <div class="pw">
+          <input id="rsPass" type="password" autocomplete="new-password" required placeholder="Mínimo 10 caracteres" aria-describedby="rsMeter rsChecks">
+          <button type="button" class="eye" data-eye="rsPass" aria-label="Mostrar contraseña"></button>
+        </div>
+        <div class="meter" id="rsMeter" aria-live="polite"><div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="mlabel" id="rsMeterLabel"></span></div>
+        <ul class="checks" id="rsChecks"></ul>
+        <p class="hint" id="rsPwned" aria-live="polite"></p>
+      </div>
+      <div class="field">
+        <label for="rsPass2">Confirmar contraseña</label>
+        <div class="pw">
+          <input id="rsPass2" type="password" autocomplete="new-password" required placeholder="Repite tu contraseña">
+          <button type="button" class="eye" data-eye="rsPass2" aria-label="Mostrar contraseña"></button>
+        </div>
+        <p class="hint" id="rsMatch" aria-live="polite"></p>
+      </div>
+      <button class="primary" type="submit" id="rsSubmit"><span class="lbl">Guardar contraseña</span><span class="spin" aria-hidden="true"></span></button>
+    </form>
+  </section>
+
+  <!-- ===== AVISO (correo enviado, éxito, etc.) ===== -->
+  <section data-view="notice" hidden class="center">
+    <div class="icon" id="noticeIcon" aria-hidden="true"></div>
+    <h2 id="noticeTitle"></h2>
+    <p class="muted" id="noticeText"></p>
+    <div class="stack">
+      <button type="button" class="primary" id="noticePrimary" hidden><span class="lbl"></span></button>
+      <button type="button" class="ghost" id="noticeSecondary" hidden></button>
+    </div>
+  </section>
+
+  <!-- ===== SESIÓN ACTIVA ===== -->
+  <section data-view="session" hidden class="center">
+    <div class="avatar big"><img id="sessAvatar" alt="" hidden><span id="sessInitials"></span></div>
+    <h2 id="sessName"></h2>
+    <p class="muted" id="sessEmail"></p>
+    <div class="stack">
+      <button type="button" class="primary" id="sessContinue"><span class="lbl">Continuar</span></button>
+      <button type="button" class="ghost" id="sessSwitch">Usar otra cuenta</button>
+    </div>
+  </section>
+
+  <footer class="foot"><a href="../Home/index.html">← Volver al inicio</a><span>Conexión segura</span></footer>
+</main>
+
+<noscript><p class="noscript">Necesitas activar JavaScript para iniciar sesión.</p></noscript>
+
+<script src="../assets/auth/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="../assets/auth/auth-core.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>
