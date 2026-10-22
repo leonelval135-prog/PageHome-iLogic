@@ -383,11 +383,16 @@ window.ambOpenTab=t=>{if(!TABS.some(x=>x[0]===t))return;if(S.me)go(t,true);else 
 /* Web Push: avisos con la pestaña o el navegador cerrados (service worker + Supabase) */
 const b64=s=>{const r=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(r,c=>c.charCodeAt(0))};
 async function pushKey(){
-  const{data}=await sb.auth.getSession(),t=data&&data.session&&data.session.access_token;
-  const r=await fetch(C.supabaseUrl.replace(/\/+$/,'')+'/functions/v1/notify-admins?action=key',{headers:{Authorization:'Bearer '+t,apikey:C.supabaseKey}});
-  const j=await r.json().catch(()=>({}));
-  if(!r.ok||!j.publicKey)throw new Error(j.error||('la función notify-admins respondió '+r.status));
-  return j.publicKey}
+  let r=await sb.rpc('vapid_publica');
+  if(r.error)throw new Error('ejecuta de nuevo notificaciones.sql ('+r.error.message+')');
+  if(r.data)return r.data;
+  /* Primera vez: se genera el par de llaves VAPID aquí mismo y se guarda en tu base de datos (solo admins). */
+  const kp=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign']),j=await crypto.subtle.exportKey('jwk',kp.privateKey),
+    pub=new Uint8Array(65);pub[0]=4;pub.set(b64(j.x),1);pub.set(b64(j.y),33);
+  const enc=a=>btoa(String.fromCharCode(...a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  r=await sb.rpc('guardar_vapid',{p_public:enc(pub),p_private:j.d});
+  if(r.error||!r.data)throw new Error('no se pudo guardar la llave'+(r.error?' ('+r.error.message+')':''));
+  return r.data}
 async function pushSave(sub){
   const{error}=await sb.rpc('registrar_dispositivo',{p_token:sub.endpoint,p_platform:'web',p_sub:sub.toJSON()});
   if(error)throw new Error(error.message)}
