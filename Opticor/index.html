@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="eConverter Images: convierte, comprime y redimensiona imágenes en lote.">
+  <title>eConverter Images</title>
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/logos/Opticor/icon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/logos/Opticor/icon-192.png">
+  <link rel="apple-touch-icon" href="../assets/logos/Opticor/icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <script>
+    // Aplica el tema antes de pintar para evitar parpadeos
+    try {
+      var t = localStorage.getItem('ec-theme') ||
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <noscript><p style="margin:0;padding:12px;text-align:center;background:#fee2e2;color:#7f1d1d">Necesitas activar JavaScript para usar eConverter Images.</p></noscript>
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <span class="brand__mark">
+          <img class="brand__logo-img" src="../assets/logos/Opticor/icon-192.png" alt="eConverter Images" width="40" height="40" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+          <span class="brand__logo" aria-hidden="true" hidden>e</span>
+        </span>
+        <div>
+          <p class="brand__name">eConverter <span>Images</span></p>
+          <p class="brand__tag">Convierte · Comprime · Redimensiona</p>
+        </div>
+      </div>
+      <button id="themeBtn" class="icon-btn" type="button" aria-label="Cambiar tema"></button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" data-reveal>
+      <h1>Optimiza tus imágenes <span class="grad-text">en segundos</span></h1>
+      <p>Convierte a WebP, JPG o PNG, reduce su peso y cambia su tamaño, todo en lote y sin complicaciones.</p>
+    </section>
+
+    <div id="embedNotice" class="notice" hidden>
+      <span>Estás viendo la página incrustada: el navegador puede bloquear las descargas desde aquí.</span>
+      <button id="openTabBtn" class="btn btn--sm">Abrir en pestaña nueva</button>
+      <button id="noticeClose" class="btn btn--sm btn--ghost" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="workspace">
+      <!-- Zona de carga -->
+      <section id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Seleccionar imágenes">
+        <div class="dropzone__icon" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg>
+        </div>
+        <strong>Arrastra tus imágenes aquí</strong>
+        <span>o haz clic para elegirlas · pega con Ctrl+V · suelta carpetas completas</span>
+        <small>PNG, JPG, WebP, AVIF, GIF, BMP, SVG…</small>
+        <input id="fileInput" type="file" accept="image/*" multiple hidden>
+      </section>
+
+      <!-- Ajustes -->
+      <aside class="card settings" data-glow aria-labelledby="optTitle">
+        <div class="settings__head">
+          <h2 id="optTitle" class="card__title">Ajustes</h2>
+          <button id="resetBtn" class="btn btn--sm btn--ghost" type="button">Restablecer</button>
+        </div>
+
+        <p class="lbl">Ajustes rápidos</p>
+        <div id="presets" class="presets">
+          <button type="button" class="chip chip--btn" data-preset="web">Web</button>
+          <button type="button" class="chip chip--btn" data-preset="social">Redes sociales</button>
+          <button type="button" class="chip chip--btn" data-preset="thumb">Miniaturas</button>
+          <button type="button" class="chip chip--btn" data-preset="tiny">Mínimo peso</button>
+          <button type="button" class="chip chip--btn" data-preset="best">Máx. calidad</button>
+        </div>
+
+        <div class="field">
+          <p class="lbl">Formato de salida</p>
+          <div class="seg">
+            <label><input type="radio" name="format" value="original"><span>Original</span></label>
+            <label><input type="radio" name="format" value="image/webp" checked><span>WebP</span></label>
+            <label><input type="radio" name="format" value="image/jpeg"><span>JPG</span></label>
+            <label><input type="radio" name="format" value="image/png"><span>PNG</span></label>
+            <label><input type="radio" name="format" value="image/avif"><span>AVIF</span></label>
+          </div>
+        </div>
+
+        <div class="field" id="qualityField">
+          <label for="quality">Calidad: <output id="qualityValue">80</output>%</label>
+          <input id="quality" type="range" min="1" max="100" value="80">
+        </div>
+
+        <div class="field" id="targetField">
+          <label for="targetKB">Peso máximo por imagen (KB)</label>
+          <input id="targetKB" type="number" min="5" placeholder="Sin límite">
+        </div>
+
+        <div class="field">
+          <p class="lbl">Tamaño</p>
+          <div class="seg">
+            <label><input type="radio" name="resize" value="none" checked><span>Original</span></label>
+            <label><input type="radio" name="resize" value="max"><span>Máximo</span></label>
+            <label><input type="radio" name="resize" value="percent"><span>Escala %</span></label>
+            <label><input type="radio" name="resize" value="width"><span>Ancho</span></label>
+            <label><input type="radio" name="resize" value="height"><span>Alto</span></label>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field" data-resize="max width"><label for="maxWidth">Ancho (px)</label><input id="maxWidth" type="number" min="1" value="1920"></div>
+          <div class="field" data-resize="max height"><label for="maxHeight">Alto (px)</label><input id="maxHeight" type="number" min="1" value="1080"></div>
+        </div>
+        <div class="field" data-resize="percent">
+          <label for="percent">Escala (%)</label>
+          <input id="percent" type="number" min="1" max="500" value="50">
+        </div>
+
+        <details class="adv">
+          <summary>Más opciones</summary>
+          <div class="field"><label for="pattern">Plantilla del nombre ({nombre} {n} {ancho} {alto} {fecha})</label><input id="pattern" type="text" maxlength="60" placeholder="{nombre}"></div>
+          <div class="field"><label for="suffix">Añadir al final del nombre (ej. -min)</label><input id="suffix" type="text" maxlength="30" placeholder="Sin cambios"></div>
+          <div class="field"><label for="background">Fondo al convertir a JPG</label><input id="background" type="color" value="#ffffff"></div>
+          <div class="field">
+            <label for="rotate">Girar</label>
+            <select id="rotate"><option value="0">Sin girar</option><option value="90">90° a la derecha</option><option value="180">180°</option><option value="270">90° a la izquierda</option></select>
+          </div>
+          <label class="check"><input id="flipH" type="checkbox"><span>Voltear horizontal</span></label>
+          <label class="check"><input id="flipV" type="checkbox"><span>Voltear vertical</span></label>
+          <label class="check"><input id="upscale" type="checkbox"><span>Permitir ampliar (modos Ancho / Alto)</span></label>
+          <label class="check"><input id="keepSmaller" type="checkbox" checked><span>Conservar el original si no se reduce el peso</span></label>
+          <div class="field">
+            <label for="wmText">Marca de agua (texto)</label>
+            <input id="wmText" type="text" maxlength="60" placeholder="Sin marca de agua">
+          </div>
+          <div class="field">
+            <label for="wmPos">Posición de la marca</label>
+            <select id="wmPos"><option value="corner">Esquina inferior</option><option value="center">Centro</option><option value="tile">Mosaico</option></select>
+          </div>
+          <div class="field">
+            <label for="wmOpacity">Opacidad de la marca: <output id="wmOpacityValue">50</output>%</label>
+            <input id="wmOpacity" type="range" min="5" max="100" value="50">
+          </div>
+        </details>
+
+        <label class="switch"><input id="auto" type="checkbox" checked><span class="switch__box"></span><span>Convertir automáticamente</span></label>
+        <p class="hint">La proporción siempre se conserva. PNG no usa calidad (el peso máximo reduce sus dimensiones). Los GIF animados se convierten solo en su primer fotograma. Al convertir se eliminan los metadatos (EXIF, ubicación).</p>
+      </aside>
+
+      <!-- Lista de archivos -->
+      <section id="filesCard" class="card files" hidden>
+        <div class="toolbar">
+          <button id="convertBtn" class="btn btn--primary">Convertir</button>
+          <button id="zipBtn" class="btn" disabled>Descargar ZIP</button>
+          <button id="folderBtn" class="btn" disabled hidden>Guardar en carpeta</button>
+          <button id="shareBtn" class="btn" disabled hidden>Compartir</button>
+          <button id="clearBtn" class="btn btn--ghost">Limpiar</button>
+          <span id="summary" class="summary"></span>
+        </div>
+        <div id="progress" class="progress" role="progressbar" aria-label="Progreso de conversión" hidden><div id="progressBar"></div></div>
+        <ul id="fileList" class="file-list"></ul>
+      </section>
+    </div>
+
+    <!-- Explicación -->
+    <section class="section" id="para-que-sirve">
+      <h2 class="section__title" data-reveal>¿Para qué sirve?</h2>
+      <p class="section__lead" data-reveal>Las imágenes pesadas hacen lentas las páginas y llenan el almacenamiento. eConverter Images te ayuda a dejarlas listas para usar.</p>
+      <div class="features">
+        <article class="feature" data-glow data-reveal style="--d:.05s">
+          <span class="feature__icon">⇄</span>
+          <h3>Convertir formatos</h3>
+          <p>Pasa PNG, JPG, GIF, BMP o SVG a WebP, AVIF, JPG o PNG según lo que necesite tu web, tienda o app.</p>
+        </article>
+        <article class="feature" data-glow data-reveal style="--d:.12s">
+          <span class="feature__icon">⤓</span>
+          <h3>Comprimir</h3>
+          <p>Baja el peso con el control de calidad para que tus páginas carguen más rápido y ocupen menos espacio.</p>
+        </article>
+        <article class="feature" data-glow data-reveal style="--d:.19s">
+          <span class="feature__icon">⤢</span>
+          <h3>Redimensionar</h3>
+          <p>Limita el tamaño, fija el ancho o el alto, o escala por porcentaje. Además puedes girar, voltear y añadir una marca de agua, siempre sin deformar la imagen.</p>
+        </article>
+        <article class="feature" data-glow data-reveal style="--d:.26s">
+          <span class="feature__icon">☰</span>
+          <h3>Trabajar en lote</h3>
+          <p>Procesa muchas imágenes (o carpetas completas) a la vez, renómbralas con una plantilla y descárgalas juntas en un solo ZIP.</p>
+        </article>
+      </div>
+
+      <div class="chips" data-reveal>
+        <span class="chips__label">Ideal para:</span>
+        <span class="chip">Tiendas online</span>
+        <span class="chip">Blogs y sitios web</span>
+        <span class="chip">Redes sociales</span>
+        <span class="chip">Documentos y presentaciones</span>
+        <span class="chip">Liberar espacio</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section__title" data-reveal>Cómo funciona</h2>
+      <ol class="steps">
+        <li class="step" data-reveal style="--d:.05s"><span class="step__num">1</span><div><h3>Sube tus imágenes</h3><p>Arrástralas, pégalas o elígelas desde tu dispositivo.</p></div></li>
+        <li class="step" data-reveal style="--d:.15s"><span class="step__num">2</span><div><h3>Elige las opciones</h3><p>Define formato, calidad y tamaño final.</p></div></li>
+        <li class="step" data-reveal style="--d:.25s"><span class="step__num">3</span><div><h3>Convierte y descarga</h3><p>Compara el peso antes y después, y descarga una por una o todas en ZIP.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <h2 class="section__title" data-reveal>¿Qué formato elegir?</h2>
+      <div class="formats">
+        <article class="format" data-glow data-reveal style="--d:.05s">
+          <span class="tag tag--green">Recomendado para web</span>
+          <h3>WebP</h3>
+          <p>Pesa mucho menos que JPG y PNG con calidad similar, y admite transparencia.</p>
+        </article>
+        <article class="format" data-glow data-reveal style="--d:.12s">
+          <span class="tag tag--blue">Fotografías</span>
+          <h3>JPG</h3>
+          <p>Compatible con todo. Muy bueno para fotos, pero no admite transparencia.</p>
+        </article>
+        <article class="format" data-glow data-reveal style="--d:.19s">
+          <span class="tag tag--pink">Gráficos y capturas</span>
+          <h3>PNG</h3>
+          <p>Sin pérdida de calidad y con transparencia, aunque suele pesar más.</p>
+        </article>
+        <article class="format" data-glow data-reveal style="--d:.26s">
+          <span class="tag tag--green">Máxima compresión</span>
+          <h3>AVIF</h3>
+          <p>Aún más ligero que WebP. Solo aparece si tu navegador puede crearlo.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">eConverter Images</footer>
+  <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-label="Vista previa">
+    <div class="modal__box">
+      <div class="modal__imgs" id="mImgs">
+        <figure><figcaption>Original</figcaption><img id="mOrig" alt=""></figure>
+        <figure><figcaption>Convertida</figcaption><img id="mNew" alt=""></figure>
+      </div>
+      <div class="cmp" id="mCmp" hidden>
+        <div class="cmp__stage">
+          <img id="cNew" alt="Convertida">
+          <img id="cOrig" class="cmp__top" alt="Original">
+          <span class="cmp__line" aria-hidden="true"></span>
+          <span class="cmp__tag cmp__tag--l">Original</span><span class="cmp__tag cmp__tag--r">Convertida</span>
+        </div>
+        <input id="cRange" type="range" min="0" max="100" value="50" aria-label="Comparar original y convertida">
+      </div>
+      <p id="mInfo" class="modal__info"></p>
+      <div class="modal__bar">
+        <button id="mPrev" class="btn btn--sm" aria-label="Anterior">←</button>
+        <button id="mDl" class="btn btn--primary btn--sm">Descargar</button>
+        <button id="mNext" class="btn btn--sm" aria-label="Siguiente">→</button>
+        <button id="mMode" class="btn btn--sm" type="button">Deslizador</button>
+        <button id="mClose" class="btn btn--sm btn--ghost">Cerrar</button>
+      </div>
+    </div>
+  </div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/zip.js"></script>
+  <script src="js/converter.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
