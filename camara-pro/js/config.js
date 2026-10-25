@@ -1,0 +1,4 @@
+export const SUPABASE_URL='https://xgbyctlsddcljzuaaige.supabase.co';
+export const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYnljdGxzZGRjbGp6dWFhaWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MTk4ODksImV4cCI6MjEwODQ5NTg4OX0.zgLiCXamS6JR0F0n--BPS0ffi08Z4p7cq_PvtiYYAdY';
+export const BUCKET='media';
+export const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
