@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cámara Pro</title><link rel="stylesheet" href="css/styles.css"></head><body>
+<div id="login"><form id="lf"><h1>📷 Cámara Pro</h1>
+<input id="em" type="email" placeholder="Correo" required autocomplete="email">
+<input id="pw" type="password" placeholder="Contraseña (mín. 6)" required minlength="6" autocomplete="current-password">
+<button class="btn" type="submit">Entrar</button><button class="btn alt" type="button" id="signup">Crear cuenta</button><div id="msg"></div></form></div>
+<div id="app" class="hide">
+<div id="frame"><video id="v" autoplay playsinline muted></video><canvas id="out"></canvas><div id="grid" class="hide"></div><div id="focus"></div><div id="count"></div><div id="evBox" class="hide"><span>☀</span><input type="range" id="ev" min="-2" max="2" step="0.1" value="0"></div></div>
+<div class="top"><button id="bFlash">⚡ Flash</button><span id="rec" class="hide">00:00</span>
+<div><button id="bTimer">⏱ 0s</button><button id="bRatio">4:3</button><button id="bGrid">▦</button><button id="bFilter">🎨 Normal</button><button id="bSet">⚙</button><button id="bOut">⎋</button></div></div>
+<div id="panel" class="hide"><h4>Ajustes</h4>
+<label>Formato de foto <select id="sFmt"><option value="image/jpeg">JPEG (calidad máxima)</option><option value="image/png">PNG (sin pérdida)</option><option value="image/webp">WebP (calidad máxima)</option></select></label>
+<label>Calidad de video <select id="sRes"><option value="1280">720p</option><option value="1920">1080p</option><option value="3840">4K</option><option value="4096" selected>Máxima</option></select></label>
+<label>Fotogramas por segundo (FPS) <select id="sFps"><option value="24">24</option><option value="30" selected>30</option><option value="60">60</option><option value="120">120</option><option value="240">240</option></select></label>
+<label style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="sOrig" checked> Calidad original (sin recompresión; sin filtros/recorte/zoom digital)</label>
+<h4>Imagen</h4>
+<label>Brillo <input type="range" id="aBr" min="0" max="200" value="100"></label>
+<label>Contraste <input type="range" id="aCo" min="0" max="200" value="100"></label>
+<label>Saturación <input type="range" id="aSa" min="0" max="200" value="100"></label>
+<button class="btn alt" id="aReset">Restablecer imagen</button>
+<h4>Controles manuales del sensor</h4><div id="pro"></div></div>
+<div class="bot"><div id="zbar"><input type="range" id="zs" min="0" max="1000" value="0"><b id="zv">1.0x</b></div><div id="zoom"></div><div id="modes"></div>
+<div class="row"><button id="thumb">🖼</button><button id="shutter"><i></i></button><button id="flip">🔄</button></div></div>
+</div>
+<div id="gal" class="hide"><div class="bar"><b>Galería</b><button id="gClose">Cerrar ✕</button></div><div class="g" id="gg"></div></div>
+<div id="view" class="hide"><div class="bar"><button id="vClose">✕</button><span><button id="vShare">Compartir</button> <a id="vDl" download>Descargar</a> <button id="vDel">Eliminar</button></span></div><div id="vBox"></div></div>
+<div id="flash"></div><div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script type="module" src="js/app.js"></script></body></html>
