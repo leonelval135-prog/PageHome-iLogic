@@ -1,0 +1,11 @@
+{
+  "name": "Sonorix",
+  "short_name": "Sonorix",
+  "description": "Tu música, a tu manera. App de música para Android.",
+  "lang": "es",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#07080d",
+  "theme_color": "#07080d",
+  "icons": [{"src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png"}]
+}
