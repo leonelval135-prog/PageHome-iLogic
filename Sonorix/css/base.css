@@ -1,0 +1,75 @@
+/* Sonorix · css/base.css
+   Variables de color/tipografía, reset y estilos base (modo oscuro/claro). */
+
+:root {
+  --bg:#07080d;
+  --s1:#10131c;
+  --s2:#171b27;
+  --tx:#f2f5fb;
+  --mu:#98a2b8;
+  --ac:#3e8fd8;
+  --ac2:#8cc1f0;
+  --ln:#ffffff1c;
+  --ok:#5ee6a8;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+
+@media(prefers-color-scheme:light) {
+  :root:not([data-theme="dark"]) {
+    --bg:#f4f7fc;
+    --s1:#fff;
+    --s2:#e9eff9;
+    --tx:#0d1424;
+    --mu:#56627a;
+    --ac:#2a74bd;
+    --ac2:#205483;
+    --ln:#0d142422;
+    color-scheme:light;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme:dark;
+}
+
+* {
+  box-sizing:border-box;
+  margin:0;
+}
+
+html {
+  scroll-behavior:smooth;
+  scroll-padding-top:80px;
+}
+
+body {
+  background:var(--bg);
+  color:var(--tx);
+  font:400 17px/1.6 "DM Sans",system-ui,sans-serif;
+  overflow-x:hidden;
+}
+
+h1,h2,h3 {
+  font-family:"Bricolage Grotesque","DM Sans",sans-serif;
+  line-height:1.05;
+  letter-spacing:-.02em;
+}
+
+a {
+  color:inherit;
+}
+
+.wrap {
+  max-width:1120px;
+  margin:auto;
+  padding:0 22px;
+}
+
+:focus-visible {
+  outline:2px solid var(--ac2);
+  outline-offset:3px;
+}
+

@@ -1,0 +1,1 @@
+Coloca aquí tu APK (por ejemplo sonorix.apk) y pon su ruta en DOWNLOAD_URL dentro de js/config.js.
