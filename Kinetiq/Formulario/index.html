@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="../../assets/auth/guard.js" data-service="kinetiq"></script>
+<title>Formularios de e-Onyx</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/logos/Kinetiq/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../../assets/logos/Kinetiq/icon-192.png">
+<link rel="apple-touch-icon" href="../../assets/logos/Kinetiq/icon-180.png">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.469.0"></script>
+<style>
+body{font-family:Inter,sans-serif;background:#f3f4f6;color:#111}
+.in{width:100%;padding:.7rem .9rem;border:1.5px solid #e1e3e6!important;border-radius:12px;background:#fff!important;font-size:.9rem;outline:0;transition:.2s}
+.in:focus{border-color:#000!important;box-shadow:0 0 0 4px rgba(0,0,0,.08)}
+.lb{display:block;font-size:.82rem;font-weight:600;margin-bottom:.4rem;color:#222}
+.panel{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:1.5rem}
+.step{display:none}.step.on{display:block}
+.card{border:1.5px solid #e1e3e6;border-radius:16px;padding:1rem .75rem;background:#fff;cursor:pointer;transition:.2s;font-weight:600;font-size:.85rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;text-align:center}
+.card:hover{border-color:#000}
+.card .ic{width:44px;height:44px;border-radius:50%;background:#f1f2f4;display:grid;place-items:center;color:#111}
+.card.on{background:#000;color:#fff;border-color:#000}
+.card.on .ic{background:#fff}
+.pill{position:relative;cursor:pointer}
+.pill input{position:absolute;opacity:0;pointer-events:none}
+.pill span{display:inline-block;padding:.45rem .85rem;border:1.5px solid #e1e3e6;border-radius:999px;font-size:.82rem;background:#fff;transition:.15s}
+.pill input:checked+span{background:#000;color:#fff;border-color:#000}
+.pill input:focus-visible+span{outline:2px solid #000;outline-offset:2px}
+.dot{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:700;background:#e5e7eb;color:#6b7280;transition:.3s}
+.dot.on{background:#000;color:#fff}.dot.done{background:#000;color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:14px;font-weight:700;transition:.2s}
+.btn:focus-visible{outline:3px solid #999;outline-offset:2px}
+.drop{border:2px dashed #cfd2d6;border-radius:14px;padding:1.5rem;text-align:center;cursor:pointer;transition:.2s}
+.drop:hover{border-color:#000}
+.fade{animation:f .35s ease-out}
+@keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body class="min-h-screen antialiased">
+<div id="toasts" class="fixed top-20 right-4 z-[60] flex flex-col gap-2"></div>
+
+<header class="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-50">
+  <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+    <span class="font-extrabold text-2xl tracking-tighter">e-Onyx</span>
+    <div class="flex items-center gap-2" id="dots"></div>
+  </div>
+  <div class="h-1 bg-gray-100"><div id="bar" class="h-1 bg-black transition-all duration-500" style="width:20%"></div></div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-10">
+  <div id="intro" class="mb-8">
+    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">Cuéntanos sobre tu proyecto</h1>
+    <p class="text-gray-500 text-lg max-w-2xl">Elige qué quieres crear y a qué se dedica tu negocio: las preguntas se adaptan a tu caso. Al final, el resumen llega directo a nuestro WhatsApp.</p>
+  </div>
+
+  <form id="f" novalidate>
+    <section class="step panel on" data-t="Datos de contacto"><h2 class="text-xl font-bold mb-1">¿Quién eres?</h2><p class="text-gray-500 text-sm mb-5">Para saber a quién responderle.</p><div id="s1" class="grid md:grid-cols-2 gap-4"></div></section>
+
+    <section class="step panel" data-t="Proyecto"><h2 class="text-xl font-bold mb-1">¿Qué quieres crear?</h2><p class="text-gray-500 text-sm mb-5">Selecciona una opción.</p>
+      <div id="types" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6"></div><div id="s2" class="grid md:grid-cols-2 gap-4"></div></section>
+
+    <section class="step panel" data-t="Negocio / evento"><h2 id="h3" class="text-xl font-bold mb-1"></h2><p id="p3" class="text-gray-500 text-sm mb-5">Según tu elección te haremos preguntas específicas.</p>
+      <div id="giros" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+      <div id="qs" class="mt-6 pt-6 border-t border-gray-200 hidden fade"></div></section>
+
+    <section class="step panel" data-t="Detalles del proyecto y marca"><h2 class="text-xl font-bold mb-1">Detalles y marca</h2><p class="text-gray-500 text-sm mb-5">Cuanto más nos cuentes, más precisa será la cotización.</p><div id="s4"></div></section>
+
+    <section class="step panel" data-t="Tiempos y presupuesto"><h2 class="text-xl font-bold mb-1">Tiempos y presupuesto</h2><p class="text-gray-500 text-sm mb-5">Último paso.</p>
+      <div id="s5" class="grid md:grid-cols-2 gap-4"></div>
+      <div class="mt-5 p-4 rounded-xl bg-gray-50 border border-gray-200 space-y-3 text-sm">
+        <label class="flex gap-2 cursor-pointer"><input type="checkbox" required class="mt-1 accent-black"> Confirmo que la información es correcta para generar la cotización.</label>
+        <label class="flex gap-2 cursor-pointer"><input type="checkbox" required class="mt-1 accent-black"> Autorizo a e-Onyx a usar estos datos solo para analizar mi proyecto.</label>
+      </div></section>
+
+    <div class="flex items-center justify-between mt-6">
+      <button type="button" id="bk" class="btn bg-white border border-gray-300 hover:border-black invisible"><i data-lucide="arrow-left" class="w-4 h-4"></i> Atrás</button>
+      <button type="submit" id="nx" class="btn bg-black text-white hover:bg-gray-800 shadow-lg"></button>
+    </div>
+  </form>
+
+  <div id="ok" class="hidden panel text-center py-12 fade">
+    <div class="w-20 h-20 bg-black text-white rounded-full grid place-items-center mx-auto mb-5"><i data-lucide="check" class="w-10 h-10"></i></div>
+    <h2 id="okh" class="text-3xl font-extrabold tracking-tight mb-3">Último paso: envía el mensaje</h2>
+    <p id="okp" class="text-gray-600 max-w-lg mx-auto mb-7">Abrimos WhatsApp con tu resumen ya escrito. Solo presiona <b>Enviar</b> en el chat para que lo recibamos. Si no se abrió, usa el botón.</p>
+    <div id="cardBox" class="hidden mb-7">
+      <img id="cardImg" alt="Resumen del proyecto" class="mx-auto rounded-2xl border border-gray-200 shadow-lg w-full" style="max-width:380px">
+      <p id="dbs" class="text-xs text-gray-500 mt-3"></p>
+    </div>
+    <div class="flex flex-wrap gap-3 justify-center">
+      <button type="button" id="dl" class="btn bg-black text-white hover:bg-gray-800 hidden"><i data-lucide="download" class="w-4 h-4"></i> Descargar imagen</button>
+      <a id="wa" target="_blank" rel="noopener" class="btn text-black hover:brightness-95" style="background:#25D366"><i data-lucide="message-circle" class="w-5 h-5"></i> Abrir WhatsApp</a>
+      <button type="button" id="cp" class="btn bg-white border border-gray-300 hover:border-black"><i data-lucide="copy" class="w-4 h-4"></i> Copiar resumen</button>
+      <button type="button" onclick="location.reload()" class="btn bg-white border border-gray-300 hover:border-black">Nuevo proyecto</button>
+    </div>
+    <p id="okn" class="text-xs text-gray-500 mt-6">¿Tienes logo o fotos? Mándalos en el mismo chat de WhatsApp.</p>
+  </div>
+</main>
+<footer class="text-center text-sm text-gray-500 py-10">&copy; 2026 e-Onyx. Desarrollo y diseño de alto nivel.</footer>
+
+<script>
+// ===== CONFIGURACIÓN =====
+const WA = '525561730731';                    // WhatsApp que recibe el briefing
+const EMAIL = 'codeex.soporte@hotmail.com';   // respaldo por correo (incluye logo). Pon '' para desactivar
+const TELEGRAM_TOKEN = '8967490721:AAGkWm7SggMaNoUIVImcJw6G13BsdSJmxPo';                    // opcional: token del bot de Telegram (@BotFather)
+const TELEGRAM_CHAT = '8859225584';                     // opcional: tu chat id de Telegram
+const SUPABASE_URL = 'https://ucaecxnytxyxjoxtnyxj.supabase.co';                      // ej. https://xxxxxxxx.supabase.co  (Project Settings > API)
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjYWVjeG55dHh5eGpveHRueXhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3MDI2MDYsImV4cCI6MjEwODI3ODYwNn0.MeTYHXa_EHHrywXKTdEvsfoADEiZGETMYPwfOGhFCSI';                      // clave "anon public" (NO uses la service_role aquí)
+const SUPABASE_TABLE = 'briefings';           // tabla creada con supabase/briefings.sql
+const CALLMEBOT_KEY = '';                     // pega aquí tu apikey de CallMeBot para envío DIRECTO (si está vacía, abre WhatsApp)
+
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const STEPS = ['Contacto','Proyecto','Giro','Detalles','Cierre'];
+let cur = 0, type = '', giro = '', grp = '', r4 = '', folio = '', quote = null;
+
+// ===== Generador de campos: [tipo, etiqueta, opciones|placeholder, requerido] =====
+// t texto · n número · d fecha · a párrafo · s lista · c casillas múltiples
+const fld = ([k, l, o, r]) => {
+  const q = r ? ' required' : '', L = l + (r ? ' *' : '');
+  let h;
+  if (k === 't' || k === 'n' || k === 'd')
+    h = `<input class="in" name="${l}" type="${{t:'text',n:'number',d:'date'}[k]}"${k==='t'&&o?` placeholder="${o}"`:''}${k==='n'?' min="0"':''}${q}>`;
+  else if (k === 'a') h = `<textarea class="in" rows="2" name="${l}" placeholder="${o||''}"${q}></textarea>`;
+  else if (k === 's') h = `<select class="in" name="${l}"${q}><option value="">Selecciona…</option>${o.map(x=>`<option>${x}</option>`).join('')}</select>`;
+  else h = `<div class="flex flex-wrap gap-2 items-center" data-n="${l}">${o.map(x=>`<label class="pill"><input type="checkbox" name="${l}" value="${x}"><span>${x}</span></label>`).join('')}<span class="inline-flex items-center gap-1"><input class="add-in in" placeholder="Agregar otra opción" style="width:11rem;padding:.4rem .8rem;border-radius:999px;font-size:.82rem"><button type="button" class="add-btn w-8 h-8 rounded-full bg-black text-white font-bold" aria-label="Agregar opción">+</button></span></div>`;
+  return `<div class="${k==='a'||k==='c'?'md:col-span-2':''}"><label class="lb">${L}</label>${h}</div>`;
+};
+const grid = a => `<div class="grid md:grid-cols-2 gap-4">${a.map(fld).join('')}</div>`;
+const sub = t => `<h3 class="font-bold mt-7 mb-3 pt-5 border-t border-gray-200">${t}</h3>`;
+
+// ===== Catálogo de negocios =====
+const CITAS = ['Agenda en línea con horarios','Solo botón de WhatsApp','Por llamada','No necesito por ahora'];
+const NG = {
+  ecommerce:{n:'Comercio electrónico',i:'shopping-bag',q:[
+    ['s','Tipo de productos',['Físicos','Digitales','Físicos y digitales','Servicios']],
+    ['n','Cantidad aproximada de productos'],['n','Número de categorías'],
+    ['s','Manejo de inventario',['Excel o manual','Sistema propio','Necesito sincronizarlo','Dropshipping']],
+    ['c','Dónde vendes hoy',['Instagram','Facebook','Mercado Libre','Amazon','Tienda física','Aún no vendo en línea']],
+    ['c','Métodos de pago',['Tarjeta','PayPal','Transferencia / SPEI','OXXO / efectivo','Contra entrega']],
+    ['c','Envíos',['Paquetería nacional','Envíos internacionales','Recolección en tienda','Entrega local propia']],
+    ['c','Funciones deseadas',['Cupones y descuentos','Reseñas de clientes','Lista de deseos','Cuentas de cliente','Facturación CFDI','Panel de administración','Carrito abandonado','Venta mayoreo']]]},
+  barberia:{n:'Barbería',i:'scissors',q:[
+    ['n','Número de barberos / sillas'],['t','Precio promedio de un corte'],['t','Horario de atención'],
+    ['s','¿Atienden sin cita?',['Solo con cita','Sin cita','Ambos']],['s','Sistema de citas',CITAS],
+    ['c','Servicios',['Corte clásico','Fade / degradado','Barba','Afeitado con toalla caliente','Corte infantil','Color','Combos']],
+    ['c','Funciones deseadas',['Reserva por barbero','Recordatorios por WhatsApp','Anticipo en línea','Membresías','Programa de lealtad','Galería de cortes','Venta de productos','Reseñas']]]},
+  estetica:{n:'Estética / Spa',i:'sparkles',q:[
+    ['n','Número de especialistas'],['t','Horario de atención'],['s','Sistema de citas',CITAS],
+    ['s','¿Atienden a domicilio?',['No','Sí','Ambos']],
+    ['c','Servicios',['Corte y peinado','Color','Uñas','Pestañas y cejas','Maquillaje','Faciales','Masajes / spa','Depilación','Tratamientos capilares','Novias']],
+    ['c','Funciones deseadas',['Reserva por especialista','Catálogo con precios','Paquetes y promociones','Anticipo en línea','Tarjetas de regalo','Galería antes y después','Recordatorios','Programa de lealtad','Venta de productos']]]},
+  restaurante:{n:'Restaurante / Cafetería',i:'utensils',q:[
+    ['s','Tipo de establecimiento',['Restaurante','Cafetería','Taquería / fonda','Bar','Dark kitchen','Food truck','Panadería / pastelería']],
+    ['t','Tipo de cocina'],['n','Número de sucursales'],['n','Cantidad aproximada de platillos'],['t','Horario de atención'],
+    ['s','Menú digital',['Menú con QR','Menú web con fotos','Menú con pedidos en línea','PDF sencillo']],
+    ['c','Servicio',['Comer en sitio','Para llevar','Entrega a domicilio','Eventos privados','Catering']],
+    ['c','Funciones deseadas',['Pedidos en línea','Reservación de mesas','Pago en línea','Integración Uber Eats / Rappi / DiDi','Panel de pedidos','Promociones y cupones','Programa de lealtad','Galería','Reseñas']]]},
+  clinica:{n:'Clínica / Salud',i:'stethoscope',q:[
+    ['s','Especialidad',['Medicina general','Dental','Psicología','Nutrición','Fisioterapia','Veterinaria','Estética médica','Otra']],
+    ['n','Número de especialistas'],['t','Horario de atención'],
+    ['c','Funciones deseadas',['Agenda de citas','Perfil de cada especialista','Expediente o historial','Teleconsulta','Recordatorios','Pagos en línea','Portal de pacientes','Consentimientos y aviso de privacidad','Blog de salud']]]},
+  gimnasio:{n:'Gimnasio / Fitness',i:'dumbbell',q:[
+    ['s','Tipo',['Gimnasio','CrossFit / box','Yoga / pilates','Danza','Artes marciales','Entrenador personal']],
+    ['n','Número aproximado de socios'],['n','Número de sucursales'],
+    ['c','Funciones deseadas',['Membresías y cobro recurrente','Reserva de clases','Horarios de clases','Acceso con QR','Rutinas personalizadas','Seguimiento de progreso','Tienda','Clase de prueba gratis']]]},
+  inmobiliaria:{n:'Inmobiliaria',i:'house',q:[
+    ['s','Giro',['Venta','Renta','Venta y renta','Desarrolladora']],['n','Propiedades a publicar'],
+    ['c','Funciones deseadas',['Catálogo con filtros','Mapa','Tour virtual 360°','Calculadora de hipoteca','Panel de agentes','Contacto por propiedad','Favoritos','Integración con portales']]]},
+  educacion:{n:'Educación / Cursos',i:'graduation-cap',q:[
+    ['s','Modalidad',['Presencial','En línea','Híbrida']],['n','Cantidad de cursos'],
+    ['c','Funciones deseadas',['Cursos en video','Pagos y suscripciones','Certificados','Comunidad o foro','Evaluaciones','Calendario','Portal de alumnos','Panel de maestros']]]},
+  taller:{n:'Taller automotriz',i:'wrench',q:[
+    ['c','Servicios',['Mecánica general','Afinación','Frenos','Hojalatería y pintura','Eléctrico','Llantas','Lavado y detallado','A domicilio']],
+    ['c','Funciones deseadas',['Cotizador en línea','Citas','Seguimiento del vehículo','Historial de servicios','Recordatorios de mantenimiento','Catálogo de refacciones','Pagos']]]},
+  servicios:{n:'Servicios profesionales',i:'briefcase',q:[
+    ['t','Área de especialidad'],['s','Tamaño del equipo',['Independiente','2 a 10','11 a 50','Más de 50']],
+    ['c','Funciones deseadas',['Agenda de asesorías','Portafolio de casos','Blog','Portal de clientes','Cotizador','Pagos en línea','Descarga de documentos','Testimonios']]]},
+  otro:{n:'Otro giro',i:'ellipsis',q:[['t','¿A qué se dedica tu negocio?','',1],['a','¿Qué necesitas resolver?']]}
+};
+const EL = ['RSVP','Mesa de regalos','Mapa','Cuenta regresiva','Galería','Música de fondo','Itinerario','Código de vestimenta','Pases con QR'];
+const EV = {
+  boda:{n:'Boda',i:'heart',q:[['t','Nombres de los novios'],['d','Fecha'],['t','Ceremonia: lugar y hora'],['t','Recepción: lugar y hora'],['n','Invitados aproximados'],['t','Paleta o temática'],['c','Elementos',[...EL,'Hospedaje sugerido','Libro de visitas']]]},
+  xv:{n:'XV años',i:'crown',q:[['t','Nombre de la quinceañera'],['d','Fecha'],['t','Lugar y hora'],['n','Invitados aproximados'],['t','Temática o colores'],['c','Elementos',[...EL,'Padrinos']]]},
+  cumple:{n:'Cumpleaños',i:'cake',q:[['t','Nombre del festejado'],['t','Edad'],['d','Fecha'],['t','Lugar y hora'],['t','Temática'],['c','Elementos',EL]]},
+  baby:{n:'Baby shower',i:'baby',q:[['t','Nombres de los papás'],['s','¿Revelación de sexo?',['Sí','No']],['d','Fecha'],['t','Lugar y hora'],['t','Temática'],['c','Elementos',EL]]},
+  grad:{n:'Graduación',i:'graduation-cap',q:[['t','Nombre del graduado o generación'],['d','Fecha'],['t','Lugar y hora'],['n','Invitados aproximados'],['c','Elementos',EL]]},
+  corp:{n:'Evento corporativo',i:'building-2',q:[['t','Nombre del evento'],['d','Fecha'],['t','Lugar y hora'],['n','Asistentes aproximados'],['c','Elementos',['Registro de asistentes','Agenda y ponentes','Mapa','Patrocinadores','Transmisión en vivo','Pases con QR','Encuesta posterior']]]}
+};
+
+const PLAT = ['Facebook','Instagram','TikTok','WhatsApp Business','YouTube','LinkedIn','X (Twitter)','Pinterest','Telegram','Threads','Google Business Profile'];
+const PLATQ = ['c','Plataformas donde quieres presencia', PLAT];
+const SC = {
+  negocio:{n:'Negocio / PYME',i:'store',q:[PLATQ,
+    ['t','Giro o rubro del negocio','Ej. barbería, restaurante, ropa'],['t','Zona de cobertura','Ej. Acolman, Texcoco'],
+    ['s','¿Cuenta con local físico?',['Sí','No, solo en línea','Ambos']],['t','Productos o servicios principales']]},
+  personal:{n:'Marca personal / Profesional',i:'user-round',q:[PLATQ,
+    ['s','Tipo de perfil',['Profesional independiente','Emprendedor','Consultor / coach','Artista / músico','Figura pública']],
+    ['t','Profesión o especialidad'],['t','¿En qué quieres ser reconocido?']]},
+  tienda:{n:'Tienda / Ventas en línea',i:'shopping-bag',q:[PLATQ,
+    ['t','Tipo de productos'],['n','Cantidad aproximada de productos'],
+    ['c','Canales de venta',['WhatsApp','Facebook Shop','Instagram Shopping','Sitio web propio','Mercado Libre','Contra entrega']]]},
+  creador:{n:'Creador de contenido',i:'video',q:[PLATQ,
+    ['t','Nicho o temática','Ej. fitness, humor, cocina, gaming'],
+    ['c','Formatos que manejas',['Video corto','Video largo','Transmisión en vivo','Fotos','Podcast','Texto']],
+    ['s','Frecuencia actual de publicación',['No publico aún','Ocasional','Semanal','Diaria']]]},
+  comunidad:{n:'Evento / Comunidad',i:'users',q:[PLATQ,
+    ['t','Nombre del evento o comunidad'],['d','Fecha del evento (si aplica)'],['n','Asistentes o miembros esperados']]},
+  institucion:{n:'Organización / Institución',i:'landmark',q:[PLATQ,
+    ['s','Tipo de organización',['Escuela','Iglesia','ONG / asociación','Gobierno / municipio','Club o deportivo','Empresa grande']],
+    ['n','Número de miembros o público']]}
+};
+const SOC = 'Desarrollo y Gestión de Plataformas Sociales';
+const PT = [['Página Web','globe'],['App Móvil','smartphone'],['Invitación Digital','mail-open'],['Sistema a medida','server'],[SOC,'users']];
+
+// ===== Detalles por tipo de proyecto =====
+const DET = {
+  'Página Web':[['s','Tipo de página',['Informativa / corporativa','Landing page','Tienda en línea','Portafolio','Blog']],
+    ['s','¿Tienes contenido (textos y fotos)?',['Sí, completo','Parcial','No, necesito que lo creen']],
+    ['c','Secciones',['Inicio','Nosotros','Servicios','Productos','Galería','Testimonios','Preguntas frecuentes','Blog','Contacto','Ubicación']],
+    ['c','Funciones especiales',['Botón de WhatsApp','Formulario de contacto','Reservas o citas','Chat en vivo','Varios idiomas','SEO avanzado','Google Maps','Panel para editar contenido','Analítica']],
+    ['s','¿Ya tienes dominio?',['Sí, ya lo tengo','No, necesito comprarlo']],['t','Dominio deseado','www.tuempresa.com'],
+    ['s','¿Necesitas correos empresariales?',['Sí','No por ahora']]],
+  'App Móvil':[['t','Nombre propuesto de la app'],['t','Función principal'],
+    ['c','Plataformas',['Android','iOS','Web (PWA)']],['c','Inicio de sesión',['Email','Google','Apple','Teléfono / SMS','Sin registro']],
+    ['c','Funciones',['Notificaciones push','Mapa y geolocalización','Chat','Pagos dentro de la app','Panel de administración','Reservas','Catálogo','Modo oscuro','Funciona sin internet']],
+    ['a','Describe las funciones principales']],
+  'Invitación Digital':[['s','Formato',['Solo invitación web','Web + versión para WhatsApp (imagen o video)','Con panel de confirmaciones']]],
+  [SOC]:[['s','Servicio requerido',['Crear mis páginas y perfiles desde cero','Optimizar y reestructurar mis perfiles actuales','Creación + plan de desarrollo y crecimiento','Gestión mensual (community management)','Solo plan de crecimiento']],
+    ['s','Situación actual',['No tengo ninguna cuenta','Tengo cuentas sin usar','Tengo cuentas activas con pocos seguidores','Tengo cuentas activas y quiero escalar']],
+    ['t','Nombre y @usuario deseado','Ej. Mi Marca / @mimarca'],['n','Seguidores actuales (suma aproximada)'],
+    ['a','Enlaces de tus cuentas actuales (si existen)'],
+    ['c','Qué incluye la creación',['Creación y configuración de cuentas','Foto de perfil y portada','Biografía y descripción optimizada','Botones de acción (WhatsApp, reservar, tienda)','Catálogo de productos / Facebook Shop','Mensajes automáticos y respuestas rápidas','WhatsApp Business con catálogo','Conexión entre plataformas (Meta Business Suite)','Pixel y seguimiento de conversiones','Guía para verificación de cuenta']],
+    ['c','Contenido y crecimiento',['Calendario editorial mensual','Estrategia de contenido por plataforma','Diseño de publicaciones y carruseles','Reels / TikToks / videos cortos','Historias','Hashtags y SEO social','Campañas de anuncios (Meta Ads / TikTok Ads)','Colaboraciones con creadores','Concursos y sorteos','Gestión de comunidad y mensajes','Estrategia de ventas por WhatsApp','Reportes mensuales de métricas']],
+    ['s','Meta principal',['Más seguidores','Más mensajes y clientes potenciales','Más ventas','Reconocimiento de marca','Comunidad activa','Reservas o citas']],
+    ['t','Meta a 3 y 6 meses','Ej. 5,000 seguidores y 40 mensajes al mes'],
+    ['s','Duración del plan',['1 mes','3 meses','6 meses','12 meses']],
+    ['s','Frecuencia de publicación',['2 a 3 por semana','4 a 5 por semana','Diaria','Que ustedes me recomienden']],
+    ['s','Presupuesto mensual para anuncios',['Sin presupuesto en anuncios','Hasta $1,000 MXN','$1,000 - $5,000 MXN','$5,000 - $15,000 MXN','Más de $15,000 MXN']],
+    ['t','Público objetivo','Edad, ubicación, intereses'],
+    ['c','Tono de comunicación',['Cercano y amigable','Profesional','Divertido','Elegante','Inspirador','Educativo']],
+    ['c','Material disponible',['Logo','Fotos propias','Videos propios','Catálogo de productos','Testimonios de clientes','Nada, necesito que lo creen']],
+    ['s','Aprobación de contenido',['Apruebo antes de publicar','Publiquen sin aprobación','Solo quiero el plan']],
+    ['a','Describe tu negocio y lo que quieres lograr']],
+  'Sistema a medida':[['s','Tipo de sistema',['CRM / clientes','Inventario / ERP','Punto de venta','Reservas y citas','Dashboard y reportes','Chatbot / automatización','Otro']],
+    ['n','Usuarios que lo usarán'],['c','Integraciones',['WhatsApp','Pagos','Facturación CFDI','Google Workspace','Excel','API externa']],
+    ['a','Describe el proceso que quieres resolver']]
+};
+const BRAND = [['t','Eslogan'],['t','Colores preferidos','Ej. negro, blanco y dorado'],
+  ['c','Estilo visual',['Minimalista','Elegante / lujo','Moderno','Corporativo','Divertido','Rústico / artesanal','Oscuro / premium']],
+  ['t','Tres palabras que describan tu marca'],['t','Tres palabras que NO quieres que te representen'],
+  ['a','Referencias que te gusten (enlaces)','Webs, apps o cuentas de Instagram']];
+
+// ===== Render de pasos =====
+$('#s1').innerHTML = [['t','Nombre completo','Ej. Juan Pérez',1],['t','Empresa o negocio','',1],['t','WhatsApp','+52 ...',1],['t','Correo electrónico','',1],
+  ['t','Ciudad y país','Ej. CDMX, México',1],['t','Puesto o rol'],['t','Sitio web actual','https://'],['t','Instagram'],['t','Facebook'],['t','TikTok'],
+  ['s','¿Cómo nos conociste?',['Instagram','Facebook','Recomendación','Google','WhatsApp','Otro']]].map(fld).join('');
+$('#s5').innerHTML = [['s','Presupuesto aproximado',['Aún no lo defino','Menos de $500 USD','$500 - $1,500 USD','$1,500 - $3,000 USD','$3,000 - $6,000 USD','Más de $6,000 USD']],
+  ['d','Fecha ideal de entrega'],['s','Urgencia',['Sin prisa','En 1 a 2 meses','Lo antes posible']],
+  ['s','Mejor medio para contactarte',['WhatsApp','Llamada','Correo']],['t','Mejor horario para contactarte'],['a','Comentarios adicionales']].map(fld).join('');
+$('#s2').innerHTML = [['s','Objetivo principal',['Conseguir clientes','Vender productos','Automatizar procesos','Mejorar mi imagen','Informar sobre servicios','Crear comunidad','Evento social','Otro']],['t','¿Qué resultado esperas a corto plazo?','Ej. aumentar ventas 20%']].map(fld).join('');
+$('#dots').innerHTML = STEPS.map((s,i)=>`<div class="dot" title="${s}">${i+1}</div>`).join('');
+
+const cards = (obj, sel) => Object.entries(obj).map(([k,v]) =>
+  `<button type="button" class="card" data-k="${k}"><span class="ic"><i data-lucide="${v.i}" class="w-5 h-5"></i></span>${v.n}</button>`).join('');
+
+$('#types').innerHTML = PT.map(([n,i])=>`<button type="button" class="card${n === SOC ? ' col-span-2 md:col-span-1' : ''}" data-k="${n}"><span class="ic"><i data-lucide="${i}" class="w-5 h-5"></i></span>${n}</button>`).join('');
+$('#types').onclick = e => { const c = e.target.closest('.card'); if (!c) return;
+  type = c.dataset.k; $$('#types .card').forEach(x => x.classList.toggle('on', x === c)); };
+
+const grpOf = () => type === 'Invitación Digital' ? 'ev' : type === SOC ? 'sc' : 'ng';
+const CAT = () => ({ ev: EV, sc: SC, ng: NG })[grp];
+function render3() {
+  grp = grpOf(); giro = '';
+  $('#h3').textContent = { ev: '¿Qué tipo de evento es?', sc: '¿Qué tipo de cuenta o marca vamos a crear?', ng: '¿Qué tipo de negocio tienes?' }[grp];
+  $$('.step')[2].dataset.t = { ev: 'Evento', sc: 'Tipo de cuenta', ng: 'Negocio' }[grp];
+  $('#giros').innerHTML = cards(CAT()); $('#qs').classList.add('hidden'); $('#qs').innerHTML = '';
+  lucide.createIcons();
+}
+$('#giros').onclick = e => { const c = e.target.closest('.card'); if (!c) return;
+  giro = c.dataset.k; $$('#giros .card').forEach(x => x.classList.toggle('on', x === c));
+  const d = CAT()[giro];
+  $('#qs').innerHTML = `<h3 class="font-bold mb-4">Cuéntanos más: ${d.n}</h3>` + grid(d.q) +
+    (grp === 'ng' ? sub('Sobre tu negocio') + grid([['a','¿Qué te hace diferente de tu competencia?'],['t','Negocios que admiras como referencia']]) : '') +
+    (grp === 'sc' ? sub('Sobre tu marca') + grid([['a','¿Qué te hace diferente de tu competencia?'],['t','Cuentas que admiras como referencia','@usuarios o enlaces']]) : '');
+  $('#qs').classList.remove('hidden'); };
+
+function render4() {
+  r4 = type;
+  $('#s4').innerHTML = grid(DET[type]) + (type === SOC ? '<p class="text-xs text-gray-500 mt-4">Por seguridad, no escribas contraseñas aquí: los accesos a tus cuentas los coordinamos por un canal seguro al iniciar tu proyecto.</p>' : '') + sub('Identidad visual') +
+    `<label class="drop block mb-5"><i data-lucide="upload-cloud" class="mx-auto w-9 h-9 mb-2"></i><b>Sube tu logo o manual de marca</b><p class="text-xs text-gray-500 mt-1">PNG, JPG, SVG, PDF (máx. 20 MB). Se envía junto con tu formulario.</p><p id="fn" class="text-sm font-bold mt-2"></p><input type="file" name="Logo" class="sr-only" accept=".png,.jpg,.jpeg,.svg,.pdf,.ai"></label>` + grid(BRAND);
+  $('#s4 input[type=file]').onchange = e => { const f = e.target.files[0];
+    if (f && f.size > 20 * 1024 * 1024) { e.target.value = ''; $('#fn').textContent = ''; return toast('El archivo pesa más de 20 MB. Elige uno más ligero.'); }
+    $('#fn').textContent = f ? 'Adjunto: ' + f.name : ''; };
+  lucide.createIcons();
+}
+
+// ===== Navegación =====
+function toast(m) { const t = document.createElement('div');
+  t.className = 'bg-white border border-red-200 text-red-800 text-sm font-medium px-4 py-3 rounded-xl shadow-lg fade'; t.textContent = m;
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), 3800); }
+function go(n) {
+  if (n === 2 && grp !== grpOf()) render3();
+  if (n === 3 && r4 !== type) render4();
+  cur = n; $$('.step').forEach((s,i) => { s.classList.toggle('on', i === n); if (i === n) s.classList.add('fade'); });
+  $$('.dot').forEach((d,i) => { d.className = 'dot' + (i < n ? ' done' : i === n ? ' on' : ''); d.innerHTML = i < n ? '✓' : i + 1; });
+  $('#bar').style.width = (n + 1) * 20 + '%';
+  $('#bk').classList.toggle('invisible', n === 0);
+  $('#nx').innerHTML = n === 4 ? '<i data-lucide="send" class="w-5 h-5"></i> Enviar ' : 'Continuar <i data-lucide="arrow-right" class="w-4 h-4"></i>';
+  $('#nx').style.background = n === 4 ? '#25D366' : ''; $('#nx').style.color = n === 4 ? '#000' : '';
+  lucide.createIcons(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function valid() {
+  for (const e of $$('.step.on [required]')) if (!e.checkValidity()) { e.reportValidity(); return false; }
+  if (cur === 1 && !type) { toast('Selecciona qué quieres crear.'); return false; }
+  if (cur === 2 && !giro) { toast('Selecciona una opción para continuar.'); return false; }
+  return true;
+}
+$('#bk').onclick = () => go(cur - 1);
+
+// ===== Resumen y envío =====
+function collect() { const out = [];
+  $$('.step').forEach(s => { const m = new Map();
+    s.querySelectorAll('[name]').forEach(e => {
+      if (e.type === 'file' || (e.type === 'checkbox' && !e.checked)) return;
+      const v = e.value.trim(); if (v) m.set(e.name, [...(m.get(e.name) || []), v]); });
+    if (m.size) out.push([s.dataset.t, [...m]]); });
+  return out; }
+function build(cut) {
+  const g = giro ? CAT()[giro].n : '';
+  let m = `*NUEVO BRIEFING e-Onyx*\n*Folio:* ${folio}\n` + (quote ? `*Cotización estimada:* ${mxn(quote.total)} MXN IVA incluido${quote.monthly ? ' + mensualidad de ' + mxn(quote.monthly.total) : ''}${quote.negotiable ? ' (posiblemente negociable)' : ''}\n` : '') + `*Proyecto:* ${type}\n*${({ ev: 'Evento', sc: 'Tipo de cuenta', ng: 'Giro' })[grp]}:* ${g}\n`;
+  collect().forEach(([sec, fs]) => { m += `\n*${sec}*\n`;
+    fs.forEach(([k, v]) => { let s = v.join(', '); if (cut && s.length > cut) s = s.slice(0, cut) + '…'; m += `• ${k}: ${s}\n`; }); });
+  return m; }
+
+// Envío directo a tu WhatsApp vía CallMeBot (en partes cortas para evitar límites de longitud)
+async function sendDirect(m) {
+  const parts = []; let b = '';
+  m.split('\n').forEach(l => { if ((b + l).length > 900) { parts.push(b); b = ''; } b += l + '\n'; });
+  parts.push(b);
+  for (const p of parts) {
+    const u = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent('+' + WA)}&apikey=${encodeURIComponent(CALLMEBOT_KEY)}&text=${encodeURIComponent(p.trim())}`;
+    try { await fetch(u, { mode: 'no-cors' }); } catch (err) {}
+    await new Promise(r => setTimeout(r, 1500));
+  }
+}
+
+// ===== Folio UID =====
+function newFolio() {
+  const d = new Date(), p = n => String(n).padStart(2, '0'), abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const r = crypto.getRandomValues(new Uint8Array(6));
+  return `EON-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${[...r].map(x => abc[x % abc.length]).join('')}`;
+}
+
+// ===== Supabase (REST directo, sin librerías) =====
+function flat() { const o = {}; collect().forEach(([, fs]) => fs.forEach(([k, v]) => { o[k] = v.join(', '); })); return o; }
+async function saveSupabase(msg) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return 'off';
+  const f = flat(), datos = {};
+  collect().forEach(([sec, fs]) => { datos[sec] = Object.fromEntries(fs.map(([k, v]) => [k, v.join(', ')])); });
+  const row = {
+    folio, nombre: f['Nombre completo'] || null, empresa: f['Empresa o negocio'] || null, whatsapp: f['WhatsApp'] || null,
+    correo: f['Correo electrónico'] || null, ciudad: f['Ciudad y país'] || null, tipo_proyecto: type,
+    giro: giro ? CAT()[giro].n : null, presupuesto: f['Presupuesto aproximado'] || null,
+    urgencia: f['Urgencia'] || null, fecha_entrega: f['Fecha ideal de entrega'] || null, resumen: msg.replace(/\*/g, ''), datos,
+    cotizacion_subtotal: quote ? quote.subtotal : null, cotizacion_total: quote ? quote.total : null, mensualidad: quote && quote.monthly ? quote.monthly.total : null,
+    negociable: quote ? quote.negotiable : null, margen_estimado: quote ? Math.round(quote.margin * 1000) / 1000 : null, horas_estimadas: quote ? Math.round(quote.hours * 10) / 10 : null, cotizacion: quote
+  };
+  try {
+    const r = await fetch(`${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/${SUPABASE_TABLE}`, { method: 'POST',
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(row) });
+    if (!r.ok) console.warn('Supabase:', r.status, await r.text());
+    return r.ok ? 'ok' : 'err';
+  } catch (e) { console.warn('Supabase:', e); return 'err'; }
+}
+
+// ===== Motor de cotización =====
+// Cada opción del formulario tiene su propio precio: [precio MXN antes de IVA, horas estimadas].
+// El precio final es la SUMA de lo que el cliente elige (nada oculto). Las horas solo se usan en el
+// análisis interno: costo, margen y si el proyecto "es negociable". Precios pensados para un estudio
+// que está arrancando (moderados, competitivos en México). Para ajustarlos, edita solo los números.
+const PR = {
+  cost: 110, costMonthly: 90,   // costo interno por hora (MXN): tu tiempo + herramientas + impuestos
+  minMargin: 0.25,      // margen mínimo que debe conservar un proyecto para poder negociarse
+  minRoom: 0.05,        // holgura mínima (5 %) entre el precio y el piso para mostrar "negociable"
+  overhead: 0.15,       // gestión, reuniones y revisiones sobre las horas de trabajo (solo costo interno)
+  riskBase: 0.05, riskStep: 0.03, riskMax: 0.15,   // colchón de imprevistos (solo costo interno)
+  minProject: 800, minMonthly: 1500,               // mínimos (MXN)
+  showMin: 400, maxLines: 14,                      // en la imagen solo se desglosan conceptos >= showMin
+  iva: 0.16, anticipo: 0.5, valid: 15, usd: 18.5,  // IVA, anticipo, vigencia (días) y tipo de cambio de referencia
+  rush: { 'Sin prisa': 1, 'En 1 a 2 meses': 1, 'Lo antes posible': 1.15 }
+};
+// Funciones (web y giro): [precio, horas, grupo]. Dentro de un mismo grupo solo se cobra el concepto más caro
+// (ej. "Reservas o citas" y "Reserva por barbero" son el mismo sistema: no se cobra dos veces).
+const FEAT = {
+  'Botón de WhatsApp': [150, 0.5], 'Formulario de contacto': [400, 1.5], 'Reservas o citas': [1800, 7, 'citas'],
+  'Chat en vivo': [400, 1.5], 'Varios idiomas': [1200, 5], 'SEO avanzado': [1200, 5], 'Google Maps': [150, 0.5],
+  'Panel para editar contenido': [2500, 10, 'panel'], 'Analítica': [400, 1.5],
+  // comercio electrónico
+  'Cupones y descuentos': [600, 3, 'cupones'], 'Reseñas de clientes': [500, 2, 'resenas'], 'Lista de deseos': [500, 2.5],
+  'Cuentas de cliente': [1500, 7], 'Facturación CFDI': [3000, 12, 'cfdi'], 'Panel de administración': [2500, 10, 'panel'],
+  'Carrito abandonado': [800, 3.5], 'Venta mayoreo': [1000, 4.5],
+  // barbería / estética
+  'Reserva por barbero': [1800, 7, 'citas'], 'Reserva por especialista': [1800, 7, 'citas'],
+  'Recordatorios por WhatsApp': [700, 3, 'recordatorios'], 'Recordatorios': [700, 3, 'recordatorios'],
+  'Anticipo en línea': [2000, 8, 'pagos'], 'Membresías': [3000, 12], 'Programa de lealtad': [1800, 8],
+  'Galería de cortes': [400, 2, 'galeria'], 'Galería antes y después': [500, 2.5, 'galeria'], 'Galería': [400, 2, 'galeria'],
+  'Venta de productos': [2500, 10, 'tienda'], 'Reseñas': [500, 2, 'resenas'],
+  'Catálogo con precios': [500, 2.5, 'catalogo'], 'Paquetes y promociones': [400, 2], 'Tarjetas de regalo': [1200, 5],
+  // restaurante
+  'Pedidos en línea': [4500, 18, 'pedidos'], 'Reservación de mesas': [1500, 6, 'citas'], 'Pago en línea': [2500, 10, 'pagos'],
+  'Integración Uber Eats / Rappi / DiDi': [800, 3.5], 'Panel de pedidos': [3000, 12, 'panel'], 'Promociones y cupones': [500, 2.5, 'cupones'],
+  // clínica
+  'Agenda de citas': [1800, 7, 'citas'], 'Perfil de cada especialista': [600, 3], 'Expediente o historial': [6000, 24],
+  'Teleconsulta': [3500, 14], 'Pagos en línea': [2500, 10, 'pagos'], 'Portal de pacientes': [5000, 20, 'portal'],
+  'Consentimientos y aviso de privacidad': [500, 2], 'Blog de salud': [800, 4],
+  // gimnasio
+  'Membresías y cobro recurrente': [4000, 16, 'pagos'], 'Reserva de clases': [2500, 10, 'citas'], 'Horarios de clases': [400, 2],
+  'Acceso con QR': [3000, 12], 'Rutinas personalizadas': [3500, 14], 'Seguimiento de progreso': [4000, 16],
+  'Tienda': [3000, 12, 'tienda'], 'Clase de prueba gratis': [300, 1],
+  // inmobiliaria
+  'Catálogo con filtros': [2500, 10, 'catalogo'], 'Mapa': [800, 3], 'Tour virtual 360°': [1500, 6], 'Calculadora de hipoteca': [700, 3],
+  'Panel de agentes': [3500, 14, 'panel'], 'Contacto por propiedad': [300, 1], 'Favoritos': [800, 3.5], 'Integración con portales': [2500, 10],
+  // educación
+  'Cursos en video': [4000, 16], 'Pagos y suscripciones': [4000, 16, 'pagos'], 'Certificados': [1500, 6], 'Comunidad o foro': [3000, 12],
+  'Evaluaciones': [3000, 12], 'Calendario': [600, 3], 'Portal de alumnos': [5000, 20, 'portal'], 'Panel de maestros': [3500, 14, 'panel'],
+  // taller
+  'Cotizador en línea': [2000, 8, 'cotizador'], 'Citas': [1800, 7, 'citas'], 'Seguimiento del vehículo': [3500, 14],
+  'Historial de servicios': [3000, 12], 'Recordatorios de mantenimiento': [800, 4, 'recordatorios'], 'Catálogo de refacciones': [2500, 10, 'catalogo'],
+  'Pagos': [2500, 10, 'pagos'],
+  // servicios profesionales
+  'Agenda de asesorías': [1800, 7, 'citas'], 'Portafolio de casos': [600, 3], 'Blog': [800, 4], 'Portal de clientes': [5000, 20, 'portal'],
+  'Cotizador': [2000, 8, 'cotizador'], 'Descarga de documentos': [400, 2], 'Testimonios': [300, 1, 'resenas']
+};
+const MENU = { 'Menú con QR': [500, 2.5], 'Menú web con fotos': [1200, 6], 'Menú con pedidos en línea': [4500, 18, 'pedidos'] };
+const PLH = { 'Facebook': [500, 2], 'Instagram': [500, 2], 'TikTok': [400, 1.5], 'WhatsApp Business': [700, 3], 'YouTube': [500, 2], 'LinkedIn': [400, 1.5],
+  'X (Twitter)': [300, 1], 'Pinterest': [300, 1], 'Telegram': [300, 1], 'Threads': [200, 0.5], 'Google Business Profile': [500, 2] };
+const HW = {
+  paginaTipo: { 'Informativa / corporativa': [4500, 20], 'Landing page': [2500, 12], 'Tienda en línea': [9000, 40], 'Portafolio': [3500, 16], 'Blog': [4000, 18] },
+  seccionExtra: [250, 1.5],   // por sección adicional (las primeras 5 van incluidas en el precio de la página)
+  contenido: { 'Parcial': [500, 3], 'No, necesito que lo creen': [1200, 7] },
+  appBase: [10000, 45],
+  appPlat: { 'Android': [3000, 12], 'iOS': [5000, 20], 'Web (PWA)': [2000, 8] },
+  appFunc: { 'Notificaciones push': [1500, 6], 'Mapa y geolocalización': [2500, 10], 'Chat': [5000, 22], 'Pagos dentro de la app': [3500, 14],
+    'Panel de administración': [7000, 30], 'Reservas': [4500, 18], 'Catálogo': [3000, 12], 'Modo oscuro': [1000, 4], 'Funciona sin internet': [4000, 16] },
+  appGrp: { 'Reservas': 'citas', 'Pagos dentro de la app': 'pagos', 'Panel de administración': 'panel', 'Catálogo': 'catalogo' },
+  appLogin: { 'Email': [1000, 4], 'Google': [600, 2.5], 'Apple': [800, 3], 'Teléfono / SMS': [1500, 6], 'Sin registro': [0, 0] },
+  invFormato: { 'Solo invitación web': [800, 5], 'Web + versión para WhatsApp (imagen o video)': [1200, 8], 'Con panel de confirmaciones': [2500, 14] },
+  invElem: { 'RSVP': [400, 2], 'Mesa de regalos': [200, 1], 'Mapa': [100, 0.5], 'Cuenta regresiva': [100, 0.5], 'Galería': [250, 1.5], 'Música de fondo': [100, 0.5],
+    'Itinerario': [150, 1], 'Código de vestimenta': [100, 0.5], 'Pases con QR': [600, 3], 'Hospedaje sugerido': [150, 1], 'Libro de visitas': [350, 2],
+    'Padrinos': [150, 1], 'Registro de asistentes': [800, 4], 'Agenda y ponentes': [500, 2.5], 'Patrocinadores': [300, 1.5], 'Transmisión en vivo': [600, 3],
+    'Encuesta posterior': [350, 2] },
+  sistema: { 'CRM / clientes': [15000, 70], 'Inventario / ERP': [22000, 100], 'Punto de venta': [18000, 85], 'Reservas y citas': [12000, 55],
+    'Dashboard y reportes': [9000, 40], 'Chatbot / automatización': [7000, 32], 'Otro': [12000, 55] },
+  integ: { 'WhatsApp': [1800, 7], 'Pagos': [2500, 10], 'Facturación CFDI': [4500, 18], 'Google Workspace': [1500, 6], 'Excel': [1200, 5], 'API externa': [2500, 10] },
+  crea: { 'Creación y configuración de cuentas': [0, 0], 'Foto de perfil y portada': [300, 1.5], 'Biografía y descripción optimizada': [200, 1],
+    'Botones de acción (WhatsApp, reservar, tienda)': [200, 1], 'Catálogo de productos / Facebook Shop': [700, 3], 'Mensajes automáticos y respuestas rápidas': [400, 2],
+    'WhatsApp Business con catálogo': [700, 3], 'Conexión entre plataformas (Meta Business Suite)': [300, 1], 'Pixel y seguimiento de conversiones': [700, 3],
+    'Guía para verificación de cuenta': [300, 1] },
+  // mensualidad (por mes, antes de IVA): [precio, horas]
+  mon: { 'Calendario editorial mensual': [300, 2], 'Estrategia de contenido por plataforma': [300, 2], 'Diseño de publicaciones y carruseles': [1000, 5],
+    'Reels / TikToks / videos cortos': [1200, 7], 'Historias': [400, 2], 'Hashtags y SEO social': [200, 1], 'Campañas de anuncios (Meta Ads / TikTok Ads)': [900, 4],
+    'Colaboraciones con creadores': [500, 3], 'Concursos y sorteos': [300, 2], 'Gestión de comunidad y mensajes': [800, 5],
+    'Estrategia de ventas por WhatsApp': [600, 3], 'Reportes mensuales de métricas': [400, 2] },
+  freq: { '2 a 3 por semana': 1, '4 a 5 por semana': 1.25, 'Diaria': 1.5, 'Que ustedes me recomienden': 1.15 }
+};
+const BUDGET_USD = { 'Menos de $500 USD': 500, '$500 - $1,500 USD': 1500, '$1,500 - $3,000 USD': 3000, '$3,000 - $6,000 USD': 6000, 'Más de $6,000 USD': Infinity };
+const mxn = n => '$' + Math.round(n).toLocaleString('es-MX');
+const P50 = n => Math.round(n / 50) * 50;
+function vals() { const o = {}; collect().forEach(([, fs]) => fs.forEach(([k, v]) => { o[k] = v; })); return o; }
+
+// Muestra solo lo importante: conceptos >= min van uno por uno; lo pequeño se agrupa en "Otros detalles".
+function compress(list, min, max) {
+  const big = list.filter(x => x.amount >= min), small = list.filter(x => x.amount < min);
+  if (big.length > max) { const cut = [...big].sort((a, b) => b.amount - a.amount).slice(max); cut.forEach(x => { big.splice(big.indexOf(x), 1); small.push(x); }); }
+  const out = big.map(x => ({ c: x.c, amount: x.amount }));
+  if (small.length === 1) out.push({ c: small[0].c, amount: small[0].amount });
+  else if (small.length > 1) out.push({ c: `Otros detalles (${small.length} conceptos)`, amount: small.reduce((a, x) => a + x.amount, 0) });
+  return out;
+}
+
+function computeQuote(v = vals(), t = type, gk = giro) {
+  const one = k => (v[k] || [])[0] || '', all = k => v[k] || [], num = k => parseFloat(one(k)) || 0;
+  const it = [], gi = {}; let flags = 0;
+  const scale = (ph, k) => [P50(ph[0] * k), ph[1] * k];
+  // g = grupo: si ya hay un concepto del grupo, solo se queda el más caro
+  const add = (c, ph, g) => {
+    if (!ph || !(ph[0] > 0)) return;
+    if (g && gi[g] != null) { if (ph[0] > it[gi[g]].p) it[gi[g]] = { c, p: ph[0], h: ph[1] }; return; }
+    if (g) gi[g] = it.length;
+    it.push({ c, p: ph[0], h: ph[1] });
+  };
+  const feats = (names, k = 1) => names.forEach(n => {
+    const f = FEAT[n];
+    if (!f) { add('Función a medida: ' + n, scale([500, 2.5], k)); flags++; return; }   // opción escrita por el cliente
+    add(n, scale(f, k), f[2]);
+  });
+  const citasSel = () => { if (one('Sistema de citas') === 'Agenda en línea con horarios') add('Agenda en línea con horarios', FEAT['Reservas o citas'], 'citas'); };
+  const rows = []; let mItems = [], months = 0, mH = 0;
+
+  if (t === 'Página Web') {
+    const tipo = one('Tipo de página') || 'Informativa / corporativa', cont = one('¿Tienes contenido (textos y fotos)?'), secs = all('Secciones').length;
+    add('Página web: ' + tipo, HW.paginaTipo[tipo] || HW.paginaTipo['Informativa / corporativa']);
+    if (secs > 5) add(`Secciones adicionales (${secs - 5})`, scale(HW.seccionExtra, secs - 5));
+    feats(all('Funciones especiales')); feats(all('Funciones deseadas')); citasSel();
+    const mn = MENU[one('Menú digital')]; if (mn) add(one('Menú digital'), mn, mn[2]);
+    add(cont === 'Parcial' ? 'Apoyo con textos y fotos' : 'Creación de textos y fotos', HW.contenido[cont]);
+    if (one('¿Ya tienes dominio?').startsWith('No')) add('Compra y configuración de dominio', [200, 1]);
+    if (one('¿Necesitas correos empresariales?') === 'Sí') add('Correos empresariales', [500, 2.5]);
+    if (cont === 'No, necesito que lo creen') flags++;
+    if (tipo === 'Tienda en línea') flags++;
+    if (all('Funciones especiales').length + all('Funciones deseadas').length >= 7) flags++;
+  } else if (t === 'App Móvil') {
+    const pl = all('Plataformas'), fn = all('Funciones');
+    add('Diseño y desarrollo base de la app', HW.appBase);
+    (pl.length ? pl : ['Android']).forEach(p => add(p === 'Android' ? 'App Android + publicación en Play Store' : p === 'iOS' ? 'App iOS + publicación en App Store' : 'Versión web (PWA)', HW.appPlat[p] || [3000, 12]));
+    fn.forEach(n => { const f = HW.appFunc[n]; if (!f) { add('Función a medida: ' + n, [1500, 6]); flags++; } else add(n, f, HW.appGrp[n]); });
+    all('Inicio de sesión').forEach(n => add('Inicio de sesión: ' + n, HW.appLogin[n]));
+    feats(all('Funciones deseadas'), 1.6); citasSel();
+    if (pl.length >= 3) flags++; if (fn.length >= 6) flags++; flags++;           // una app siempre tiene incertidumbre propia
+  } else if (t === 'Invitación Digital') {
+    const guests = num('Invitados aproximados') || num('Asistentes aproximados'), fm = one('Formato') || 'Solo invitación web';
+    add('Diseño de la invitación: ' + fm, HW.invFormato[fm] || [800, 5]);
+    all('Elementos').forEach(n => add(n, HW.invElem[n] || [150, 1]));
+    if (guests > 150) add('Gestión de invitados (más de 150)', [400, 2]);
+    if (gk === 'corp') { add('Evento corporativo: coordinación y registro', [600, 3]); flags++; }
+  } else if (t === 'Sistema a medida') {
+    const tipo = one('Tipo de sistema') || 'Otro', base = HW.sistema[tipo] || HW.sistema['Otro'], u = num('Usuarios que lo usarán'), ig = all('Integraciones');
+    add('Análisis y diseño del sistema', scale(base, 0.25));
+    add('Desarrollo del sistema: ' + tipo, scale(base, 0.75));
+    ig.forEach(n => add('Integración: ' + n, HW.integ[n] || [1500, 6]));
+    if (u > 5) add(`Usuarios y permisos (${u > 100 ? '100+' : u > 20 ? '21 a 100' : '6 a 20'})`, u > 100 ? [4000, 20] : u > 20 ? [2000, 10] : [800, 4]);
+    flags++; if (ig.length >= 3) flags++; if (u > 100) flags++; if (tipo === 'Otro') flags++;
+  } else if (t === SOC) {
+    const svc = one('Servicio requerido'), sit = one('Situación actual'), pl = all('Plataformas donde quieres presencia'), nP = Math.max(1, pl.length);
+    const crear = /desde cero|Creación \+/.test(svc), optim = /Optimizar/.test(svc), gest = /Gestión mensual/.test(svc), soloPlan = /Solo/.test(svc);
+    const sinCuentas = /ninguna|sin usar/.test(sit), monItems = all('Contenido y crecimiento');
+    const setup = [0, 0]; pl.forEach(p => { const f = PLH[p] || [300, 1]; setup[0] += f[0]; setup[1] += f[1]; });
+    all('Qué incluye la creación').forEach(n => { const f = HW.crea[n] || [300, 1.5]; setup[0] += f[0]; setup[1] += f[1]; });
+    if (crear || (gest && sinCuentas)) add(`Creación y configuración de perfiles (${nP})`, scale(setup, 1));
+    else if (optim || gest) { add('Auditoría de perfiles actuales', [400, 2]); add(`Optimización de perfiles (${nP})`, scale(setup, optim ? 0.6 : 0.4)); }
+    if (all('Material disponible').includes('Nada, necesito que lo creen') && !soloPlan) { add('Material de marca y contenido inicial', [1200, 6]); flags++; }
+    if (/plan/i.test(svc)) add('Plan de desarrollo y crecimiento', [800 + 100 * nP, 4 + 0.5 * nP]);
+    else if (gest) add('Plan de arranque y calendario inicial', [600, 4]);
+    if (gest) {
+      const k = (HW.freq[one('Frecuencia de publicación')] ?? 1.15) * (1 + 0.15 * (nP - 1));
+      const src = monItems.length ? monItems : ['__base'];
+      mItems = src.map(n => { const f = n === '__base' ? [2000, 10] : (HW.mon[n] || [400, 2]); return { c: n === '__base' ? 'Gestión mensual base' : n, amount: P50(f[0] * k), h: f[1] * k }; });
+      const s = mItems.reduce((a, x) => a + x.amount, 0); if (s < PR.minMonthly) mItems.push({ c: 'Ajuste a mínimo mensual', amount: PR.minMonthly - s, h: 0 });
+      mH = mItems.reduce((a, x) => a + x.h, 0); months = parseInt(one('Duración del plan')) || 3;
+    }
+    if (nP >= 4) flags++;
+  }
+  if (!it.length && !mItems.length) add('Servicio base', [1500, 8]);
+
+  const base = it.reduce((a, x) => a + x.h, 0), risk = Math.min(PR.riskMax, PR.riskBase + PR.riskStep * flags);
+  const rush = PR.rush[one('Urgencia')] || 1;
+  const lines = it.map(x => ({ c: x.c, amount: x.p, h: x.h }));
+  const sumA = () => lines.reduce((a, x) => a + x.amount, 0);
+  const core = compress(lines, PR.showMin, PR.maxLines), extra = [];
+  if (it.length && rush > 1) { const a = P50(sumA() * (rush - 1)); lines.push({ c: 'Entrega prioritaria', amount: a, h: 0 }); extra.push({ c: `Entrega prioritaria (+${Math.round((rush - 1) * 100)}%)`, amount: a }); }
+  if (sumA() < PR.minProject) { const a = PR.minProject - sumA(); lines.push({ c: 'Ajuste a mínimo de proyecto', amount: a, h: 0 }); extra.push({ c: 'Ajuste a mínimo de proyecto', amount: a }); }
+  const subtotal = sumA(), iva = Math.round(subtotal * PR.iva), total = subtotal + iva;
+  const kC = (1 + PR.overhead) * (1 + risk * 0.5);   // el costo asume que solo se consume la mitad del colchón
+  const oneCost = base * kC * PR.cost * (1 + (rush - 1) * 0.6);
+
+  let monthly = null;
+  if (mItems.length) { const amount = mItems.reduce((a, x) => a + x.amount, 0), ivaM = Math.round(amount * PR.iva);
+    monthly = { amount, iva: ivaM, total: amount + ivaM, months, hours: mH, cost: mH * PR.costMonthly, items: compress(mItems, 300, 8) }; }
+
+  const value = subtotal + (monthly ? monthly.amount * monthly.months : 0);
+  const cost = oneCost + (monthly ? monthly.cost * monthly.months : 0);
+  const floor = cost / (1 - PR.minMargin), margin = (value - cost) / value, room = 1 - floor / value;
+  const upUSD = BUDGET_USD[one('Presupuesto aproximado')], budgetMXN = upUSD == null || t === SOC ? null : upUSD * PR.usd;
+  const floorOne = oneCost / (1 - PR.minMargin);
+  const fitsBudget = budgetMXN == null ? null : subtotal <= budgetMXN, affordable = budgetMXN == null ? true : floorOne <= budgetMXN;
+  const negotiable = room >= PR.minRoom && affordable;
+  return { lines: [...core, ...extra], detail: lines.map(x => ({ c: x.c, amount: x.amount, h: Math.round(x.h * 10) / 10 })),
+    subtotal, iva, total, monthly, anticipo: Math.round(total * PR.anticipo),
+    valid: PR.valid, hours: base * (1 + PR.overhead) * (1 + risk) + (monthly ? monthly.hours : 0), cost, floor, margin, room, risk, flags, negotiable, fitsBudget, rush };
+}
+const internalText = () => quote ? `ANÁLISIS INTERNO (solo e-Onyx)\nHoras: ${quote.hours.toFixed(1)} · Costo estimado: ${mxn(quote.cost)} · Margen: ${(quote.margin * 100).toFixed(0)}% · Piso: ${mxn(quote.floor)}\nNegociable: ${quote.negotiable ? 'sí' : 'no'} · Cabe en el presupuesto del cliente: ${quote.fitsBudget == null ? 'n/d' : quote.fitsBudget ? 'sí' : 'no'} · Riesgo: ${(quote.risk * 100).toFixed(0)}%\nDESGLOSE COMPLETO (MXN sin IVA)\n${quote.detail.map(x => `• ${x.c}: ${mxn(x.amount)} (${x.h} h)`).join('\n')}` : '';
+
+// ===== Imagen resumen (canvas, 1080 px de ancho, alto dinámico) =====
+const TECH = ['Servicio requerido','Plataformas donde quieres presencia','Meta principal','Duración del plan','Contenido y crecimiento','Qué incluye la creación','Presupuesto mensual para anuncios',
+'Tipo de página','Tipo de sistema','Tipo','Plataformas','Función principal','Inicio de sesión','Secciones','Funciones especiales','Funciones','Funciones deseadas',
+  'Elementos','Servicio','Integraciones','Usuarios que lo usarán','Formato','Manejo de inventario','Sistema de citas','Menú digital','Métodos de pago','Envíos',
+  '¿Ya tienes dominio?','Dominio deseado','Estilo visual'];
+function wrapTxt(c, t, w, max) {
+  const words = String(t).split(/\s+/), lines = []; let l = '';
+  for (const x of words) { const n = l ? l + ' ' + x : x;
+    if (c.measureText(n).width > w && l) { lines.push(l); l = x; } else l = n; }
+  if (l) lines.push(l);
+  if (lines.length > max) { lines.length = max; let z = lines[max - 1]; while (c.measureText(z + '…').width > w && z) z = z.slice(0, -1); lines[max - 1] = z + '…'; }
+  return lines;
+}
+async function makeCard() {
+  try { await Promise.all(['400 24px Inter', '600 24px Inter', '800 24px Inter', '700 24px "JetBrains Mono"'].map(f => document.fonts.load(f))); } catch (e) {}
+  const W = 1080, H = 3400, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const c = cv.getContext('2d'), F = 'Inter, "Segoe UI", Arial, sans-serif', M = 'ui-monospace, "JetBrains Mono", Consolas, monospace';
+  const f = flat(), g = giro ? CAT()[giro].n : '';
+  const sp = (v) => { if ('letterSpacing' in c) c.letterSpacing = v + 'px'; };
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect ? c.roundRect(x, y, w, h, r) : c.rect(x, y, w, h); };
+  // fondo
+  const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#0b0b0d'); bg.addColorStop(1, '#17181c');
+  c.fillStyle = bg; c.fillRect(0, 0, W, H);
+  c.strokeStyle = 'rgba(255,255,255,.045)'; c.lineWidth = 1;
+  for (let x = 0; x <= W; x += 54) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); }
+  for (let y = 0; y <= H; y += 54) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+  c.textBaseline = 'alphabetic';
+  // header
+  c.fillStyle = '#fff'; c.font = `800 64px ${F}`; sp(-2); c.fillText('e-Onyx', 64, 120);
+  c.font = `600 20px ${F}`; sp(8); c.fillStyle = '#9ca3af'; c.fillText('TECHNOLOGIES', 68, 156); sp(0);
+  c.fillStyle = '#fff'; rr(W - 64 - 190, 78, 190, 56, 28); c.fill();
+  c.fillStyle = '#000'; c.font = `800 22px ${F}`; sp(3); c.textAlign = 'center'; c.fillText('KINETIQ', W - 64 - 95, 114); c.textAlign = 'left'; sp(0);
+  // banner
+  c.fillStyle = '#25D366'; c.fillRect(64, 205, 6, 34);
+  c.fillStyle = '#fff'; c.font = `700 26px ${F}`; sp(2); c.fillText('SERVICIO DE e-ONYX TECHNOLOGIES', 86, 232); sp(0);
+  // folio
+  c.fillStyle = 'rgba(255,255,255,.06)'; rr(64, 275, W - 128, 150, 24); c.fill();
+  c.strokeStyle = 'rgba(255,255,255,.18)'; c.lineWidth = 1.5; rr(64, 275, W - 128, 150, 24); c.stroke();
+  c.fillStyle = '#9ca3af'; c.font = `600 20px ${F}`; sp(4); c.fillText('FOLIO / UID', 96, 319); sp(0);
+  c.fillStyle = '#fff'; c.font = `700 58px ${M}`; c.fillText(folio, 96, 392);
+  // proyecto
+  let y = 490;
+  c.fillStyle = '#9ca3af'; c.font = `600 20px ${F}`; sp(4); c.fillText('PROYECTO', 64, y); sp(0);
+  c.fillStyle = '#fff'; sp(-1); let fs = 54; do { c.font = `800 ${fs}px ${F}`; fs -= 2; } while (c.measureText(type).width > W - 128 && fs > 28); c.fillText(type, 64, y + 62); sp(0);
+  c.fillStyle = '#d1d5db'; c.font = `500 28px ${F}`; if (g) c.fillText(g, 64, y + 106);
+  // cliente
+  y = 650;
+  c.fillStyle = 'rgba(255,255,255,.14)'; c.fillRect(64, y - 30, W - 128, 1);
+  const who = [['CLIENTE', f['Nombre completo']], ['EMPRESA', f['Empresa o negocio']], ['UBICACIÓN', f['Ciudad y país']]];
+  who.forEach(([k, v], i) => { const x = 64 + i * 330;
+    c.fillStyle = '#9ca3af'; c.font = `600 18px ${F}`; sp(3); c.fillText(k, x, y + 10); sp(0);
+    c.fillStyle = '#fff'; c.font = `600 26px ${F}`;
+    wrapTxt(c, v || '—', 300, 2).forEach((t, j) => c.fillText(t, x, y + 50 + j * 32)); });
+  // técnica
+  y = 790;
+  c.fillStyle = '#25D366'; c.font = `700 20px ${F}`; sp(4); c.fillText('INFORMACIÓN TÉCNICA', 64, y); sp(0);
+  const rows = TECH.filter(k => f[k]).slice(0, 8); y += 34;
+  if (!rows.length) { c.fillStyle = '#9ca3af'; c.font = `500 24px ${F}`; c.fillText('Se definirá en la reunión de descubrimiento.', 64, y + 40); }
+  for (const k of rows) {
+    c.font = `500 23px ${F}`;
+    const ls = wrapTxt(c, f[k], W - 176, 2), h = 54 + ls.length * 28;
+    c.fillStyle = 'rgba(255,255,255,.05)'; rr(64, y, W - 128, h, 16); c.fill();
+    c.fillStyle = '#9ca3af'; c.font = `600 17px ${F}`; sp(1); c.fillText((k === '¿Ya tienes dominio?' ? 'Dominio' : k).toUpperCase(), 88, y + 28); sp(0);
+    c.fillStyle = '#fff'; c.font = `500 23px ${F}`; ls.forEach((t, j) => c.fillText(t, 88, y + 58 + j * 28));
+    y += h + 12; }
+  y += 10;
+  // cotización
+  const q = quote;
+  if (q) {
+    const rowH = 46, n = q.lines.length, t0 = y, L = 96, R = W - 96;
+    const mi = q.monthly ? q.monthly.items : [], mh = q.monthly ? (mi.length ? 56 + 38 * mi.length : 0) + 90 : 0;
+    const ph = 70 + rowH * n + 14 + 86 + 96 + mh + 52 + 10;
+    c.fillStyle = '#f4f4f2'; rr(64, t0, W - 128, ph, 24); c.fill();
+    c.fillStyle = '#6b7280'; c.font = `700 18px ${F}`; sp(4); c.fillText('COTIZACIÓN ESTIMADA · MXN', L, t0 + 46); sp(0);
+    c.textAlign = 'right'; c.font = `500 18px ${F}`;
+    c.fillText('Vigencia: ' + new Date(Date.now() + q.valid * 864e5).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }), R, t0 + 46); c.textAlign = 'left';
+    let ty = t0 + 70;
+    q.lines.forEach((ln, i) => {
+      c.fillStyle = '#111'; c.font = `500 24px ${F}`; c.fillText(wrapTxt(c, ln.c, 620, 1)[0], L, ty + 32 + i * rowH);
+      c.textAlign = 'right'; c.font = `700 24px ${F}`; c.fillText(mxn(ln.amount), R, ty + 32 + i * rowH); c.textAlign = 'left';
+      c.fillStyle = 'rgba(0,0,0,.09)'; c.fillRect(L, ty + (i + 1) * rowH - 3, R - L, 1); });
+    ty += rowH * n + 14;
+    [['Subtotal', q.subtotal], ['IVA (' + Math.round(PR.iva * 100) + '%)', q.iva]].forEach(([k, v], i) => {
+      c.fillStyle = '#6b7280'; c.font = `500 22px ${F}`; c.fillText(k, L, ty + 22 + i * 36);
+      c.textAlign = 'right'; c.fillText(mxn(v), R, ty + 22 + i * 36); c.textAlign = 'left'; });
+    ty += 86;
+    c.fillStyle = '#111'; c.fillRect(L, ty - 6, R - L, 2);
+    const tb = ty + 70;
+    c.fillStyle = '#111'; c.font = `800 22px ${F}`; sp(3); c.fillText(q.monthly ? 'TOTAL INICIAL' : 'TOTAL', L, tb - 8); sp(0);
+    c.textAlign = 'right'; c.font = `800 58px ${F}`; c.fillText(mxn(q.total), R, tb);
+    const aw = c.measureText(mxn(q.total)).width; c.textAlign = 'left';
+    if (q.negotiable) {   // globo de diálogo: solo cuando el proyecto es rentable aun con descuento
+      c.font = `800 24px ${F}`; const txt = 'Posiblemente negociable', bw = c.measureText(txt).width + 48, bh = 56, bx = R - aw - 34 - bw, by = tb - 46;
+      c.fillStyle = '#25D366'; rr(bx, by, bw, bh, 20); c.fill();
+      c.beginPath(); c.moveTo(bx + bw - 2, by + bh / 2 - 11); c.lineTo(bx + bw + 18, by + bh / 2 + 2); c.lineTo(bx + bw - 2, by + bh / 2 + 13); c.closePath(); c.fill();
+      c.fillStyle = '#000'; c.textAlign = 'center'; c.fillText(txt, bx + bw / 2, by + 37); c.textAlign = 'left'; }
+    ty += 96;
+    if (q.monthly) {
+      if (mi.length) {
+        c.fillStyle = '#6b7280'; c.font = `700 18px ${F}`; sp(4); c.fillText('SERVICIO MENSUAL · ANTES DE IVA', L, ty + 24); sp(0);
+        mi.forEach((ln, i) => { const yy = ty + 40 + i * 38;
+          c.fillStyle = '#111'; c.font = `500 21px ${F}`; c.fillText(wrapTxt(c, ln.c, 680, 1)[0], L, yy + 22);
+          c.textAlign = 'right'; c.font = `700 21px ${F}`; c.fillText(mxn(ln.amount), R, yy + 22); c.textAlign = 'left';
+          c.fillStyle = 'rgba(0,0,0,.09)'; c.fillRect(L, yy + 33, R - L, 1); });
+        ty += 56 + 38 * mi.length; }
+      c.fillStyle = '#111'; c.font = `800 22px ${F}`; sp(3); c.fillText('MENSUALIDAD', L, ty + 34); sp(0);
+      c.textAlign = 'right'; c.font = `800 40px ${F}`; c.fillText(mxn(q.monthly.total), R, ty + 34);
+      c.fillStyle = '#6b7280'; c.font = `500 18px ${F}`; c.fillText('IVA incluido · plan de ' + q.monthly.months + (q.monthly.months === 1 ? ' mes' : ' meses'), R, ty + 62); c.textAlign = 'left';
+      ty += 90; }
+    c.fillStyle = '#6b7280'; c.font = `500 22px ${F}`; c.fillText('Anticipo para iniciar (' + Math.round(PR.anticipo * 100) + '%)', L, ty + 30);
+    c.textAlign = 'right'; c.font = `700 24px ${F}`; c.fillStyle = '#111'; c.fillText(mxn(q.anticipo), R, ty + 30); c.textAlign = 'left';
+    y = t0 + ph + 34;
+  }
+  // plazos
+  const pl = [['PRESUPUESTO', (f['Presupuesto aproximado'] || 'Por definir')], ['ENTREGA', f['Fecha ideal de entrega'] || 'Por definir'], ['URGENCIA', f['Urgencia'] || 'Por definir']];
+  c.fillStyle = 'rgba(255,255,255,.14)'; c.fillRect(64, y, W - 128, 1); y += 40;
+  pl.forEach(([k, v], i) => { const x = 64 + i * 330;
+    c.fillStyle = '#9ca3af'; c.font = `600 18px ${F}`; sp(3); c.fillText(k, x, y); sp(0);
+    c.fillStyle = '#fff'; c.font = `700 24px ${F}`; c.fillText(wrapTxt(c, v, 300, 1)[0], x, y + 38); });
+  y += 86;
+  c.fillStyle = '#6b7280'; c.font = `500 17px ${F}`;
+  const nota = wrapTxt(c, 'Cotización estimada con base en la información del formulario; se confirma tras la reunión de descubrimiento. Precios en pesos mexicanos; los conceptos se muestran antes de IVA. No incluye dominio, hosting, cuentas de tiendas de apps, pasarelas de pago ni inversión publicitaria.', W - 128, 4);
+  nota.forEach((t, j) => c.fillText(t, 64, y + j * 25)); y += nota.length * 25 + 26;
+  // footer
+  const yEnd = y, HF = yEnd + 96;
+  c.fillStyle = '#fff'; c.fillRect(0, yEnd, W, 96);
+  c.fillStyle = '#000'; c.font = `800 26px ${F}`; c.fillText('e-Onyx Technologies', 64, yEnd + 56);
+  c.textAlign = 'right'; c.font = `500 22px ${F}`; c.fillStyle = '#374151';
+  c.fillText(new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }), W - 64, yEnd + 56); c.textAlign = 'left';
+  const out = document.createElement('canvas'); out.width = W; out.height = HF;
+  out.getContext('2d').drawImage(cv, 0, 0, W, HF, 0, 0, W, HF);
+  return out;
+}
+async function showCard(msg) {
+  const box = $('#cardBox');
+  try {
+    const cv = await makeCard(), url = cv.toDataURL('image/png');
+    $('#cardImg').src = url; box.classList.remove('hidden');
+    $('#dl').classList.remove('hidden');
+    $('#dl').onclick = () => { const a = document.createElement('a'); a.href = url; a.download = `${folio}.png`; document.body.appendChild(a); a.click(); a.remove(); };
+    lucide.createIcons();
+  } catch (e) { console.warn('No se pudo generar la imagen:', e); }
+  const st = await saveSupabase(msg), d = $('#dbs');
+  box.classList.remove('hidden');
+  d.textContent = st === 'ok' ? `Registro guardado · Folio ${folio}` : st === 'err' ? `Folio ${folio} · No se pudo guardar el registro en línea, pero tu resumen ya fue enviado.` : `Folio ${folio}`;
+}
+
+$('#f').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!valid()) return;
+  if (cur < 4) return go(cur + 1);
+  folio = newFolio();
+  try { quote = computeQuote(); } catch (err) { console.warn('Cotización:', err); quote = null; }
+  let msg = build(0);
+  if (encodeURIComponent(msg).length > 5500) msg = build(120); // evita URLs demasiado largas
+  const url = `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
+  if (EMAIL) { const fd = new FormData($('#f')); fd.append('Resumen', msg); fd.append('Analisis_interno', internalText()); fd.append('_subject', 'Nuevo briefing e-Onyx'); fd.append('_template', 'table'); fd.append('_captcha', 'false');
+    fetch('https://formsubmit.co/ajax/' + EMAIL, { method: 'POST', body: fd, headers: { Accept: 'application/json' } }).catch(() => {}); }
+  $('#wa').href = url;
+  const tg = TELEGRAM_TOKEN && TELEGRAM_CHAT;
+  if (tg) { const plain = (msg + '\n\n' + internalText()).replace(/\*/g, '');
+    for (let i = 0; i < plain.length; i += 4000)
+      fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT, text: plain.slice(i, i + 4000) }) }).catch(() => {}); }
+  const lf = $('#f input[type=file]') && $('#f input[type=file]').files[0];
+  if (tg && lf) { const d = new FormData();
+    d.append('chat_id', TELEGRAM_CHAT); d.append('document', lf);
+    d.append('caption', 'Logo de ' + ($('#f [name="Empresa o negocio"]').value || 'cliente'));
+    fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendDocument`, { method: 'POST', body: d }).catch(() => {}); }
+  if (CALLMEBOT_KEY || tg) {
+    if (CALLMEBOT_KEY) sendDirect(msg);
+    $('#okh').textContent = '¡Briefing enviado!';
+    $('#okp').textContent = 'Recibimos tu información y nos pondremos en contacto contigo muy pronto.';
+    ['#wa', '#cp', '#okn'].forEach(s => $(s).classList.add('hidden'));
+  } else window.open(url, '_blank');
+  $('#cp').onclick = () => navigator.clipboard.writeText(msg).then(() => { $('#cp').lastChild.textContent = ' ¡Copiado!'; }).catch(() => toast('No se pudo copiar.'));
+  $('#f').classList.add('hidden'); $('#intro').classList.add('hidden'); $('#ok').classList.remove('hidden');
+  lucide.createIcons(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  showCard(msg);
+});
+
+// ===== Agregar opciones propias a las casillas múltiples =====
+function addOpt(box) {
+  const inp = box.querySelector('.add-in'), v = inp.value.trim();
+  if (!v) return;
+  const dup = [...box.querySelectorAll('input[type=checkbox]')].find(c => c.value.toLowerCase() === v.toLowerCase());
+  if (dup) dup.checked = true;
+  else {
+    const lb = document.createElement('label'), cb = document.createElement('input'), sp = document.createElement('span');
+    lb.className = 'pill fade'; cb.type = 'checkbox'; cb.name = box.dataset.n; cb.value = v; cb.checked = true; sp.textContent = v;
+    lb.append(cb, sp); box.insertBefore(lb, inp.parentElement);
+  }
+  inp.value = ''; inp.focus();
+}
+document.addEventListener('click', e => { const b = e.target.closest('.add-btn'); if (b) addOpt(b.closest('[data-n]')); });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList.contains('add-in')) { e.preventDefault(); addOpt(e.target.closest('[data-n]')); } });
+
+go(0);
+</script>
+</body>
+</html>
